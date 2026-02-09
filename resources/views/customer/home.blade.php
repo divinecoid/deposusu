@@ -69,24 +69,24 @@
     <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
 
         <!-- Hero Section -->
-        <section class="gradient-bg text-white py-16 md:py-24 animate-fade-in-up">
+        <section class="gradient-bg text-white py-12 md:py-24 animate-fade-in-up">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid md:grid-cols-2 gap-8 items-center">
-                    <div class="space-y-6">
-                        <h1 class="text-4xl md:text-6xl font-bold leading-tight">
+                    <div class="space-y-6 text-center md:text-left">
+                        <h1 class="text-3xl md:text-6xl font-bold leading-tight">
                             Produk Susu <br>
                             <span class="text-yellow-300">Terbaik</span> untuk Anda
                         </h1>
                         <p class="text-lg md:text-xl text-blue-100">
                             Nikmati kesegaran dan kualitas terbaik dari berbagai pilihan produk susu premium
                         </p>
-                        <div class="flex gap-4 pt-4">
+                        <div class="flex flex-col sm:flex-row gap-3 pt-4 justify-center md:justify-start">
                             <a href="#products"
-                                class="px-8 py-4 bg-white text-blue-600 rounded-full font-semibold hover:bg-blue-500 hover:text-white transform hover:scale-105 transition-all duration-300 shadow-lg">
+                                class="px-6 py-3 md:px-8 md:py-4 bg-white text-blue-600 rounded-full font-semibold hover:bg-blue-500 hover:text-white transform hover:scale-105 transition-all duration-300 shadow-lg text-center text-sm md:text-base">
                                 Belanja Sekarang
                             </a>
                             <a href="#featured"
-                                class="px-8 py-4 border-2 border-white text-white rounded-full font-semibold hover:bg-white hover:text-blue-600 transform hover:scale-105 transition-all duration-300">
+                                class="px-6 py-3 md:px-8 md:py-4 border-2 border-white text-white rounded-full font-semibold hover:bg-white hover:text-blue-600 transform hover:scale-105 transition-all duration-300 text-center text-sm md:text-base">
                                 Produk Unggulan
                             </a>
                         </div>
@@ -145,8 +145,8 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between mb-8">
                     <div>
-                        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Produk Unggulan</h2>
-                        <p class="text-gray-600 mt-2">Pilihan terbaik minggu ini</p>
+                        <h2 class="text-2xl md:text-4xl font-bold text-gray-900">Produk Unggulan</h2>
+                        <p class="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">Pilihan terbaik minggu ini</p>
                     </div>
                     <a href="#"
                         class="hidden md:block text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-2">
@@ -173,8 +173,9 @@
                                 </div>
                             </div>
                             <div class="p-6">
-                                <h3 class="text-xl font-bold text-gray-900 mb-2">{{ $product->name }}</h3>
-                                <p class="text-gray-600 text-sm mb-4">Produk susu berkualitas premium dengan rasa yang lezat</p>
+                                <h3 class="text-lg md:text-xl font-bold text-gray-900 mb-1 md:mb-2">{{ $product->name }}</h3>
+                                <p class="text-gray-600 text-xs md:text-sm mb-3 md:mb-4 line-clamp-2 md:line-clamp-none">Produk
+                                    susu berkualitas premium dengan rasa yang lezat</p>
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-sm text-gray-500 line-through">Rp
@@ -185,8 +186,9 @@
                                         </p>
                                     </div>
                                     <button onclick="addToCart({{ $product->id }})"
-                                        class="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        class="px-4 py-2 md:px-6 md:py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                                         </svg>
@@ -204,8 +206,9 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between mb-8">
                     <div>
-                        <h2 class="text-3xl md:text-4xl font-bold text-gray-900">Semua Produk</h2>
-                        <p class="text-gray-600 mt-2">{{ count($products) }} produk tersedia</p>
+                        <h2 class="text-2xl md:text-4xl font-bold text-gray-900">Semua Produk</h2>
+                        <p class="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">{{ count($products) }} produk tersedia
+                        </p>
                     </div>
                     <div class="flex items-center gap-2">
                         <select
@@ -218,7 +221,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
                     @foreach($products as $product)
                         <div class="product-card bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl"
                             style="animation-delay: {{ ($loop->iteration - 1) * 0.05 }}s">
@@ -255,7 +258,8 @@
                                         Susu Segar
                                     </span>
                                 </div>
-                                <h3 class="text-base font-bold text-gray-900 mb-1 line-clamp-2">{{ $product->name }}</h3>
+                                <h3 class="text-sm md:text-base font-bold text-gray-900 mb-1 line-clamp-2 h-10">
+                                    {{ $product->name }}</h3>
 
                                 <!-- Rating -->
                                 <div class="flex items-center gap-1 mb-3">
@@ -271,10 +275,9 @@
 
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-lg font-bold text-blue-600">Rp
-                                            {{ number_format($product->price, 0, ',', '.') }}
-                                        </p>
-                                        <p class="text-xs text-gray-400">per unit</p>
+                                        <p class="text-base md:text-lg font-bold text-blue-600">Rp
+                                            {{ number_format($product->price, 0, ',', '.') }}</p>
+                                        <p class="text-[10px] md:text-xs text-gray-400">per unit</p>
                                     </div>
                                     <button onclick="addToCart({{ $product->id }})"
                                         class="p-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-110 transition-all duration-300">
@@ -305,7 +308,7 @@
                 <div class="gradient-bg rounded-3xl overflow-hidden shadow-2xl">
                     <div class="grid md:grid-cols-2 gap-8 items-center p-8 md:p-12">
                         <div class="text-white space-y-6">
-                            <h2 class="text-3xl md:text-5xl font-bold">
+                            <h2 class="text-2xl md:text-5xl font-bold">
                                 Penawaran Spesial!
                             </h2>
                             <p class="text-lg text-blue-100">
@@ -314,7 +317,7 @@
                             </p>
                             <div class="flex gap-4">
                                 <button
-                                    class="px-8 py-4 bg-yellow-400 text-blue-900 rounded-full font-bold hover:bg-yellow-300 transform hover:scale-105 transition-all duration-300 shadow-lg">
+                                    class="w-full md:w-auto px-6 py-3 md:px-8 md:py-4 bg-yellow-400 text-blue-900 rounded-full font-bold hover:bg-yellow-300 transform hover:scale-105 transition-all duration-300 shadow-lg text-sm md:text-base">
                                     Belanja Sekarang
                                 </button>
                             </div>
@@ -339,7 +342,7 @@
                 <h2 class="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
                     Mengapa Memilih Kami?
                 </h2>
-                <div class="grid md:grid-cols-4 gap-8">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
                     <div class="text-center group">
                         <div
                             class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -348,8 +351,8 @@
                                     d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">Kualitas Terjamin</h3>
-                        <p class="text-gray-600">Produk berkualitas premium</p>
+                        <h3 class="text-base md:text-lg font-bold text-gray-900 mb-1 md:mb-2">Kualitas Terjamin</h3>
+                        <p class="text-gray-600 text-xs md:text-base">Produk berkualitas premium</p>
                     </div>
                     <div class="text-center group">
                         <div
@@ -359,8 +362,8 @@
                                     d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                         </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">Harga Terbaik</h3>
-                        <p class="text-gray-600">Harga kompetitif & terjangkau</p>
+                        <h3 class="text-base md:text-lg font-bold text-gray-900 mb-1 md:mb-2">Harga Terbaik</h3>
+                        <p class="text-gray-600 text-xs md:text-base">Harga kompetitif & terjangkau</p>
                     </div>
                     <div class="text-center group">
                         <div
@@ -370,8 +373,8 @@
                                     d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
                         </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">Pengiriman Cepat</h3>
-                        <p class="text-gray-600">Dikirim dengan cepat & aman</p>
+                        <h3 class="text-base md:text-lg font-bold text-gray-900 mb-1 md:mb-2">Pengiriman Cepat</h3>
+                        <p class="text-gray-600 text-xs md:text-base">Dikirim dengan cepat & aman</p>
                     </div>
                     <div class="text-center group">
                         <div
@@ -381,8 +384,8 @@
                                     d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>
                         </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">Dukungan 24/7</h3>
-                        <p class="text-gray-600">Customer service siap membantu</p>
+                        <h3 class="text-base md:text-lg font-bold text-gray-900 mb-1 md:mb-2">Dukungan 24/7</h3>
+                        <p class="text-gray-600 text-xs md:text-base">Customer service siap membantu</p>
                     </div>
                 </div>
             </div>

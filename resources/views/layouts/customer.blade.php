@@ -17,17 +17,25 @@
             <div class="flex justify-between h-16 items-center gap-4">
 
                 <!-- Logo & Categories -->
-                <div class="flex items-center gap-6">
+                <div class="flex items-center gap-4 md:gap-6">
+                    <!-- Mobile Menu Button -->
+                    <button class="md:hidden text-gray-500 hover:text-blue-500">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+
                     <a href="{{ route('home') }}" class="flex-shrink-0 flex items-center">
-                        <span class="text-2xl font-bold text-blue-500">DEPOSUSU</span>
+                        <span class="text-xl md:text-2xl font-bold text-blue-500">DEPOSUSU</span>
                     </a>
                     <a href="#" class="text-blue-500 hover:text-blue-700 font-medium text-sm hidden md:block">
                         Kategori
                     </a>
                 </div>
 
-                <!-- Search Bar -->
-                <div class="flex-1 max-w-2xl mx-4">
+                <!-- Search Bar (Desktop) -->
+                <div class="hidden md:block flex-1 max-w-2xl mx-4">
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,30 +50,40 @@
                 </div>
 
                 <!-- Icons & Auth -->
-                <div class="flex items-center gap-4">
-                    <!-- Icons (Hidden on mobile for space) -->
-                    <div class="hidden md:flex items-center gap-4 text-blue-500">
+                <div class="flex items-center gap-2 md:gap-4">
+                    <!-- Mobile Search Icon -->
+                    <button class="md:hidden p-2 text-gray-500 hover:text-blue-500">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </button>
+
+                    <!-- Cart (Always Visible) -->
+                    <a href="{{ route('cart.index') }}" class="p-2 text-gray-500 hover:text-blue-500 relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <!-- Cart Badge -->
+                        <span
+                            class="cart-badge absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center"
+                            style="display: none;">0</span>
+                    </a>
+
+                    <!-- Desktop Icons -->
+                    <div class="hidden md:flex items-center gap-4 text-gray-500">
                         <!-- Heart -->
-                        <button class="hover:text-blue-700">
+                        <button class="hover:text-blue-500">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                             </svg>
                         </button>
-                        <!-- Cart -->
-                        <a href="{{ route('cart.index') }}" class="hover:text-blue-700 relative">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                            <!-- Cart Badge -->
-                            <span class="cart-badge absolute -top-2 -right-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center" 
-                                  style="display: none;">0</span>
-                        </a>
                         <!-- List -->
-                        <button class="hover:text-blue-700">
+                        <button class="hover:text-blue-500">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -73,32 +91,33 @@
                             </svg>
                         </button>
                         <!-- Chat -->
-                        <button class="hover:text-blue-700">
+                        <button class="hover:text-blue-500">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor"
                                 viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                             </svg>
                         </button>
-                        <!-- User -->
-                        <button class="hover:text-blue-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </button>
                     </div>
 
                     <div class="h-6 w-px bg-gray-300 hidden md:block"></div>
 
-                    <!-- Buttons -->
-                    <div class="flex items-center gap-2">
+                    <!-- Auth Buttons (Desktop) -->
+                    <div class="hidden md:flex items-center gap-2">
                         <a href="{{ route('login') }}"
                             class="px-4 py-2 border border-blue-500 text-blue-500 rounded hover:bg-blue-50 font-medium text-sm">Masuk</a>
                         <a href="{{ route('register') }}"
                             class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 font-medium text-sm">Daftar</a>
                     </div>
+
+                    <!-- Mobile User Icon (Link to Login) -->
+                    <a href="{{ route('login') }}" class="md:hidden p-2 text-gray-500 hover:text-blue-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                    </a>
                 </div>
             </div>
         </div>
@@ -115,7 +134,7 @@
             try {
                 const response = await fetch('/cart/data');
                 const data = await response.json();
-                
+
                 if (data.success) {
                     const badge = document.querySelector('.cart-badge');
                     if (badge) {
