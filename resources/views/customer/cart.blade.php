@@ -1,0 +1,297 @@
+@extends('layouts.customer')
+
+@section('content')
+    <style>
+        .cart-item {
+            transition: all 0.3s ease;
+        }
+
+        .cart-item:hover {
+            background-color: #f9fafb;
+        }
+
+        .quantity-btn {
+            transition: all 0.2s ease;
+        }
+
+        .quantity-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .quantity-btn:active {
+            transform: scale(0.95);
+        }
+
+        .remove-btn {
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            transform: scale(1.1);
+            background-color: #fee2e2;
+        }
+    </style>
+
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Keranjang Belanja</h1>
+                <p class="text-gray-600">{{ $totalItems }} item dalam keranjang Anda</p>
+            </div>
+
+            @if($cartItems->count() > 0)
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <!-- Cart Items -->
+                    <div class="lg:col-span-2 space-y-4">
+                        @foreach($cartItems as $item)
+                            <div class="cart-item bg-white rounded-2xl shadow-md p-6" data-item-id="{{ $item->id }}">
+                                <div class="flex gap-6">
+                                    <!-- Product Image -->
+                                    <div class="flex-shrink-0">
+                                        <img src="{{ $item->product->image }}" alt="{{ $item->product->name }}"
+                                            class="w-24 h-24 md:w-32 md:h-32 object-contain rounded-lg bg-gray-50">
+                                    </div>
+
+                                    <!-- Product Details -->
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-start mb-3">
+                                            <div>
+                                                <h3 class="text-lg font-bold text-gray-900 mb-1">{{ $item->product->name }}</h3>
+                                                <p class="text-sm text-gray-500">{{ $item->product->description }}</p>
+                                            </div>
+                                            <button onclick="removeItem({{ $item->id }})"
+                                                class="remove-btn p-2 text-gray-400 hover:text-red-600 rounded-full">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+
+                                        <div class="flex items-center justify-between">
+                                            <!-- Quantity Controls -->
+                                            <div class="flex items-center gap-3">
+                                                <span class="text-sm text-gray-600">Jumlah:</span>
+                                                <div class="flex items-center gap-2 bg-gray-100 rounded-lg px-2 py-1">
+                                                    <button onclick="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})"
+                                                        class="quantity-btn p-1 text-purple-600 hover:text-purple-700">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M20 12H4" />
+                                                        </svg>
+                                                    </button>
+                                                    <span
+                                                        class="quantity-value w-8 text-center font-semibold">{{ $item->quantity }}</span>
+                                                    <button onclick="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})"
+                                                        class="quantity-btn p-1 text-purple-600 hover:text-purple-700">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="M12 4v16m8-8H4" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <!-- Price -->
+                                            <div class="text-right">
+                                                <p class="text-sm text-gray-500">Rp {{ number_format($item->price, 0, ',', '.') }} x
+                                                    {{ $item->quantity }}</p>
+                                                <p class="item-subtotal text-xl font-bold text-purple-600">
+                                                    Rp {{ number_format($item->getSubtotal(), 0, ',', '.') }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <!-- Cart Summary -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-2xl shadow-lg p-6 sticky top-24">
+                            <h2 class="text-xl font-bold text-gray-900 mb-6">Ringkasan Belanja</h2>
+
+                            <div class="space-y-4 mb-6">
+                                <div class="flex justify-between text-gray-600">
+                                    <span>Total Item</span>
+                                    <span class="font-semibold cart-total-items">{{ $totalItems }}</span>
+                                </div>
+                                <div class="flex justify-between text-gray-600">
+                                    <span>Subtotal</span>
+                                    <span class="font-semibold cart-subtotal">Rp
+                                        {{ number_format($totalPrice, 0, ',', '.') }}</span>
+                                </div>
+                                <div class="border-t pt-4">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-lg font-bold text-gray-900">Total</span>
+                                        <span class="text-2xl font-bold text-purple-600 cart-total">
+                                            Rp {{ number_format($totalPrice, 0, ',', '.') }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <button
+                                    class="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                                    Checkout
+                                </button>
+                                <a href="{{ route('home') }}"
+                                    class="block w-full px-6 py-4 border-2 border-purple-600 text-purple-600 rounded-full font-semibold text-center hover:bg-purple-50 transition-all duration-300">
+                                    Lanjut Belanja
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @else
+                <!-- Empty Cart State -->
+                <div class="max-w-md mx-auto text-center py-16">
+                    <div class="mb-6">
+                        <svg class="w-32 h-32 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Keranjang Anda Kosong</h2>
+                    <p class="text-gray-600 mb-8">Sepertinya Anda belum menambahkan produk apapun</p>
+                    <a href="{{ route('home') }}"
+                        class="inline-block px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        Mulai Belanja
+                    </a>
+                </div>
+            @endif
+
+        </div>
+    </div>
+
+    <script>
+        // CSRF Token
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        // Update quantity
+        async function updateQuantity(cartItemId, newQuantity) {
+            if (newQuantity < 1) {
+                if (!confirm('Hapus item ini dari keranjang?')) {
+                    return;
+                }
+            }
+
+            try {
+                const response = await fetch(`/cart/update/${cartItemId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ quantity: newQuantity })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (newQuantity === 0) {
+                        // Remove item from DOM
+                        document.querySelector(`[data-item-id="${cartItemId}"]`).remove();
+
+                        // Check if cart is empty
+                        if (data.cart.total_items === 0) {
+                            location.reload();
+                        }
+                    } else {
+                        // Update item quantity display
+                        const itemEl = document.querySelector(`[data-item-id="${cartItemId}"]`);
+                        itemEl.querySelector('.quantity-value').textContent = newQuantity;
+
+                        // Update subtotal
+                        if (data.item) {
+                            itemEl.querySelector('.item-subtotal').textContent =
+                                'Rp ' + data.item.subtotal.toLocaleString('id-ID');
+                        }
+                    }
+
+                    // Update cart summary
+                    updateCartSummary(data.cart);
+
+                    showNotification(data.message, 'success');
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Terjadi kesalahan', 'error');
+            }
+        }
+
+        // Remove item
+        async function removeItem(cartItemId) {
+            if (!confirm('Hapus item ini dari keranjang?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/cart/remove/${cartItemId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Remove item from DOM
+                    document.querySelector(`[data-item-id="${cartItemId}"]`).remove();
+
+                    // Check if cart is empty
+                    if (data.cart.total_items === 0) {
+                        location.reload();
+                    } else {
+                        // Update cart summary
+                        updateCartSummary(data.cart);
+                    }
+
+                    showNotification(data.message, 'success');
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Terjadi kesalahan', 'error');
+            }
+        }
+
+        // Update cart summary
+        function updateCartSummary(cart) {
+            document.querySelector('.cart-total-items').textContent = cart.total_items;
+            document.querySelector('.cart-subtotal').textContent = 'Rp ' + cart.total_price.toLocaleString('id-ID');
+            document.querySelector('.cart-total').textContent = 'Rp ' + cart.total_price.toLocaleString('id-ID');
+
+            // Update header badge
+            const badge = document.querySelector('.cart-badge');
+            if (badge) {
+                badge.textContent = cart.total_items;
+                badge.style.display = cart.total_items > 0 ? 'flex' : 'none';
+            }
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-24 right-4 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'
+                } text-white`;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+    </script>
+@endsection
