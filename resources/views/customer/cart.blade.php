@@ -32,7 +32,7 @@
         }
     </style>
 
-    <div class="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-8">
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 py-8">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <!-- Header -->
@@ -46,19 +46,21 @@
                     <!-- Cart Items -->
                     <div class="lg:col-span-2 space-y-4">
                         @foreach($cartItems as $item)
-                            <div class="cart-item bg-white rounded-2xl shadow-md p-6" data-item-id="{{ $item->id }}">
-                                <div class="flex gap-6">
+                            <div class="cart-item bg-white rounded-2xl shadow-md p-4 md:p-6" data-item-id="{{ $item->id }}">
+                                <div class="flex gap-4 md:gap-6">
                                     <!-- Product Image -->
                                     <div class="flex-shrink-0">
                                         <img src="{{ $item->product->image }}" alt="{{ $item->product->name }}"
-                                            class="w-24 h-24 md:w-32 md:h-32 object-contain rounded-lg bg-gray-50">
+                                            class="w-20 h-20 md:w-32 md:h-32 object-contain rounded-lg bg-gray-50">
                                     </div>
 
                                     <!-- Product Details -->
                                     <div class="flex-1">
                                         <div class="flex justify-between items-start mb-3">
                                             <div>
-                                                <h3 class="text-lg font-bold text-gray-900 mb-1">{{ $item->product->name }}</h3>
+                                                <h3
+                                                    class="text-base md:text-lg font-bold text-gray-900 mb-1 line-clamp-2 md:line-clamp-none">
+                                                    {{ $item->product->name }}</h3>
                                                 <p class="text-sm text-gray-500">{{ $item->product->description }}</p>
                                             </div>
                                             <button onclick="removeItem({{ $item->id }})"
@@ -70,13 +72,13 @@
                                             </button>
                                         </div>
 
-                                        <div class="flex items-center justify-between">
+                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-4">
                                             <!-- Quantity Controls -->
                                             <div class="flex items-center gap-3">
                                                 <span class="text-sm text-gray-600">Jumlah:</span>
                                                 <div class="flex items-center gap-2 bg-gray-100 rounded-lg px-2 py-1">
                                                     <button onclick="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})"
-                                                        class="quantity-btn p-1 text-purple-600 hover:text-purple-700">
+                                                        class="quantity-btn p-1 text-blue-600 hover:text-blue-700">
                                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                                 d="M20 12H4" />
@@ -85,7 +87,7 @@
                                                     <span
                                                         class="quantity-value w-8 text-center font-semibold">{{ $item->quantity }}</span>
                                                     <button onclick="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})"
-                                                        class="quantity-btn p-1 text-purple-600 hover:text-purple-700">
+                                                        class="quantity-btn p-1 text-blue-600 hover:text-blue-700">
                                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                                 d="M12 4v16m8-8H4" />
@@ -97,8 +99,9 @@
                                             <!-- Price -->
                                             <div class="text-right">
                                                 <p class="text-sm text-gray-500">Rp {{ number_format($item->price, 0, ',', '.') }} x
-                                                    {{ $item->quantity }}</p>
-                                                <p class="item-subtotal text-xl font-bold text-purple-600">
+                                                    {{ $item->quantity }}
+                                                </p>
+                                                <p class="item-subtotal text-lg md:text-xl font-bold text-blue-600">
                                                     Rp {{ number_format($item->getSubtotal(), 0, ',', '.') }}
                                                 </p>
                                             </div>
@@ -127,7 +130,7 @@
                                 <div class="border-t pt-4">
                                     <div class="flex justify-between items-center">
                                         <span class="text-lg font-bold text-gray-900">Total</span>
-                                        <span class="text-2xl font-bold text-purple-600 cart-total">
+                                        <span class="text-2xl font-bold text-blue-600 cart-total">
                                             Rp {{ number_format($totalPrice, 0, ',', '.') }}
                                         </span>
                                     </div>
@@ -136,11 +139,11 @@
 
                             <div class="space-y-3">
                                 <button
-                                    class="w-full px-6 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                                    class="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
                                     Checkout
                                 </button>
                                 <a href="{{ route('home') }}"
-                                    class="block w-full px-6 py-4 border-2 border-purple-600 text-purple-600 rounded-full font-semibold text-center hover:bg-purple-50 transition-all duration-300">
+                                    class="block w-full px-6 py-4 border-2 border-blue-600 text-blue-600 rounded-full font-semibold text-center hover:bg-blue-50 transition-all duration-300">
                                     Lanjut Belanja
                                 </a>
                             </div>
@@ -159,7 +162,7 @@
                     <h2 class="text-2xl font-bold text-gray-900 mb-2">Keranjang Anda Kosong</h2>
                     <p class="text-gray-600 mb-8">Sepertinya Anda belum menambahkan produk apapun</p>
                     <a href="{{ route('home') }}"
-                        class="inline-block px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        class="inline-block px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
                         Mulai Belanja
                     </a>
                 </div>

@@ -5,6 +5,13 @@ use Laravel\Fortify\Features;
 use Livewire\Volt\Volt;
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\StockOpnameController;
+use App\Http\Controllers\Admin\WarehouseController;
+use App\Http\Controllers\Admin\RackController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\CartController;
 
@@ -22,8 +29,32 @@ Route::prefix('cart')->name('cart.')->group(function () {
 });
 
 // Admin Routes
-Route::prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Master Data
+    Route::prefix('master')->name('master.')->group(function () {
+        Route::resource('categories', CategoryController::class)->except(['show']);
+        Route::resource('products', ProductController::class)->except(['show']);
+        Route::resource('warehouses', WarehouseController::class)->except(['show', 'edit', 'create']);
+        Route::resource('racks', RackController::class)->only(['store', 'destroy']);
+        Route::get('customers', [UserController::class, 'indexCustomers'])->name('customers.index');
+        Route::get('drivers', [UserController::class, 'indexDrivers'])->name('drivers.index');
+        Route::post('drivers', [UserController::class, 'storeDriver'])->name('drivers.store');
+    });
+
+    // Orders
+    Route::prefix('orders')->name('orders.')->group(function () {
+        Route::get('/', [OrderController::class, 'index'])->name('index');
+        Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+        Route::put('/{order}/status', [OrderController::class, 'updateStatus'])->name('updateStatus');
+    });
+
+    // Stock Opname
+    Route::prefix('stock')->name('stock.')->group(function () {
+        Route::get('/', [StockOpnameController::class, 'index'])->name('index');
+        Route::post('/adjust', [StockOpnameController::class, 'adjust'])->name('adjust');
+    });
 });
 
 Route::view('dashboard', 'dashboard')

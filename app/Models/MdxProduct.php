@@ -13,10 +13,13 @@ class MdxProduct extends Model
 
     protected $fillable = [
         'name',
+        'sku',
+        'category_id',
         'price',
         'description',
         'image',
         'stock',
+        'low_stock_threshold',
     ];
 
     protected $casts = [
@@ -29,5 +32,9 @@ class MdxProduct extends Model
     public function cartItems()
     {
         return $this->hasMany(TrxCartItem::class, 'product_id');
+    }
+    public function category()
+    {
+        return $this->belongsTo(MdxCategory::class);
     }
 }
