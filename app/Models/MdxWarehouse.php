@@ -13,7 +13,7 @@ class MdxWarehouse extends Model
 
     public function racks()
     {
-        return $this->hasMany(MdxRack::class);
+        return $this->hasMany(MdxRack::class, 'warehouse_id');
     }
 
     public function orders()

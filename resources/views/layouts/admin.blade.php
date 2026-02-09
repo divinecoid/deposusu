@@ -45,6 +45,8 @@
                 <a href="{{ route('admin.orders.index') }}"
                     class="block py-2.5 px-4 rounded hover:bg-slate-700 {{ request()->routeIs('admin.orders.*') ? 'bg-slate-700' : '' }}">Orderan
                     Masuk</a>
+                <a href="{{ route('admin.invoices.index') }}"
+                    class="block py-2.5 px-4 rounded hover:bg-slate-700 {{ request()->routeIs('admin.invoices.*') ? 'bg-slate-700' : '' }}">Invoices</a>
                 <a href="{{ route('admin.stock.index') }}"
                     class="block py-2.5 px-4 rounded hover:bg-slate-700 {{ request()->routeIs('admin.stock.*') ? 'bg-slate-700' : '' }}">Stock
                     Opname</a>

@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\StockOpnameController;
 use App\Http\Controllers\Admin\WarehouseController;
 use App\Http\Controllers\Admin\RackController;
@@ -48,6 +49,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::get('/', [OrderController::class, 'index'])->name('index');
         Route::get('/{order}', [OrderController::class, 'show'])->name('show');
         Route::put('/{order}/status', [OrderController::class, 'updateStatus'])->name('updateStatus');
+    });
+
+    // Invoices
+    Route::prefix('invoices')->name('invoices.')->group(function () {
+        Route::get('/', [InvoiceController::class, 'index'])->name('index');
+        Route::put('/{invoice}/status', [InvoiceController::class, 'updateStatus'])->name('updateStatus');
     });
 
     // Stock Opname

@@ -65,6 +65,15 @@ class OrderController extends Controller
             $this->createInvoice($order);
         }
 
+        // Sync Invoice Status
+        if ($order->invoice) {
+            if ($order->status === 'done' || $order->status === 'delivered') {
+                $order->invoice->update(['status' => 'PAID']);
+            } elseif ($order->status === 'cancelled' || $order->status === 'rejected') {
+                $order->invoice->update(['status' => 'CANCELLED']);
+            }
+        }
+
         return redirect()->route('admin.orders.show', $order->id)
             ->with('success', 'Order status updated successfully.');
     }
