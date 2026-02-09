@@ -14,6 +14,7 @@ class MdxProduct extends Model
     protected $fillable = [
         'name',
         'sku',
+        'barcode',
         'category_id',
         'price',
         'description',

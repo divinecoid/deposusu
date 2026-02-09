@@ -71,7 +71,12 @@
 
                 <div class="flex items-center gap-4">
                     <span class="text-sm text-gray-600">Admin</span>
-                    <!-- You might want to add logout here -->
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="text-sm text-red-600 hover:text-red-800 font-medium">
+                            Logout
+                        </button>
+                    </form>
                 </div>
             </header>
 

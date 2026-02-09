@@ -31,11 +31,19 @@ class ProductController extends Controller
             'price' => 'required|numeric',
             'stock' => 'required|integer',
             'description' => 'nullable|string',
-            'image_url' => 'nullable|url', // Assuming simple URL input for now as per previous code style
+            'image' => 'nullable|image|max:2048', // Validation for image file
             'sku' => 'nullable|string|unique:mdx_products,sku',
+            'barcode' => 'nullable|string|unique:mdx_products,barcode',
         ]);
 
-        MdxProduct::create($request->all());
+        $data = $request->all();
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('products', 'public');
+            $data['image'] = 'storage/' . $path;
+        }
+
+        MdxProduct::create($data);
 
         return redirect()->route('admin.master.products.index')
             ->with('success', 'Product created successfully.');
@@ -55,11 +63,25 @@ class ProductController extends Controller
             'price' => 'required|numeric',
             'stock' => 'required|integer',
             'description' => 'nullable|string',
-            'image_url' => 'nullable|url',
+            'image' => 'nullable|image|max:2048',
             'sku' => 'nullable|string|unique:mdx_products,sku,' . $product->id,
+            'barcode' => 'nullable|string|unique:mdx_products,barcode,' . $product->id,
         ]);
 
-        $product->update($request->all());
+        $data = $request->all();
+
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($product->image && str_starts_with($product->image, 'storage/')) {
+                $oldPath = str_replace('storage/', '', $product->image);
+                Storage::disk('public')->delete($oldPath);
+            }
+
+            $path = $request->file('image')->store('products', 'public');
+            $data['image'] = 'storage/' . $path;
+        }
+
+        $product->update($data);
 
         return redirect()->route('admin.master.products.index')
             ->with('success', 'Product updated successfully.');

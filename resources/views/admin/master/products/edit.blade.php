@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="max-w-3xl mx-auto bg-white rounded-lg shadow p-6">
-        <form action="{{ route('admin.master.products.update', $product->id) }}" method="POST">
+        <form action="{{ route('admin.master.products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             
@@ -15,11 +15,15 @@
                     <input type="text" name="name" value="{{ $product->name }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:border-blue-500 focus:outline-none" required>
                 </div>
 
-                <!-- SKU & Category -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- SKU, Barcode & Category -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700">SKU</label>
                         <input type="text" name="sku" value="{{ $product->sku }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:border-blue-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Barcode</label>
+                        <input type="text" name="barcode" value="{{ $product->barcode }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:border-blue-500 focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Kategori</label>
@@ -50,11 +54,22 @@
                     </div>
                 </div>
 
-                <!-- Image URL -->
+                <!-- Image Upload -->
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Image URL</label>
-                    <input type="url" name="image" value="{{ $product->image }}" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:border-blue-500 focus:outline-none">
-                    <p class="mt-1 text-xs text-gray-500">Masukkan URL gambar (contoh: /images/produk-a.jpg atau https://...)</p>
+                     <label class="block text-sm font-medium text-gray-700">Gambar Produk</label>
+                     @if($product->image)
+                        <div class="mb-2">
+                            <img src="{{ asset($product->image) }}" alt="Current Image" class="h-20 w-20 object-cover rounded border border-gray-200">
+                        </div>
+                     @endif
+                    <input type="file" name="image" accept="image/*"
+                        class="mt-1 block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-full file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-blue-50 file:text-blue-700
+                        hover:file:bg-blue-100">
+                    <p class="mt-1 text-xs text-gray-500">Format: JPG, PNG, GIF. Max: 2MB. Biarkan kosong jika tidak ingin mengganti.</p>
                 </div>
 
                 <!-- Description -->
