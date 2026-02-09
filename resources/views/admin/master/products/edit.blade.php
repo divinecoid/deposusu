@@ -59,7 +59,10 @@
                      <label class="block text-sm font-medium text-gray-700">Gambar Produk</label>
                      @if($product->image)
                         <div class="mb-2">
-                            <img src="{{ asset($product->image) }}" alt="Current Image" class="h-20 w-20 object-cover rounded border border-gray-200">
+                            <img src="{{ $product->image && str_starts_with($product->image, 'storage/') ? asset($product->image) : $product->image }}" 
+                                 alt="Current Image" 
+                                 class="h-20 w-20 object-cover rounded border border-gray-200"
+                                 onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=No+Image';">
                         </div>
                      @endif
                     <input type="file" name="image" accept="image/*"

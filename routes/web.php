@@ -86,3 +86,5 @@ Route::middleware(['auth'])->group(function () {
         )
         ->name('two-factor.show');
 });
+
+require base_path('routes/debug_images.php');

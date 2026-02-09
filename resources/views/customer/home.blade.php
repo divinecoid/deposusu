@@ -168,8 +168,11 @@
                                     </span>
                                 </div>
                                 <div class="aspect-square bg-gradient-to-br from-blue-50 to-blue-100 p-8">
-                                    <img src="{{ $product->image }}" alt="{{ $product->name }}"
-                                        class="w-full h-full object-contain transform hover:scale-110 transition-transform duration-500">
+                                    <img src="{{ $product->image && str_starts_with($product->image, 'storage/') ? asset($product->image) : $product->image }}"
+                                        alt="{{ $product->name }}"
+                                        class="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500"
+                                        style="filter: none !important; background-color: transparent !important;"
+                                        onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=No+Image'; console.error('Image failing to load:', this.src);">
                                 </div>
                             </div>
                             <div class="p-6">
@@ -237,13 +240,16 @@
                                 </button>
 
                                 <div class="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-                                    <img src="{{ $product->image }}" alt="{{ $product->name }}"
-                                        class="w-full h-full object-contain transform group-hover:scale-110 transition-transform duration-500">
+                                    <img src="{{ $product->image && str_starts_with($product->image, 'storage/') ? asset($product->image) : $product->image }}"
+                                        alt="{{ $product->name }}"
+                                        class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                                        style="filter: none !important; background-color: transparent !important;"
+                                        onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=No+Image'; console.error('Image failing to load:', this.src);">
                                 </div>
 
                                 <!-- Quick View on Hover -->
                                 <div
-                                    class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                                    class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
                                     <button
                                         class="px-6 py-2 bg-white text-blue-600 rounded-full font-semibold opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-blue-600 hover:text-white">
                                         Quick View
@@ -259,7 +265,8 @@
                                     </span>
                                 </div>
                                 <h3 class="text-sm md:text-base font-bold text-gray-900 mb-1 line-clamp-2 h-10">
-                                    {{ $product->name }}</h3>
+                                    {{ $product->name }}
+                                </h3>
 
                                 <!-- Rating -->
                                 <div class="flex items-center gap-1 mb-3">
@@ -276,7 +283,8 @@
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-base md:text-lg font-bold text-blue-600">Rp
-                                            {{ number_format($product->price, 0, ',', '.') }}</p>
+                                            {{ number_format($product->price, 0, ',', '.') }}
+                                        </p>
                                         <p class="text-[10px] md:text-xs text-gray-400">per unit</p>
                                     </div>
                                     <button onclick="addToCart({{ $product->id }})"
