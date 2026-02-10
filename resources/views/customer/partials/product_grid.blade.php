@@ -10,11 +10,12 @@
 @else
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
         @foreach($products as $product)
-            <div class="product-card bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl"
+            <div onclick="openQuickView({{ json_encode($product) }})"
+                class="product-card bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl cursor-pointer"
                 data-category-id="{{ $product->category_id }}" style="animation-delay: {{ ($loop->iteration - 1) * 0.05 }}s">
                 <div class="relative group">
                     <!-- Wishlist Button -->
-                    <button
+                    <button onclick="event.stopPropagation();"
                         class="absolute top-3 right-3 z-10 p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-50">
                         <svg class="w-5 h-5 text-gray-400 hover:text-red-500" fill="none" stroke="currentColor"
                             viewBox="0 0 24 24">
@@ -42,15 +43,6 @@
                             style="filter: none !important; background-color: transparent !important;"
                             onload="this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');"
                             onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=No+Image'; this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');">
-                    </div>
-
-                    <!-- Quick View on Hover -->
-                    <div
-                        class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center text-center">
-                        <button onclick="openQuickView({{ json_encode($product) }})"
-                            class="px-6 py-2 bg-white text-blue-600 rounded-full font-semibold opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-blue-600 hover:text-white">
-                            Quick View
-                        </button>
                     </div>
                 </div>
 
@@ -95,7 +87,7 @@
                     </div>
 
                     <div class="mt-4 pt-4 border-t border-gray-100/50">
-                        <button onclick="addToCart({{ $product->id }})"
+                        <button onclick="event.stopPropagation(); addToCart({{ $product->id }})"
                             class="w-full py-3 md:py-3.5 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/10 hover:shadow-blue-500/30 transform hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2.5 text-sm border border-blue-400/20">
                             <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

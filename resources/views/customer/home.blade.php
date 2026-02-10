@@ -138,18 +138,7 @@
         <section id="category-navigation"
             class="py-6 bg-white shadow-sm sticky top-[64px] z-30 animate-slide-in border-b border-gray-100 transition-all duration-300">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div class="flex items-center gap-4">
-                        <span class="text-gray-900 font-bold flex items-center gap-2">
-                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                            Kategori Produk
-                        </span>
-                        <div class="h-6 w-px bg-gray-200 hidden md:block"></div>
-                        <p class="text-sm text-gray-500 hidden md:block">Temukan produk berdasarkan kebutuhan Anda</p>
-                    </div>
+                <div class="flex flex-col md:flex-row md:items-center justify-end gap-4">
 
                     <button onclick="openCategoryModal()"
                         class="flex items-center justify-between gap-4 px-6 py-3 bg-gray-50 border border-gray-200 rounded-2xl hover:border-blue-500 hover:bg-white transition-all duration-300 group shadow-sm">
@@ -192,7 +181,8 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     @foreach($products->whereNotNull('active_discount')->take(3) as $product)
-                        <div class="product-card group glass-effect rounded-2xl overflow-hidden shadow-lg"
+                        <div onclick="openQuickView({{ json_encode($product) }})"
+                            class="product-card group glass-effect rounded-2xl overflow-hidden shadow-lg cursor-pointer"
                             style="animation-delay: {{ ($loop->iteration - 1) * 0.1 }}s">
                             <div class="relative">
                                 <div class="absolute top-4 right-4 z-10 flex flex-col gap-2 italic">
@@ -218,15 +208,6 @@
                                         onload="this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');"
                                         onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=No+Image'; this.classList.add('loaded'); this.parentElement.classList.remove('skeleton'); console.error('Image failing to load:', this.src);">
                                 </div>
-
-                                <!-- Quick View on Hover -->
-                                <div
-                                    class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
-                                    <button onclick="openQuickView({{ json_encode($product) }})"
-                                        class="px-6 py-2 bg-white text-blue-600 rounded-full font-semibold opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-blue-600 hover:text-white">
-                                        Quick View
-                                    </button>
-                                </div>
                             </div>
                             <div class="p-6">
                                 <h3 class="text-lg md:text-xl font-bold text-gray-900 mb-1 md:mb-2">{{ $product->name }}</h3>
@@ -248,7 +229,7 @@
                                             </p>
                                         @endif
                                     </div>
-                                    <button onclick="addToCart({{ $product->id }})"
+                                    <button onclick="event.stopPropagation(); addToCart({{ $product->id }})"
                                         class="px-6 py-2.5 md:px-8 md:py-3.5 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 text-white rounded-full font-bold shadow-lg hover:shadow-blue-500/30 transform hover:scale-105 transition-all duration-300 flex items-center gap-2 text-sm md:text-base border border-blue-400/20">
                                         <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">

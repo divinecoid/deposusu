@@ -29,9 +29,6 @@
                     <a href="{{ route('home') }}" class="flex-shrink-0 flex items-center">
                         <span class="text-xl md:text-2xl font-bold text-blue-500">DEPOSUSU</span>
                     </a>
-                    <a href="#" class="text-blue-500 hover:text-blue-700 font-medium text-sm hidden md:block">
-                        Kategori
-                    </a>
                 </div>
 
                 <!-- Search Bar (Desktop) -->
