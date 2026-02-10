@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>DEPOSUSU - Toko Susu Terbaik</title>
+    <title>DEPOSUSU - Mengantar kebaikan, sepenuh hati</title>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
 </head>
 
@@ -100,21 +100,42 @@
                     <div class="h-6 w-px bg-gray-300 hidden md:block"></div>
 
                     <!-- Auth Buttons (Desktop) -->
-                    <div class="hidden md:flex items-center gap-2">
-                        <a href="{{ route('login') }}"
-                            class="px-4 py-2 border border-blue-500 text-blue-500 rounded hover:bg-blue-50 font-medium text-sm">Masuk</a>
-                        <a href="{{ route('register') }}"
-                            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 font-medium text-sm">Daftar</a>
+                    <div class="hidden md:flex items-center gap-4">
+                        @auth
+                            <div class="flex items-center gap-4">
+                                <span class="text-sm font-medium text-gray-700">Halo, <span
+                                        class="text-blue-600 font-bold">{{ Auth::user()->name }}</span></span>
+                                <a href="#"
+                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                                    class="px-4 py-2 border border-red-500 text-red-500 rounded-xl hover:bg-red-50 font-bold text-xs transition-all uppercase tracking-wider">Keluar</a>
+                            </div>
+                        @else
+                            <a href="{{ route('login') }}"
+                                class="px-4 py-2 border border-blue-500 text-blue-500 rounded-xl hover:bg-blue-50 font-bold text-sm transition-all">Masuk</a>
+                            <a href="{{ route('register') }}"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/10">Daftar</a>
+                        @endauth
                     </div>
 
-                    <!-- Mobile User Icon (Link to Login) -->
-                    <a href="{{ route('login') }}" class="md:hidden p-2 text-gray-500 hover:text-blue-500">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                    </a>
+                    <!-- Mobile User/Logout Icon -->
+                    @auth
+                        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                            class="md:hidden p-2 text-red-500 hover:text-red-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                            </svg>
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" class="md:hidden p-2 text-gray-500 hover:text-blue-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                        </a>
+                    @endauth
                 </div>
             </div>
         </div>
@@ -192,13 +213,42 @@
 
                 <!-- Footer -->
                 <div class="p-6 border-t border-gray-100 bg-gray-50">
-                    <div class="grid grid-cols-2 gap-4">
-                        <a href="{{ route('login') }}"
-                            class="flex items-center justify-center px-4 py-2 border border-blue-600 text-blue-600 rounded-xl font-bold text-sm hover:bg-blue-50 transition-all">Masuk</a>
-                        <a href="{{ route('register') }}"
-                            class="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-all">Daftar</a>
-                    </div>
+                    @auth
+                        <div class="flex flex-col gap-4">
+                            <div
+                                class="flex items-center gap-3 px-4 py-3 bg-white rounded-2xl border border-gray-100 shadow-sm">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg">
+                                    {{ Auth::user()->initials() }}
+                                </div>
+                                <div class="flex flex-col">
+                                    <span class="text-xs text-gray-400 font-medium">Selamat datang,</span>
+                                    <span
+                                        class="text-sm font-bold text-gray-800 leading-none">{{ Auth::user()->name }}</span>
+                                </div>
+                            </div>
+                            <button onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                                class="w-full py-3 bg-red-50 text-red-600 rounded-2xl font-bold text-sm hover:bg-red-100 transition-all flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                Keluar dari Akun
+                            </button>
+                        </div>
+                    @else
+                        <div class="grid grid-cols-2 gap-4">
+                            <a href="{{ route('login') }}"
+                                class="flex items-center justify-center px-4 py-2 border border-blue-600 text-blue-600 rounded-xl font-bold text-sm hover:bg-blue-50 transition-all">Masuk</a>
+                            <a href="{{ route('register') }}"
+                                class="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-all">Daftar</a>
+                        </div>
+                    @endauth
                 </div>
+
+                <form method="POST" action="{{ route('logout') }}" id="logout-form" style="display: none;">
+                    @csrf
+                </form>
             </div>
         </div>
     </div>
