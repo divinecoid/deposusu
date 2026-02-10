@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" @stack('html_attr')>
 
 <head>
     <meta charset="utf-8">
@@ -7,6 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>DEPOSUSU - Mengantar kebaikan, sepenuh hati</title>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    @stack('head')
 </head>
 
 <body class="font-sans antialiased text-gray-900 bg-gray-50">
@@ -71,7 +72,7 @@
 
                     <!-- Cart (Always Visible) -->
                     <a href="{{ route('cart.index') }}" class="p-2 text-gray-500 hover:text-blue-500 relative">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -81,34 +82,6 @@
                             class="cart-badge absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center"
                             style="display: none;">0</span>
                     </a>
-
-                    <!-- Desktop Icons -->
-                    <div class="hidden md:flex items-center gap-4 text-gray-500">
-                        <!-- Heart -->
-                        <button class="hover:text-blue-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                            </svg>
-                        </button>
-                        <!-- List -->
-                        <button class="hover:text-blue-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                            </svg>
-                        </button>
-                        <!-- Chat -->
-                        <button class="hover:text-blue-500">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                            </svg>
-                        </button>
-                    </div>
 
                     <div class="h-6 w-px bg-gray-300 hidden md:block"></div>
 
@@ -274,6 +247,83 @@
         </div>
     </div>
 
+    <!-- Product Quick View Modal -->
+    <div id="quick-view-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background Overlay -->
+            <div class="fixed inset-0 transition-opacity bg-gray-900/60 backdrop-blur-sm" onclick="closeQuickView()">
+            </div>
+
+            <!-- Modal Content -->
+            <div
+                class="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-3xl shadow-2xl sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full animate-fade-in-up relative">
+                <button onclick="closeQuickView()"
+                    class="absolute top-6 right-6 text-gray-400 hover:text-gray-600 z-10 p-2 hover:bg-gray-100 rounded-full transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
+                <div class="grid md:grid-cols-2">
+                    <!-- Image Section -->
+                    <div
+                        class="bg-gradient-to-br from-blue-50 to-blue-100 p-8 flex items-center justify-center min-h-[400px]">
+                        <div id="qv-image-container"
+                            class="image-container skeleton w-full aspect-square rounded-2xl overflow-hidden shadow-inner bg-white">
+                            <img id="qv-image" src="" alt=""
+                                class="w-full h-full object-contain transform hover:scale-105 transition-transform duration-500"
+                                onload="this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');"
+                                onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=No+Image'; this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');">
+                        </div>
+                    </div>
+
+                    <!-- Details Section -->
+                    <div class="p-8 md:p-12 flex flex-col justify-center">
+                        <span id="qv-category"
+                            class="inline-block px-3 py-1 bg-blue-100 text-blue-600 text-sm font-semibold rounded-full mb-4 w-fit"></span>
+                        <h2 id="qv-name" class="text-3xl md:text-4xl font-bold text-gray-900 mb-4"></h2>
+
+                        <div class="flex items-center gap-2 mb-6 text-blue-500">
+                            <div class="flex">
+                                @for($i = 0; $i < 5; $i++)
+                                    <svg class="w-5 h-5 {{ $i < 4 ? 'text-blue-500' : 'text-gray-300' }}"
+                                        fill="currentColor" viewBox="0 0 20 20">
+                                        <path
+                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                @endfor
+                            </div>
+                            <span class="text-gray-500 font-medium">(4.0 / 5.0)</span>
+                        </div>
+
+                        <p id="qv-description" class="text-gray-600 text-lg mb-8 leading-relaxed"></p>
+
+                        <div class="mb-8">
+                            <div id="qv-discount-wrapper" class="hidden flex items-center gap-3 mb-2">
+                                <span id="qv-old-price" class="text-xl text-gray-400 line-through"></span>
+                                <span id="qv-discount-badge"
+                                    class="px-3 py-1 bg-red-100 text-red-600 text-sm font-bold rounded-lg animate-pulse"></span>
+                            </div>
+                            <p id="qv-price" class="text-4xl font-bold text-blue-600"></p>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button id="qv-add-btn" onclick=""
+                                class="flex-1 px-8 py-4.5 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 text-white rounded-2xl font-bold text-lg shadow-xl shadow-blue-600/20 hover:shadow-blue-600/40 transform hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 border border-blue-400/20">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Mobile Menu toggle
         const mobileMenu = document.getElementById('mobile-menu');
@@ -315,6 +365,20 @@
             }
         }
 
+        // Show notification
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-24 right-4 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white font-semibold`;
+            notification.textContent = message;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
         // Update cart badge on page load
         async function updateCartBadge() {
             try {
@@ -333,8 +397,127 @@
             }
         }
 
-        // Call on page load
-        document.addEventListener('DOMContentLoaded', updateCartBadge);
+        // Add to cart function
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        async function addToCart(productId) {
+            const event = window.event;
+            const button = event ? event.currentTarget : null;
+
+            let originalContent = '';
+            if (button) {
+                originalContent = button.innerHTML;
+                button.innerHTML = '<svg class="w-5 h-5 animate-spin mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+                button.disabled = true;
+            }
+
+            try {
+                const response = await fetch('/cart/add', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        quantity: 1
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (button) button.innerHTML = '<svg class="w-5 h-5 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
+                    updateCartBadge();
+                    showNotification(data.message, 'success');
+                    if (button) {
+                        setTimeout(() => {
+                            button.innerHTML = originalContent;
+                            button.disabled = false;
+                        }, 1000);
+                    }
+                } else {
+                    showNotification(data.message, 'error');
+                    if (button) {
+                        button.innerHTML = originalContent;
+                        button.disabled = false;
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Terjadi kesalahan saat menambahkan ke keranjang', 'error');
+                if (button) {
+                    button.innerHTML = originalContent;
+                    button.disabled = false;
+                }
+            }
+        }
+
+        // Quick View Modal functions
+        const qvModal = document.getElementById('quick-view-modal');
+        const qvImage = document.getElementById('qv-image');
+        const qvImageContainer = document.getElementById('qv-image-container');
+        const qvName = document.getElementById('qv-name');
+        const qvCategory = document.getElementById('qv-category');
+        const qvDescription = document.getElementById('qv-description');
+        const qvPrice = document.getElementById('qv-price');
+        const qvOldPrice = document.getElementById('qv-old-price');
+        const qvDiscountBadge = document.getElementById('qv-discount-badge');
+        const qvDiscountWrapper = document.getElementById('qv-discount-wrapper');
+        const qvAddBtn = document.getElementById('qv-add-btn');
+
+        function openQuickView(product) {
+            if (!qvModal) return;
+            qvImage.classList.remove('loaded');
+            qvImageContainer.classList.add('skeleton');
+            const imagePath = product.image && product.image.startsWith('storage/') ? `/storage/${product.image.replace('storage/', '')}` : product.image;
+            qvImage.src = imagePath;
+            qvImage.alt = product.name;
+            qvName.textContent = product.name;
+            qvCategory.textContent = product.category ? product.category.name : 'Susu Segar';
+            qvDescription.textContent = product.description || 'Produk susu berkualitas premium dengan rasa yang lezat. Kaya akan nutrisi dan vitamin untuk kesehatan keluarga Anda.';
+            const price = parseFloat(product.price);
+            let finalPrice = price;
+            if (product.active_discount) {
+                const discount = product.active_discount;
+                qvDiscountWrapper.classList.remove('hidden');
+                qvOldPrice.textContent = `Rp ${price.toLocaleString('id-ID')}`;
+                if (discount.discount_type === 'PERCENTAGE') {
+                    finalPrice = price * (1 - (discount.discount_value / 100));
+                    qvDiscountBadge.textContent = `-${discount.discount_value}% OFF`;
+                } else {
+                    finalPrice = Math.max(0, price - discount.discount_value);
+                    const formattedDiscount = discount.discount_value >= 1000 ? (discount.discount_value / 1000) + 'K' : discount.discount_value.toLocaleString('id-ID');
+                    qvDiscountBadge.textContent = `Hemat Rp ${formattedDiscount}`;
+                }
+            } else if (product.discounted_price && parseFloat(product.discounted_price) < price) {
+                qvDiscountWrapper.classList.remove('hidden');
+                qvOldPrice.textContent = `Rp ${price.toLocaleString('id-ID')}`;
+                finalPrice = parseFloat(product.discounted_price);
+                const saving = price - finalPrice;
+                qvDiscountBadge.textContent = `Hemat Rp ${saving.toLocaleString('id-ID')}`;
+            } else {
+                qvDiscountWrapper.classList.add('hidden');
+            }
+            qvPrice.textContent = `Rp ${finalPrice.toLocaleString('id-ID')}`;
+            qvAddBtn.setAttribute('onclick', `addToCart(${product.id})`);
+            qvModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeQuickView() {
+            if (qvModal) {
+                qvModal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        }
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && qvModal && !qvModal.classList.contains('hidden')) {
+                closeQuickView();
+            }
+        });
+
         async function toggleWishlist(productId, button) {
             try {
                 const response = await fetch('{{ route('wishlist.toggle') }}', {
@@ -345,42 +528,39 @@
                     },
                     body: JSON.stringify({ product_id: productId })
                 });
-
                 if (response.status === 401) {
                     window.location.href = '{{ route('login') }}';
                     return;
                 }
-
                 const data = await response.json();
-
                 if (data.success) {
                     if (data.status === 'added') {
                         button.querySelector('svg').classList.remove('text-gray-400');
                         button.querySelector('svg').classList.add('text-red-500');
-                        button.querySelector('svg').setAttribute('fill', 'currentColor');
                     } else {
                         button.querySelector('svg').classList.add('text-gray-400');
                         button.querySelector('svg').classList.remove('text-red-500');
-                        button.querySelector('svg').setAttribute('fill', 'none');
-
-                        // If we are on the wishlist page, we might want to refresh or remove the card
                         if (window.location.pathname.includes('/wishlist')) {
                             const card = button.closest('.product-card');
-                            card.style.opacity = '0';
-                            card.style.transform = 'scale(0.9)';
-                            setTimeout(() => {
-                                card.remove();
-                                if (document.querySelectorAll('.product-card').length === 0) {
-                                    location.reload(); // Show empty state
-                                }
-                            }, 300);
+                            if (card) {
+                                card.style.opacity = '0';
+                                card.style.transform = 'scale(0.9)';
+                                setTimeout(() => {
+                                    card.remove();
+                                    if (document.querySelectorAll('.product-card').length === 0) location.reload();
+                                }, 300);
+                            }
                         }
                     }
+                    showNotification(data.message, 'success');
                 }
             } catch (error) {
                 console.error('Error toggling wishlist:', error);
             }
         }
+
+        // Call on page load
+        document.addEventListener('DOMContentLoaded', updateCartBadge);
     </script>
 
 </body>

@@ -1,5 +1,13 @@
 @extends('layouts.customer')
 
+@push('html_attr')
+    translate="no"
+@endpush
+
+@push('head')
+    <meta name="google" content="notranslate">
+@endpush
+
 @section('content')
     <style>
         @keyframes fadeInUp {
@@ -215,8 +223,7 @@
                                             $isWishlisted = Auth::check() && $product->isWishlistedBy(Auth::user());
                                         @endphp
                                         <svg class="w-5 h-5 {{ $isWishlisted ? 'text-red-500' : 'text-gray-400' }} hover:text-red-500"
-                                            fill="{{ $isWishlisted ? 'currentColor' : 'none' }}" stroke="currentColor"
-                                            viewBox="0 0 24 24">
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                         </svg>
@@ -431,80 +438,6 @@
         </div>
     </div>
 
-    <!-- Product Quick View Modal -->
-    <div id="quick-view-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true">
-        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <!-- Background Overlay -->
-            <div class="fixed inset-0 transition-opacity bg-gray-900/60 backdrop-blur-sm" onclick="closeQuickView()"></div>
-
-            <!-- Modal Content -->
-            <div
-                class="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-3xl shadow-2xl sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full animate-fade-in-up relative">
-                <button onclick="closeQuickView()"
-                    class="absolute top-6 right-6 text-gray-400 hover:text-gray-600 z-10 p-2 hover:bg-gray-100 rounded-full transition-all">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-
-                <div class="grid md:grid-cols-2">
-                    <!-- Image Section -->
-                    <div
-                        class="bg-gradient-to-br from-blue-50 to-blue-100 p-8 flex items-center justify-center min-h-[400px]">
-                        <div id="qv-image-container"
-                            class="image-container skeleton w-full aspect-square rounded-2xl overflow-hidden shadow-inner bg-white">
-                            <img id="qv-image" src="" alt=""
-                                class="w-full h-full object-contain transform hover:scale-105 transition-transform duration-500"
-                                onload="this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');"
-                                onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=No+Image'; this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');">
-                        </div>
-                    </div>
-
-                    <!-- Details Section -->
-                    <div class="p-8 md:p-12 flex flex-col justify-center">
-                        <span id="qv-category"
-                            class="inline-block px-3 py-1 bg-blue-100 text-blue-600 text-sm font-semibold rounded-full mb-4 w-fit"></span>
-                        <h2 id="qv-name" class="text-3xl md:text-4xl font-bold text-gray-900 mb-4"></h2>
-
-                        <div class="flex items-center gap-2 mb-6 text-blue-500">
-                            <div class="flex">
-                                @for($i = 0; $i < 5; $i++)
-                                    <svg class="w-5 h-5 {{ $i < 4 ? 'text-blue-500' : 'text-gray-300' }}" fill="currentColor"
-                                        viewBox="0 0 20 20">
-                                        <path
-                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                    </svg>
-                                @endfor
-                            </div>
-                            <span class="text-gray-500 font-medium">(4.0 / 5.0)</span>
-                        </div>
-
-                        <p id="qv-description" class="text-gray-600 text-lg mb-8 leading-relaxed"></p>
-
-                        <div class="mb-8">
-                            <div id="qv-discount-wrapper" class="hidden flex items-center gap-3 mb-2">
-                                <span id="qv-old-price" class="text-xl text-gray-400 line-through"></span>
-                                <span id="qv-discount-badge"
-                                    class="px-3 py-1 bg-red-100 text-red-600 text-sm font-bold rounded-lg animate-pulse"></span>
-                            </div>
-                            <p id="qv-price" class="text-4xl font-bold text-blue-600"></p>
-                        </div>
-
-                        <div class="flex flex-col sm:flex-row gap-4">
-                            <button id="qv-add-btn" onclick=""
-                                class="flex-1 px-8 py-4.5 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 text-white rounded-2xl font-bold text-lg shadow-xl shadow-blue-600/20 hover:shadow-blue-600/40 transform hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 border border-blue-400/20">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                                Add to Cart
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
         // Smooth scroll for anchor links
@@ -571,218 +504,117 @@
 
                     // Reset button after delay
                     setTimeout(() => {
-                        button.innerHTML = originalContent;
-                        button.disabled = false;
-                    }, 1000);
-                } else {
-                    // Show error
-                    showNotification(data.message, 'error');
-                    button.innerHTML = originalContent;
-                    button.disabled = false;
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showNotification('Terjadi kesalahan saat menambahkan ke keranjang', 'error');
-                button.innerHTML = originalContent;
-                button.disabled = false;
-            }
-        }
 
-        // Show notification
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-24 right-4 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white font-semibold`;
-            notification.textContent = message;
+                        // Quick View Modal functions
+                        // Category Modal Logic
+                        const categoryModal = document.getElementById('category-modal');
+                        const categorySearch = document.getElementById('category-search');
+                        const categoryGrid = document.getElementById('category-grid');
+                        const noCategoryResults = document.getElementById('no-category-results');
+                        const selectedCategoryName = document.getElementById('selected-category-name');
 
-            document.body.appendChild(notification);
+                        function openCategoryModal() {
+                            categoryModal.classList.remove('hidden');
+                            document.body.style.overflow = 'hidden';
+                            setTimeout(() => categorySearch.focus(), 100);
+                        }
 
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
+                        function closeCategoryModal() {
+                            categoryModal.classList.add('hidden');
+                            document.body.style.overflow = '';
+                            categorySearch.value = '';
+                            filterCategories();
+                        }
 
-        // Quick View Modal functions
-        // Category Modal Logic
-        const categoryModal = document.getElementById('category-modal');
-        const categorySearch = document.getElementById('category-search');
-        const categoryGrid = document.getElementById('category-grid');
-        const noCategoryResults = document.getElementById('no-category-results');
-        const selectedCategoryName = document.getElementById('selected-category-name');
+                        function filterCategories() {
+                            const query = categorySearch.value.toLowerCase();
+                            const items = categoryGrid.querySelectorAll('.category-item');
+                            let hasResults = false;
 
-        function openCategoryModal() {
-            categoryModal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-            setTimeout(() => categorySearch.focus(), 100);
-        }
+                            items.forEach(item => {
+                                const name = item.querySelector('span').textContent.toLowerCase();
+                                if (name.includes(query)) {
+                                    item.classList.remove('hidden');
+                                    hasResults = true;
+                                } else {
+                                    item.classList.add('hidden');
+                                }
+                            });
 
-        function closeCategoryModal() {
-            categoryModal.classList.add('hidden');
-            document.body.style.overflow = '';
-            categorySearch.value = '';
-            filterCategories();
-        }
+                            noCategoryResults.classList.toggle('hidden', hasResults);
+                        }
 
-        function filterCategories() {
-            const query = categorySearch.value.toLowerCase();
-            const items = categoryGrid.querySelectorAll('.category-item');
-            let hasResults = false;
+                        // Global filtering state
+                        let currentCategoryId = 'all';
+                        let currentSearchQuery = '';
+                        let searchTimeout = null;
 
-            items.forEach(item => {
-                const name = item.querySelector('span').textContent.toLowerCase();
-                if (name.includes(query)) {
-                    item.classList.remove('hidden');
-                    hasResults = true;
-                } else {
-                    item.classList.add('hidden');
-                }
-            });
+                        async function applyFilters() {
+                            const gridContainer = document.getElementById('product-grid-container');
+                            const heroSection = document.getElementById('hero-section');
+                            const promoSection = document.getElementById('promo-section');
 
-            noCategoryResults.classList.toggle('hidden', hasResults);
-        }
+                            // Toggle sections based on search query
+                            if (currentSearchQuery.trim() !== '') {
+                                heroSection.classList.add('hidden');
+                                promoSection.classList.add('hidden');
+                            } else {
+                                heroSection.classList.remove('hidden');
+                                promoSection.classList.remove('hidden');
+                            }
 
-        // Global filtering state
-        let currentCategoryId = 'all';
-        let currentSearchQuery = '';
-        let searchTimeout = null;
+                            // Show loading state
+                            gridContainer.style.opacity = '0.5';
+                            gridContainer.style.pointerEvents = 'none';
 
-        async function applyFilters() {
-            const gridContainer = document.getElementById('product-grid-container');
-            const heroSection = document.getElementById('hero-section');
-            const promoSection = document.getElementById('promo-section');
+                            try {
+                                const params = new URLSearchParams({
+                                    category: currentCategoryId,
+                                    q: currentSearchQuery
+                                });
 
-            // Toggle sections based on search query
-            if (currentSearchQuery.trim() !== '') {
-                heroSection.classList.add('hidden');
-                promoSection.classList.add('hidden');
-            } else {
-                heroSection.classList.remove('hidden');
-                promoSection.classList.remove('hidden');
-            }
+                                const response = await fetch(`/products/search?${params.toString()}`);
+                                const html = await response.text();
 
-            // Show loading state
-            gridContainer.style.opacity = '0.5';
-            gridContainer.style.pointerEvents = 'none';
+                                gridContainer.innerHTML = html;
+                            } catch (error) {
+                                console.error('Error fetching products:', error);
+                            } finally {
+                                gridContainer.style.opacity = '1';
+                                gridContainer.style.pointerEvents = 'auto';
+                            }
+                        }
 
-            try {
-                const params = new URLSearchParams({
-                    category: currentCategoryId,
-                    q: currentSearchQuery
-                });
+                        function searchProducts(source = 'desktop') {
+                            const desktopSearch = document.getElementById('product-search');
+                            const mobileSearch = document.getElementById('mobile-product-search');
 
-                const response = await fetch(`/products/search?${params.toString()}`);
-                const html = await response.text();
+                            if (source === 'desktop' && desktopSearch) {
+                                currentSearchQuery = desktopSearch.value;
+                                if (mobileSearch) mobileSearch.value = currentSearchQuery;
+                            } else if (source === 'mobile' && mobileSearch) {
+                                currentSearchQuery = mobileSearch.value;
+                                if (desktopSearch) desktopSearch.value = currentSearchQuery;
+                            }
 
-                gridContainer.innerHTML = html;
-            } catch (error) {
-                console.error('Error fetching products:', error);
-            } finally {
-                gridContainer.style.opacity = '1';
-                gridContainer.style.pointerEvents = 'auto';
-            }
-        }
+                            // Clear existing timeout
+                            if (searchTimeout) clearTimeout(searchTimeout);
 
-        function searchProducts(source = 'desktop') {
-            const desktopSearch = document.getElementById('product-search');
-            const mobileSearch = document.getElementById('mobile-product-search');
+                            // 1-second debounce
+                            searchTimeout = setTimeout(() => {
+                                applyFilters();
+                            }, 1000);
+                        }
 
-            if (source === 'desktop' && desktopSearch) {
-                currentSearchQuery = desktopSearch.value;
-                if (mobileSearch) mobileSearch.value = currentSearchQuery;
-            } else if (source === 'mobile' && mobileSearch) {
-                currentSearchQuery = mobileSearch.value;
-                if (desktopSearch) desktopSearch.value = currentSearchQuery;
-            }
+                        function selectCategory(id, name) {
+                            currentCategoryId = id;
+                            selectedCategoryName.textContent = name;
+                            closeCategoryModal();
+                            applyFilters();
 
-            // Clear existing timeout
-            if (searchTimeout) clearTimeout(searchTimeout);
+                            // Smooth scroll to product section
+                            document.getElementById('products').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
 
-            // 1-second debounce
-            searchTimeout = setTimeout(() => {
-                applyFilters();
-            }, 1000);
-        }
-
-        function selectCategory(id, name) {
-            currentCategoryId = id;
-            selectedCategoryName.textContent = name;
-            closeCategoryModal();
-            applyFilters();
-
-            // Smooth scroll to product section
-            document.getElementById('products').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        const qvModal = document.getElementById('quick-view-modal');
-        const qvImage = document.getElementById('qv-image');
-        const qvImageContainer = document.getElementById('qv-image-container');
-        const qvName = document.getElementById('qv-name');
-        const qvCategory = document.getElementById('qv-category');
-        const qvDescription = document.getElementById('qv-description');
-        const qvPrice = document.getElementById('qv-price');
-        const qvOldPrice = document.getElementById('qv-old-price');
-        const qvDiscountBadge = document.getElementById('qv-discount-badge');
-        const qvDiscountWrapper = document.getElementById('qv-discount-wrapper');
-        const qvAddBtn = document.getElementById('qv-add-btn');
-
-        function openQuickView(product) {
-            // Reset image state
-            qvImage.classList.remove('loaded');
-            qvImageContainer.classList.add('skeleton');
-
-            // Set image
-            const imagePath = product.image && product.image.startsWith('storage/')
-                ? `/storage/${product.image.replace('storage/', '')}`
-                : product.image;
-            qvImage.src = imagePath;
-            qvImage.alt = product.name;
-
-            // Set content
-            qvName.textContent = product.name;
-            qvCategory.textContent = 'Susu Segar'; // Default category for now
-            qvDescription.textContent = product.description || 'Produk susu berkualitas premium dengan rasa yang lezat. Kaya akan nutrisi dan vitamin untuk kesehatan keluarga Anda.';
-
-            // Calculate prices
-            const price = parseFloat(product.price);
-            let finalPrice = price;
-
-            if (product.active_discount) {
-                const discount = product.active_discount;
-                qvDiscountWrapper.classList.remove('hidden');
-                qvOldPrice.textContent = `Rp ${price.toLocaleString('id-ID')}`;
-
-                if (discount.discount_type === 'PERCENTAGE') {
-                    finalPrice = price * (1 - (discount.discount_value / 100));
-                    qvDiscountBadge.textContent = `-${discount.discount_value}% OFF`;
-                } else {
-                    finalPrice = Math.max(0, price - discount.discount_value);
-                    const formattedDiscount = discount.discount_value >= 1000
-                        ? (discount.discount_value / 1000) + 'K'
-                        : discount.discount_value.toLocaleString('id-ID');
-                    qvDiscountBadge.textContent = `Hemat Rp ${formattedDiscount}`;
-                }
-            } else {
-                qvDiscountWrapper.classList.add('hidden');
-            }
-
-            qvPrice.textContent = `Rp ${finalPrice.toLocaleString('id-ID')}`;
-            qvAddBtn.setAttribute('onclick', `addToCart(${product.id})`);
-
-            // Show modal
-            qvModal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeQuickView() {
-            qvModal.classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-
-        // Close modal on escape key
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && !qvModal.classList.contains('hidden')) {
-                closeQuickView();
-            }
-        });
     </script>
 @endsection
