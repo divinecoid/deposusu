@@ -19,7 +19,7 @@
                 <!-- Logo & Categories -->
                 <div class="flex items-center gap-4 md:gap-6">
                     <!-- Mobile Menu Button -->
-                    <button class="md:hidden text-gray-500 hover:text-blue-500">
+                    <button onclick="toggleMobileMenu()" class="md:hidden text-gray-500 hover:text-blue-500">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 6h16M4 12h16M4 18h16" />
@@ -128,7 +128,109 @@
         @yield('content')
     </main>
 
+    <!-- Mobile Menu Drawer -->
+    <div id="mobile-menu" class="fixed inset-0 z-[60] hidden" role="dialog" aria-modal="true">
+        <!-- Overlay -->
+        <div class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm" onclick="toggleMobileMenu()"></div>
+
+        <!-- Drawer -->
+        <div class="fixed inset-y-0 left-0 w-full max-w-xs bg-white shadow-xl transform transition-transform duration-300 -translate-x-full"
+            id="mobile-menu-drawer">
+            <div class="flex flex-col h-full">
+                <!-- Header -->
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                    <span class="text-xl font-bold text-blue-600">DEPOSUSU</span>
+                    <button onclick="toggleMobileMenu()" class="text-gray-400 hover:text-gray-600 p-2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Content -->
+                <div class="flex-1 overflow-y-auto py-6 px-6">
+                    <div class="space-y-8">
+                        <!-- Navigation -->
+                        <div>
+                            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Navigasi</h3>
+                            <div class="space-y-4">
+                                <a href="{{ route('home') }}"
+                                    class="flex items-center gap-3 text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                    </svg>
+                                    Beranda
+                                </a>
+                                <a href="{{ route('cart.index') }}"
+                                    class="flex items-center gap-3 text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                    Keranjang
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Categories -->
+                        <div>
+                            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Kategori</h3>
+                            <div class="space-y-4">
+                                <a href="#"
+                                    class="block text-gray-700 hover:text-blue-600 font-medium transition-colors">Susu
+                                    Segar</a>
+                                <a href="#"
+                                    class="block text-gray-700 hover:text-blue-600 font-medium transition-colors">Susu
+                                    UHT</a>
+                                <a href="#"
+                                    class="block text-gray-700 hover:text-blue-600 font-medium transition-colors">Yogurt</a>
+                                <a href="#"
+                                    class="block text-gray-700 hover:text-blue-600 font-medium transition-colors">Keju</a>
+                                <a href="#"
+                                    class="block text-gray-700 hover:text-blue-600 font-medium transition-colors">Mentega</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="p-6 border-t border-gray-100 bg-gray-50">
+                    <div class="grid grid-cols-2 gap-4">
+                        <a href="{{ route('login') }}"
+                            class="flex items-center justify-center px-4 py-2 border border-blue-600 text-blue-600 rounded-xl font-bold text-sm hover:bg-blue-50 transition-all">Masuk</a>
+                        <a href="{{ route('register') }}"
+                            class="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-xl font-bold text-sm hover:bg-blue-700 transition-all">Daftar</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Mobile Menu toggle
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileDrawer = document.getElementById('mobile-menu-drawer');
+
+        function toggleMobileMenu() {
+            const isHidden = mobileMenu.classList.contains('hidden');
+
+            if (isHidden) {
+                mobileMenu.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                setTimeout(() => {
+                    mobileDrawer.classList.remove('-translate-x-full');
+                }, 10);
+            } else {
+                mobileDrawer.classList.add('-translate-x-full');
+                document.body.style.overflow = '';
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                }, 300);
+            }
+        }
+
         // Update cart badge on page load
         async function updateCartBadge() {
             try {
