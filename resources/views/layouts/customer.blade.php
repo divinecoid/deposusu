@@ -52,7 +52,7 @@
                 <!-- Icons & Auth -->
                 <div class="flex items-center gap-2 md:gap-4">
                     <!-- Mobile Search Icon -->
-                    <button class="md:hidden p-2 text-gray-500 hover:text-blue-500">
+                    <button onclick="toggleMobileSearch()" class="md:hidden p-2 text-gray-500 hover:text-blue-500">
                         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -122,6 +122,22 @@
             </div>
         </div>
     </header>
+
+    <!-- Mobile Search Bar -->
+    <div id="mobile-search-bar"
+        class="hidden md:hidden bg-white border-b border-gray-100 p-4 sticky top-16 left-0 w-full z-45 animate-slide-in shadow-sm">
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+            <input type="text" id="mobile-product-search" onkeyup="searchProducts('mobile')"
+                class="block w-full pl-10 pr-3 py-2 border border-blue-500 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 sm:text-sm"
+                placeholder="Cari Produk...">
+        </div>
+    </div>
 
     <!-- Main Content -->
     <main>
@@ -210,6 +226,24 @@
                 setTimeout(() => {
                     mobileMenu.classList.add('hidden');
                 }, 300);
+            }
+        }
+
+        function toggleMobileSearch() {
+            const searchBar = document.getElementById('mobile-search-bar');
+            const categoryNav = document.getElementById('category-navigation');
+
+            searchBar.classList.toggle('hidden');
+
+            if (!searchBar.classList.contains('hidden')) {
+                document.getElementById('mobile-product-search').focus();
+                if (categoryNav) {
+                    categoryNav.style.top = '136px'; // 64px (header) + 72px (search bar)
+                }
+            } else {
+                if (categoryNav) {
+                    categoryNav.style.top = '64px'; // Back to header height
+                }
             }
         }
 

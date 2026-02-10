@@ -96,7 +96,7 @@
     <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
 
         <!-- Hero Section -->
-        <section class="gradient-bg text-white py-12 md:py-24 animate-fade-in-up">
+        <section id="hero-section" class="gradient-bg text-white py-12 md:py-24 animate-fade-in-up">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="grid md:grid-cols-2 gap-8 items-center">
                     <div class="space-y-6 text-center md:text-left">
@@ -135,7 +135,8 @@
         </section>
 
         <!-- Category Selection Section -->
-        <section class="py-6 bg-white shadow-sm sticky top-16 z-40 animate-slide-in border-b border-gray-100">
+        <section id="category-navigation"
+            class="py-6 bg-white shadow-sm sticky top-[64px] z-30 animate-slide-in border-b border-gray-100 transition-all duration-300">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div class="flex items-center gap-4">
@@ -172,7 +173,7 @@
         </section>
 
         <!-- Promo Products Section -->
-        <section id="featured" class="py-12 animate-fade-in-up" style="animation-delay: 0.2s">
+        <section id="promo-section" class="py-12 animate-fade-in-up" style="animation-delay: 0.2s">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between mb-8">
                     <div>
@@ -652,6 +653,17 @@
 
         async function applyFilters() {
             const gridContainer = document.getElementById('product-grid-container');
+            const heroSection = document.getElementById('hero-section');
+            const promoSection = document.getElementById('promo-section');
+
+            // Toggle sections based on search query
+            if (currentSearchQuery.trim() !== '') {
+                heroSection.classList.add('hidden');
+                promoSection.classList.add('hidden');
+            } else {
+                heroSection.classList.remove('hidden');
+                promoSection.classList.remove('hidden');
+            }
 
             // Show loading state
             gridContainer.style.opacity = '0.5';
@@ -675,9 +687,17 @@
             }
         }
 
-        function searchProducts() {
-            const searchInput = document.getElementById('product-search');
-            currentSearchQuery = searchInput.value;
+        function searchProducts(source = 'desktop') {
+            const desktopSearch = document.getElementById('product-search');
+            const mobileSearch = document.getElementById('mobile-product-search');
+
+            if (source === 'desktop' && desktopSearch) {
+                currentSearchQuery = desktopSearch.value;
+                if (mobileSearch) mobileSearch.value = currentSearchQuery;
+            } else if (source === 'mobile' && mobileSearch) {
+                currentSearchQuery = mobileSearch.value;
+                if (desktopSearch) desktopSearch.value = currentSearchQuery;
+            }
 
             // Clear existing timeout
             if (searchTimeout) clearTimeout(searchTimeout);
