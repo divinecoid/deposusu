@@ -469,159 +469,140 @@
             });
         });
 
-        // Add to cart function
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        // Category Modal Logic
+        const categoryModal = document.getElementById('category-modal');
+        const categorySearch = document.getElementById('category-search');
+        const categoryGrid = document.getElementById('category-grid');
+        const noCategoryResults = document.getElementById('no-category-results');
+        const selectedCategoryName = document.getElementById('selected-category-name');
 
-        async function addToCart(productId) {
-            const button = event.currentTarget;
-            const originalContent = button.innerHTML;
+        function openCategoryModal() {
+            if (categoryModal) {
+                categoryModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+                setTimeout(() => categorySearch.focus(), 100);
+            }
+        }
 
-            // Show loading
-            button.innerHTML = '<svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
-            button.disabled = true;
+        function closeCategoryModal() {
+            if (categoryModal) {
+                categoryModal.classList.add('hidden');
+                document.body.style.overflow = '';
+                categorySearch.value = '';
+                filterCategories();
+            }
+        }
+
+        function filterCategories() {
+            if (!categorySearch || !categoryGrid) return;
+            
+            const query = categorySearch.value.toLowerCase();
+            const items = categoryGrid.querySelectorAll('.category-item');
+            let hasResults = false;
+
+            items.forEach(item => {
+                const name = item.querySelector('span').textContent.toLowerCase();
+                if (name.includes(query)) {
+                    item.classList.remove('hidden');
+                    hasResults = true;
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+
+            if (noCategoryResults) {
+                noCategoryResults.classList.toggle('hidden', hasResults);
+            }
+        }
+
+        // Global filtering state
+        let currentCategoryId = 'all';
+        let currentSearchQuery = '';
+        let searchTimeout = null;
+
+        async function applyFilters() {
+            const gridContainer = document.getElementById('product-grid-container');
+            const heroSection = document.getElementById('hero-section');
+            const promoSection = document.getElementById('promo-section');
+
+            // Toggle sections based on search query
+            if (currentSearchQuery.trim() !== '') {
+                if (heroSection) heroSection.classList.add('hidden');
+                if (promoSection) promoSection.classList.add('hidden');
+            } else {
+                if (heroSection) heroSection.classList.remove('hidden');
+                if (promoSection) promoSection.classList.remove('hidden');
+            }
+
+            // Show loading state
+            if (gridContainer) {
+                gridContainer.style.opacity = '0.5';
+                gridContainer.style.pointerEvents = 'none';
+            }
 
             try {
-                const response = await fetch('/cart/add', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    body: JSON.stringify({
-                        product_id: productId,
-                        quantity: 1
-                    })
+                const params = new URLSearchParams({
+                    category: currentCategoryId,
+                    q: currentSearchQuery
                 });
 
-                const data = await response.json();
+                const response = await fetch(`/products/search?${params.toString()}`);
+                const html = await response.text();
 
-                if (data.success) {
-                    // Show success icon
-                    button.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>';
+                if (gridContainer) {
+                    gridContainer.innerHTML = html;
+                }
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            } finally {
+                if (gridContainer) {
+                    gridContainer.style.opacity = '1';
+                    gridContainer.style.pointerEvents = 'auto';
+                }
+            }
+        }
 
-                    // Update cart badge
-                    const badge = document.querySelector('.cart-badge');
-                    if (badge) {
-                        badge.textContent = data.cart.total_items;
-                        badge.style.display = data.cart.total_items > 0 ? 'flex' : 'none';
-                    }
+        function searchProducts(source = 'desktop') {
+            const desktopSearch = document.getElementById('product-search');
+            const mobileSearch = document.getElementById('mobile-product-search');
 
-                    // Show notification
-                    showNotification(data.message, 'success');
+            if (source === 'desktop' && desktopSearch) {
+                currentSearchQuery = desktopSearch.value;
+                if (mobileSearch) mobileSearch.value = currentSearchQuery;
+            } else if (source === 'mobile' && mobileSearch) {
+                currentSearchQuery = mobileSearch.value;
+                if (desktopSearch) desktopSearch.value = currentSearchQuery;
+            }
 
-                    // Reset button after delay
-                    setTimeout(() => {
+            // Clear existing timeout
+            if (searchTimeout) clearTimeout(searchTimeout);
 
-                        // Quick View Modal functions
-                        // Category Modal Logic
-                        const categoryModal = document.getElementById('category-modal');
-                        const categorySearch = document.getElementById('category-search');
-                        const categoryGrid = document.getElementById('category-grid');
-                        const noCategoryResults = document.getElementById('no-category-results');
-                        const selectedCategoryName = document.getElementById('selected-category-name');
+            // 1-second debounce
+            searchTimeout = setTimeout(() => {
+                applyFilters();
+            }, 1000);
+        }
 
-                        function openCategoryModal() {
-                            categoryModal.classList.remove('hidden');
-                            document.body.style.overflow = 'hidden';
-                            setTimeout(() => categorySearch.focus(), 100);
-                        }
+        function selectCategory(id, name) {
+            currentCategoryId = id;
+            if (selectedCategoryName) {
+                selectedCategoryName.textContent = name;
+            }
+            closeCategoryModal();
+            applyFilters();
 
-                        function closeCategoryModal() {
-                            categoryModal.classList.add('hidden');
-                            document.body.style.overflow = '';
-                            categorySearch.value = '';
-                            filterCategories();
-                        }
+            // Smooth scroll to product section
+            const productsSection = document.getElementById('products');
+            if (productsSection) {
+                productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
 
-                        function filterCategories() {
-                            const query = categorySearch.value.toLowerCase();
-                            const items = categoryGrid.querySelectorAll('.category-item');
-                            let hasResults = false;
-
-                            items.forEach(item => {
-                                const name = item.querySelector('span').textContent.toLowerCase();
-                                if (name.includes(query)) {
-                                    item.classList.remove('hidden');
-                                    hasResults = true;
-                                } else {
-                                    item.classList.add('hidden');
-                                }
-                            });
-
-                            noCategoryResults.classList.toggle('hidden', hasResults);
-                        }
-
-                        // Global filtering state
-                        let currentCategoryId = 'all';
-                        let currentSearchQuery = '';
-                        let searchTimeout = null;
-
-                        async function applyFilters() {
-                            const gridContainer = document.getElementById('product-grid-container');
-                            const heroSection = document.getElementById('hero-section');
-                            const promoSection = document.getElementById('promo-section');
-
-                            // Toggle sections based on search query
-                            if (currentSearchQuery.trim() !== '') {
-                                heroSection.classList.add('hidden');
-                                promoSection.classList.add('hidden');
-                            } else {
-                                heroSection.classList.remove('hidden');
-                                promoSection.classList.remove('hidden');
-                            }
-
-                            // Show loading state
-                            gridContainer.style.opacity = '0.5';
-                            gridContainer.style.pointerEvents = 'none';
-
-                            try {
-                                const params = new URLSearchParams({
-                                    category: currentCategoryId,
-                                    q: currentSearchQuery
-                                });
-
-                                const response = await fetch(`/products/search?${params.toString()}`);
-                                const html = await response.text();
-
-                                gridContainer.innerHTML = html;
-                            } catch (error) {
-                                console.error('Error fetching products:', error);
-                            } finally {
-                                gridContainer.style.opacity = '1';
-                                gridContainer.style.pointerEvents = 'auto';
-                            }
-                        }
-
-                        function searchProducts(source = 'desktop') {
-                            const desktopSearch = document.getElementById('product-search');
-                            const mobileSearch = document.getElementById('mobile-product-search');
-
-                            if (source === 'desktop' && desktopSearch) {
-                                currentSearchQuery = desktopSearch.value;
-                                if (mobileSearch) mobileSearch.value = currentSearchQuery;
-                            } else if (source === 'mobile' && mobileSearch) {
-                                currentSearchQuery = mobileSearch.value;
-                                if (desktopSearch) desktopSearch.value = currentSearchQuery;
-                            }
-
-                            // Clear existing timeout
-                            if (searchTimeout) clearTimeout(searchTimeout);
-
-                            // 1-second debounce
-                            searchTimeout = setTimeout(() => {
-                                applyFilters();
-                            }, 1000);
-                        }
-
-                        function selectCategory(id, name) {
-                            currentCategoryId = id;
-                            selectedCategoryName.textContent = name;
-                            closeCategoryModal();
-                            applyFilters();
-
-                            // Smooth scroll to product section
-                            document.getElementById('products').scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-
+        // Close modal on escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                closeCategoryModal();
+            }
+        });
     </script>
 @endsection
