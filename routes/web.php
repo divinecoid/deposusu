@@ -18,6 +18,7 @@ use App\Http\Controllers\Customer\CartController;
 
 // Customer Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/products/search', [HomeController::class, 'search'])->name('products.search');
 
 // Cart Routes
 Route::prefix('cart')->name('cart.')->group(function () {

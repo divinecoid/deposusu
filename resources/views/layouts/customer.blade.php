@@ -43,9 +43,9 @@
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
-                        <input type="text"
+                        <input type="text" id="product-search" onkeyup="searchProducts()"
                             class="block w-full pl-10 pr-3 py-2 border border-blue-500 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 sm:text-sm"
-                            placeholder="Cari Greenfields">
+                            placeholder="Cari Produk...">
                     </div>
                 </div>
 
@@ -174,24 +174,6 @@
                             </div>
                         </div>
 
-                        <!-- Categories -->
-                        <div>
-                            <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Kategori</h3>
-                            <div class="space-y-4">
-                                <a href="#"
-                                    class="block text-gray-700 hover:text-blue-600 font-medium transition-colors">Susu
-                                    Segar</a>
-                                <a href="#"
-                                    class="block text-gray-700 hover:text-blue-600 font-medium transition-colors">Susu
-                                    UHT</a>
-                                <a href="#"
-                                    class="block text-gray-700 hover:text-blue-600 font-medium transition-colors">Yogurt</a>
-                                <a href="#"
-                                    class="block text-gray-700 hover:text-blue-600 font-medium transition-colors">Keju</a>
-                                <a href="#"
-                                    class="block text-gray-700 hover:text-blue-600 font-medium transition-colors">Mentega</a>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
