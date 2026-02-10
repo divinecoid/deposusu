@@ -64,6 +64,33 @@
             background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
             color: white;
         }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        .skeleton {
+            background: #eff6ff;
+            background-image: linear-gradient(90deg, #eff6ff 0%, #dbeafe 20%, #eff6ff 40%, #eff6ff 100%);
+            background-repeat: no-repeat;
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+        }
+
+        .image-container img {
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .image-container img.loaded {
+            opacity: 1;
+        }
     </style>
 
     <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
@@ -87,7 +114,7 @@
                             </a>
                             <a href="#featured"
                                 class="px-6 py-3 md:px-8 md:py-4 border-2 border-white text-white rounded-full font-semibold hover:bg-white hover:text-blue-600 transform hover:scale-105 transition-all duration-300 text-center text-sm md:text-base">
-                                Produk Unggulan
+                                Produk Promo
                             </a>
                         </div>
                     </div>
@@ -140,13 +167,14 @@
             </div>
         </section>
 
-        <!-- Featured Products Section -->
+        <!-- Promo Products Section -->
         <section id="featured" class="py-12 animate-fade-in-up" style="animation-delay: 0.2s">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between mb-8">
                     <div>
-                        <h2 class="text-2xl md:text-4xl font-bold text-gray-900">Produk Unggulan</h2>
-                        <p class="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">Pilihan terbaik minggu ini</p>
+                        <h2 class="text-2xl md:text-4xl font-bold text-gray-900">Produk Promo</h2>
+                        <p class="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">Jangan lewatkan diskon menarik minggu ini
+                        </p>
                     </div>
                     <a href="#"
                         class="hidden md:block text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-2">
@@ -158,13 +186,13 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    @foreach($products->take(3) as $product)
-                        <div class="product-card glass-effect rounded-2xl overflow-hidden shadow-lg"
+                    @foreach($products->whereNotNull('active_discount')->take(3) as $product)
+                        <div class="product-card group glass-effect rounded-2xl overflow-hidden shadow-lg"
                             style="animation-delay: {{ ($loop->iteration - 1) * 0.1 }}s">
                             <div class="relative">
                                 <div class="absolute top-4 right-4 z-10 flex flex-col gap-2 italic">
                                     <span class="px-3 py-1 bg-blue-600 text-white rounded-full text-xs font-bold shadow-sm">
-                                        Featured
+                                        Promo
                                     </span>
                                     @if($product->active_discount)
                                         <span
@@ -177,12 +205,22 @@
                                         </span>
                                     @endif
                                 </div>
-                                <div class="aspect-square bg-gradient-to-br from-blue-50 to-blue-100 p-8">
+                                <div class="image-container skeleton aspect-square bg-blue-50 p-8 rounded-2xl overflow-hidden">
                                     <img src="{{ $product->image && str_starts_with($product->image, 'storage/') ? asset($product->image) : $product->image }}"
                                         alt="{{ $product->name }}"
                                         class="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500"
                                         style="filter: none !important; background-color: transparent !important;"
-                                        onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=No+Image'; console.error('Image failing to load:', this.src);">
+                                        onload="this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');"
+                                        onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=No+Image'; this.classList.add('loaded'); this.parentElement.classList.remove('skeleton'); console.error('Image failing to load:', this.src);">
+                                </div>
+
+                                <!-- Quick View on Hover -->
+                                <div
+                                    class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                                    <button onclick="openQuickView({{ json_encode($product) }})"
+                                        class="px-6 py-2 bg-white text-blue-600 rounded-full font-semibold opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-blue-600 hover:text-white">
+                                        Quick View
+                                    </button>
                                 </div>
                             </div>
                             <div class="p-6">
@@ -268,18 +306,19 @@
                                     </div>
                                 @endif
 
-                                <div class="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+                                <div class="image-container skeleton aspect-square bg-gray-50 p-6 rounded-xl overflow-hidden">
                                     <img src="{{ $product->image && str_starts_with($product->image, 'storage/') ? asset($product->image) : $product->image }}"
                                         alt="{{ $product->name }}"
                                         class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
                                         style="filter: none !important; background-color: transparent !important;"
-                                        onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=No+Image'; console.error('Image failing to load:', this.src);">
+                                        onload="this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');"
+                                        onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=No+Image'; this.classList.add('loaded'); this.parentElement.classList.remove('skeleton'); console.error('Image failing to load:', this.src);">
                                 </div>
 
                                 <!-- Quick View on Hover -->
                                 <div
                                     class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
-                                    <button
+                                    <button onclick="openQuickView({{ json_encode($product) }})"
                                         class="px-6 py-2 bg-white text-blue-600 rounded-full font-semibold opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-blue-600 hover:text-white">
                                         Quick View
                                     </button>
@@ -405,6 +444,81 @@
 
     </div>
 
+    <!-- Product Quick View Modal -->
+    <div id="quick-view-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <!-- Background Overlay -->
+            <div class="fixed inset-0 transition-opacity bg-gray-900/60 backdrop-blur-sm" onclick="closeQuickView()"></div>
+
+            <!-- Modal Content -->
+            <div
+                class="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-3xl shadow-2xl sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full animate-fade-in-up relative">
+                <button onclick="closeQuickView()"
+                    class="absolute top-6 right-6 text-gray-400 hover:text-gray-600 z-10 p-2 hover:bg-gray-100 rounded-full transition-all">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+
+                <div class="grid md:grid-cols-2">
+                    <!-- Image Section -->
+                    <div
+                        class="bg-gradient-to-br from-blue-50 to-blue-100 p-8 flex items-center justify-center min-h-[400px]">
+                        <div id="qv-image-container"
+                            class="image-container skeleton w-full aspect-square rounded-2xl overflow-hidden shadow-inner bg-white">
+                            <img id="qv-image" src="" alt=""
+                                class="w-full h-full object-contain transform hover:scale-105 transition-transform duration-500"
+                                onload="this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');"
+                                onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=No+Image'; this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');">
+                        </div>
+                    </div>
+
+                    <!-- Details Section -->
+                    <div class="p-8 md:p-12 flex flex-col justify-center">
+                        <span id="qv-category"
+                            class="inline-block px-3 py-1 bg-blue-100 text-blue-600 text-sm font-semibold rounded-full mb-4 w-fit"></span>
+                        <h2 id="qv-name" class="text-3xl md:text-4xl font-bold text-gray-900 mb-4"></h2>
+
+                        <div class="flex items-center gap-2 mb-6 text-blue-500">
+                            <div class="flex">
+                                @for($i = 0; $i < 5; $i++)
+                                    <svg class="w-5 h-5 {{ $i < 4 ? 'text-blue-500' : 'text-gray-300' }}" fill="currentColor"
+                                        viewBox="0 0 20 20">
+                                        <path
+                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                @endfor
+                            </div>
+                            <span class="text-gray-500 font-medium">(4.0 / 5.0)</span>
+                        </div>
+
+                        <p id="qv-description" class="text-gray-600 text-lg mb-8 leading-relaxed"></p>
+
+                        <div class="mb-8">
+                            <div id="qv-discount-wrapper" class="hidden flex items-center gap-3 mb-2">
+                                <span id="qv-old-price" class="text-xl text-gray-400 line-through"></span>
+                                <span id="qv-discount-badge"
+                                    class="px-3 py-1 bg-red-100 text-red-600 text-sm font-bold rounded-lg animate-pulse"></span>
+                            </div>
+                            <p id="qv-price" class="text-4xl font-bold text-blue-600"></p>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <button id="qv-add-btn" onclick=""
+                                class="flex-1 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-2xl font-bold text-lg hover:shadow-xl transform hover:scale-[1.02] transition-all flex items-center justify-center gap-3">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                Masukkan Keranjang
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Smooth scroll for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -490,8 +604,7 @@
         // Show notification
         function showNotification(message, type = 'success') {
             const notification = document.createElement('div');
-            notification.className = `fixed top-24 right-4 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'
-                } text-white font-semibold`;
+            notification.className = `fixed top-24 right-4 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'} text-white font-semibold`;
             notification.textContent = message;
 
             document.body.appendChild(notification);
@@ -501,5 +614,78 @@
                 setTimeout(() => notification.remove(), 300);
             }, 3000);
         }
+
+        // Quick View Modal functions
+        const qvModal = document.getElementById('quick-view-modal');
+        const qvImage = document.getElementById('qv-image');
+        const qvImageContainer = document.getElementById('qv-image-container');
+        const qvName = document.getElementById('qv-name');
+        const qvCategory = document.getElementById('qv-category');
+        const qvDescription = document.getElementById('qv-description');
+        const qvPrice = document.getElementById('qv-price');
+        const qvOldPrice = document.getElementById('qv-old-price');
+        const qvDiscountBadge = document.getElementById('qv-discount-badge');
+        const qvDiscountWrapper = document.getElementById('qv-discount-wrapper');
+        const qvAddBtn = document.getElementById('qv-add-btn');
+
+        function openQuickView(product) {
+            // Reset image state
+            qvImage.classList.remove('loaded');
+            qvImageContainer.classList.add('skeleton');
+
+            // Set image
+            const imagePath = product.image && product.image.startsWith('storage/')
+                ? `/storage/${product.image.replace('storage/', '')}`
+                : product.image;
+            qvImage.src = imagePath;
+            qvImage.alt = product.name;
+
+            // Set content
+            qvName.textContent = product.name;
+            qvCategory.textContent = 'Susu Segar'; // Default category for now
+            qvDescription.textContent = product.description || 'Produk susu berkualitas premium dengan rasa yang lezat. Kaya akan nutrisi dan vitamin untuk kesehatan keluarga Anda.';
+
+            // Calculate prices
+            const price = parseFloat(product.price);
+            let finalPrice = price;
+
+            if (product.active_discount) {
+                const discount = product.active_discount;
+                qvDiscountWrapper.classList.remove('hidden');
+                qvOldPrice.textContent = `Rp ${price.toLocaleString('id-ID')}`;
+
+                if (discount.discount_type === 'PERCENTAGE') {
+                    finalPrice = price * (1 - (discount.discount_value / 100));
+                    qvDiscountBadge.textContent = `-${discount.discount_value}% OFF`;
+                } else {
+                    finalPrice = Math.max(0, price - discount.discount_value);
+                    const formattedDiscount = discount.discount_value >= 1000
+                        ? (discount.discount_value / 1000) + 'K'
+                        : discount.discount_value.toLocaleString('id-ID');
+                    qvDiscountBadge.textContent = `Hemat Rp ${formattedDiscount}`;
+                }
+            } else {
+                qvDiscountWrapper.classList.add('hidden');
+            }
+
+            qvPrice.textContent = `Rp ${finalPrice.toLocaleString('id-ID')}`;
+            qvAddBtn.setAttribute('onclick', `addToCart(${product.id})`);
+
+            // Show modal
+            qvModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeQuickView() {
+            qvModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // Close modal on escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !qvModal.classList.contains('hidden')) {
+                closeQuickView();
+            }
+        });
     </script>
 @endsection

@@ -27,6 +27,11 @@ class MdxProduct extends Model
         'price' => 'decimal:2',
     ];
 
+    protected $appends = [
+        'active_discount',
+        'discounted_price',
+    ];
+
     /**
      * Relationship with cart items
      */
