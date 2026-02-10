@@ -31,6 +31,9 @@
                     class="block py-2.5 px-4 rounded hover:bg-slate-700 {{ request()->routeIs('admin.master.categories.*') ? 'bg-slate-700' : '' }}">Kategori</a>
                 <a href="{{ route('admin.master.products.index') }}"
                     class="block py-2.5 px-4 rounded hover:bg-slate-700 {{ request()->routeIs('admin.master.products.*') ? 'bg-slate-700' : '' }}">Produk</a>
+                <a href="{{ route('admin.master.branches.index') }}"
+                    class="block py-2.5 px-4 rounded hover:bg-slate-700 {{ request()->routeIs('admin.master.branches.*') ? 'bg-slate-700' : '' }}">Branch
+                    & Area</a>
                 <a href="{{ route('admin.master.warehouses.index') }}"
                     class="block py-2.5 px-4 rounded hover:bg-slate-700 {{ request()->routeIs('admin.master.warehouses.*') ? 'bg-slate-700' : '' }}">Gudang
                     & Rak</a>
