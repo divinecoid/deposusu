@@ -534,12 +534,15 @@
                 }
                 const data = await response.json();
                 if (data.success) {
+                    const svg = button.querySelector('svg');
                     if (data.status === 'added') {
-                        button.querySelector('svg').classList.remove('text-gray-400');
-                        button.querySelector('svg').classList.add('text-red-500');
+                        svg.classList.remove('text-gray-400');
+                        svg.classList.add('text-red-500');
+                        svg.setAttribute('fill', 'currentColor');
                     } else {
-                        button.querySelector('svg').classList.add('text-gray-400');
-                        button.querySelector('svg').classList.remove('text-red-500');
+                        svg.classList.add('text-gray-400');
+                        svg.classList.remove('text-red-500');
+                        svg.setAttribute('fill', 'none');
                         if (window.location.pathname.includes('/wishlist')) {
                             const card = button.closest('.product-card');
                             if (card) {
