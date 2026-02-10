@@ -126,6 +126,34 @@ class CartController extends Controller
     }
 
     /**
+     * Update cart item routine status (AJAX)
+     */
+    public function updateRoutine(Request $request, $cartItemId)
+    {
+        $request->validate([
+            'is_routine' => 'required|boolean',
+            'routine_schedule' => 'nullable|array',
+        ]);
+
+        $cart = $this->getCurrentCart();
+
+        // Check if cart item belongs to this cart
+        $cartItem = TrxCartItem::where('id', $cartItemId)
+            ->where('cart_id', $cart->id)
+            ->firstOrFail();
+
+        $cartItem->update([
+            'is_routine' => $request->is_routine,
+            'routine_schedule' => $request->routine_schedule,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status rutin berhasil diupdate',
+        ]);
+    }
+
+    /**
      * Remove item from cart (AJAX)
      */
     public function remove($cartItemId)
@@ -189,7 +217,11 @@ class CartController extends Controller
             $totalDiscount = 0;
 
             // Generate order number
-            $orderNumber = 'ORD-' . strtoupper(Str::random(10));
+            // Generate order number
+            $today = now()->format('Ymd');
+            $lastOrder = TrxOrder::whereDate('created_at', now()->today())->orderBy('id', 'desc')->first();
+            $sequence = $lastOrder ? intval(substr($lastOrder->order_number, -5)) + 1 : 1;
+            $orderNumber = 'INV-' . $today . '-' . str_pad($sequence, 5, '0', STR_PAD_LEFT);
 
             $order = TrxOrder::create([
                 'order_number' => $orderNumber,

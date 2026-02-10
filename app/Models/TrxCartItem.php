@@ -16,10 +16,14 @@ class TrxCartItem extends Model
         'product_id',
         'quantity',
         'price',
+        'is_routine',
+        'routine_schedule',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
+        'is_routine' => 'boolean',
+        'routine_schedule' => 'array',
     ];
 
     /**
