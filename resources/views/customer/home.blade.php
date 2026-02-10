@@ -230,7 +230,7 @@
                                         @endif
                                     </div>
                                     <button onclick="event.stopPropagation(); addToCart({{ $product->id }})"
-                                        class="px-6 py-2.5 md:px-8 md:py-3.5 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 text-white rounded-full font-bold shadow-lg hover:shadow-blue-500/30 transform hover:scale-105 transition-all duration-300 flex items-center gap-2 text-sm md:text-base border border-blue-400/20">
+                                        class="px-6 py-2.5 md:px-8 md:py-3.5 bg-blue-600 text-white rounded-full font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 flex items-center gap-2 text-sm md:text-base">
                                         <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
