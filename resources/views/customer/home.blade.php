@@ -75,7 +75,7 @@
                     <div class="space-y-6 text-center md:text-left">
                         <h1 class="text-3xl md:text-6xl font-bold leading-tight">
                             Produk Susu <br>
-                            <span class="text-yellow-300">Terbaik</span> untuk Anda
+                            <span class="text-blue-200">Terbaik</span> untuk Anda
                         </h1>
                         <p class="text-lg md:text-xl text-blue-100">
                             Nikmati kesegaran dan kualitas terbaik dari berbagai pilihan produk susu premium
@@ -93,7 +93,7 @@
                     </div>
                     <div class="hidden md:block animate-slide-in">
                         <div class="relative">
-                            <div class="absolute inset-0 bg-yellow-300 rounded-full blur-3xl opacity-30 animate-pulse">
+                            <div class="absolute inset-0 bg-blue-300 rounded-full blur-3xl opacity-30 animate-pulse">
                             </div>
                             <svg class="w-full h-auto relative z-10" viewBox="0 0 400 400" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -163,8 +163,7 @@
                             style="animation-delay: {{ ($loop->iteration - 1) * 0.1 }}s">
                             <div class="relative">
                                 <div class="absolute top-4 right-4 z-10 flex flex-col gap-2 italic">
-                                    <span
-                                        class="px-3 py-1 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold shadow-sm">
+                                    <span class="px-3 py-1 bg-blue-600 text-white rounded-full text-xs font-bold shadow-sm">
                                         Featured
                                     </span>
                                     @if($product->active_discount)
@@ -263,7 +262,7 @@
                                             @if($product->active_discount->discount_type === 'PERCENTAGE')
                                                 -{{ number_format($product->active_discount->discount_value, 0) }}%
                                             @else
-                                                Promo
+                                                -{{ $product->active_discount->discount_value >= 1000 ? number_format($product->active_discount->discount_value / 1000, 0) . 'K' : number_format($product->active_discount->discount_value, 0, ',', '.') }}
                                             @endif
                                         </span>
                                     </div>
@@ -301,7 +300,7 @@
                                 <!-- Rating -->
                                 <div class="flex items-center gap-1 mb-3">
                                     @for($i = 0; $i < 5; $i++)
-                                        <svg class="w-4 h-4 {{ $i < 4 ? 'text-yellow-400' : 'text-gray-300' }}" fill="currentColor"
+                                        <svg class="w-4 h-4 {{ $i < 4 ? 'text-blue-500' : 'text-gray-300' }}" fill="currentColor"
                                             viewBox="0 0 20 20">
                                             <path
                                                 d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -345,40 +344,6 @@
                         class="px-10 py-4 bg-white text-blue-600 border-2 border-blue-600 rounded-full font-semibold hover:bg-blue-600 hover:text-white transform hover:scale-105 transition-all duration-300 shadow-lg">
                         Muat Lebih Banyak
                     </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Promo Banner Section -->
-        <section class="py-12 animate-fade-in-up" style="animation-delay: 0.6s">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="gradient-bg rounded-3xl overflow-hidden shadow-2xl">
-                    <div class="grid md:grid-cols-2 gap-8 items-center p-8 md:p-12">
-                        <div class="text-white space-y-6">
-                            <h2 class="text-2xl md:text-5xl font-bold">
-                                Penawaran Spesial!
-                            </h2>
-                            <p class="text-lg text-blue-100">
-                                Dapatkan diskon hingga <span class="text-yellow-300 font-bold text-2xl">30%</span> untuk
-                                pembelian produk pilihan
-                            </p>
-                            <div class="flex gap-4">
-                                <button
-                                    class="w-full md:w-auto px-6 py-3 md:px-8 md:py-4 bg-yellow-400 text-blue-900 rounded-full font-bold hover:bg-yellow-300 transform hover:scale-105 transition-all duration-300 shadow-lg text-sm md:text-base">
-                                    Belanja Sekarang
-                                </button>
-                            </div>
-                        </div>
-                        <div class="hidden md:flex justify-center items-center">
-                            <div class="relative">
-                                <div class="absolute inset-0 bg-yellow-300 rounded-full blur-3xl opacity-20"></div>
-                                <div class="relative bg-white bg-opacity-20 backdrop-blur-sm rounded-3xl p-8 text-center">
-                                    <p class="text-6xl font-bold text-yellow-300 mb-2">30%</p>
-                                    <p class="text-white text-xl">OFF</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
