@@ -244,12 +244,13 @@
                                         @endif
                                     </div>
                                     <button onclick="addToCart({{ $product->id }})"
-                                        class="px-4 py-2 md:px-6 md:py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                                        class="px-6 py-2.5 md:px-8 md:py-3.5 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 text-white rounded-full font-bold shadow-lg hover:shadow-blue-500/30 transform hover:scale-105 transition-all duration-300 flex items-center gap-2 text-sm md:text-base border border-blue-400/20">
                                         <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                                         </svg>
+                                        <span>Add to Cart</span>
                                     </button>
                                 </div>
                             </div>
@@ -364,12 +365,17 @@
                                             <p class="text-[10px] md:text-xs text-gray-400">per unit</p>
                                         @endif
                                     </div>
+                                </div>
+
+                                <div class="mt-4 pt-4 border-t border-gray-100/50">
                                     <button onclick="addToCart({{ $product->id }})"
-                                        class="p-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-110 transition-all duration-300">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        class="w-full py-3 md:py-3.5 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/10 hover:shadow-blue-500/30 transform hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2.5 text-sm border border-blue-400/20">
+                                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M12 4v16m8-8H4" />
+                                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                                         </svg>
+                                        Add to Cart
                                     </button>
                                 </div>
                             </div>
@@ -505,12 +511,12 @@
 
                         <div class="flex flex-col sm:flex-row gap-4">
                             <button id="qv-add-btn" onclick=""
-                                class="flex-1 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-2xl font-bold text-lg hover:shadow-xl transform hover:scale-[1.02] transition-all flex items-center justify-center gap-3">
+                                class="flex-1 px-8 py-4.5 bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 text-white rounded-2xl font-bold text-lg shadow-xl shadow-blue-600/20 hover:shadow-blue-600/40 transform hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-3 border border-blue-400/20">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
-                                Masukkan Keranjang
+                                Add to Cart
                             </button>
                         </div>
                     </div>
