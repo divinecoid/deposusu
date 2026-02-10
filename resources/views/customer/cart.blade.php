@@ -60,7 +60,8 @@
                                             <div>
                                                 <h3
                                                     class="text-base md:text-lg font-bold text-gray-900 mb-1 line-clamp-2 md:line-clamp-none">
-                                                    {{ $item->product->name }}</h3>
+                                                    {{ $item->product->name }}
+                                                </h3>
                                                 <p class="text-sm text-gray-500">{{ $item->product->description }}</p>
                                             </div>
                                             <button onclick="removeItem({{ $item->id }})"
@@ -138,7 +139,7 @@
                             </div>
 
                             <div class="space-y-3">
-                                <button
+                                <button onclick="checkout()"
                                     class="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
                                     Checkout
                                 </button>
@@ -174,6 +175,37 @@
     <script>
         // CSRF Token
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+        // Checkout
+        async function checkout() {
+            if (!confirm('Lanjutkan ke checkout?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/cart/checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    setTimeout(() => {
+                        window.location.href = '/'; // Static redirect to home for now
+                    }, 2000);
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Terjadi kesalahan saat checkout', 'error');
+            }
+        }
 
         // Update quantity
         async function updateQuantity(cartItemId, newQuantity) {

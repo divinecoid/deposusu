@@ -38,4 +38,39 @@ class MdxProduct extends Model
     {
         return $this->belongsTo(MdxCategory::class);
     }
+
+    /**
+     * Relationship with historical discounts
+     */
+    public function discounts()
+    {
+        return $this->hasMany(MdxProductDiscount::class, 'product_id');
+    }
+
+    /**
+     * Get the currently active discount
+     */
+    public function getActiveDiscountAttribute()
+    {
+        return $this->discounts()->active()->latest()->first();
+    }
+
+    /**
+     * Get discounted price if an active discount exists
+     */
+    public function getDiscountedPriceAttribute()
+    {
+        $discount = $this->active_discount;
+
+        if (!$discount) {
+            return $this->price;
+        }
+
+        if ($discount->discount_type === 'PERCENTAGE') {
+            return $this->price * (1 - ($discount->discount_value / 100));
+        }
+
+        // FIXED discount
+        return max(0, $this->price - $discount->discount_value);
+    }
 }

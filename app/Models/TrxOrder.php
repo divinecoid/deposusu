@@ -15,6 +15,7 @@ class TrxOrder extends Model
         'order_number',
         'customer_name',
         'total_amount',
+        'total_discount',
         'status',          // pending, onprocess, ondelivery, delivered, done, cancelled, rejected
         'payment_status',  // UNPAID, PAID, CANCELLED
         'driver_id',

@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\MdxProduct;
+use App\Models\TrxOrder;
+use App\Models\TrxOrderItem;
 use App\Models\TrxCart;
 use App\Models\TrxCartItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CartController extends Controller
 {
@@ -164,18 +168,96 @@ class CartController extends Controller
     }
 
     /**
-     * Get cart data (AJAX) - for updating header badge
+     * Handle checkout process
      */
-    public function getCartData()
+    public function checkout(Request $request)
     {
         $cart = $this->getCurrentCart();
+        $cartItems = $cart->items()->with('product')->get();
 
-        return response()->json([
-            'success' => true,
-            'cart' => [
-                'total_items' => $cart->getTotalItems(),
-                'total_price' => $cart->getTotalPrice(),
-            ]
-        ]);
+        if ($cartItems->count() == 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Keranjang kosong'
+            ], 400);
+        }
+
+        try {
+            DB::beginTransaction();
+
+            $totalAmount = 0;
+            $totalDiscount = 0;
+
+            // Generate order number
+            $orderNumber = 'ORD-' . strtoupper(Str::random(10));
+
+            $order = TrxOrder::create([
+                'order_number' => $orderNumber,
+                'customer_name' => auth()->check() ? auth()->user()->name : 'Guest',
+                'total_amount' => 0, // Placeholder
+                'total_discount' => 0, // Placeholder
+                'status' => 'pending',
+                'payment_status' => 'UNPAID',
+            ]);
+
+            foreach ($cartItems as $cartItem) {
+                $product = $cartItem->product;
+                $activeDiscount = $product->active_discount;
+
+                $originalPrice = $product->price;
+                $discountPrice = $product->discounted_price;
+                $discountAmount = 0;
+                $discountId = null;
+
+                if ($activeDiscount) {
+                    $discountId = $activeDiscount->id;
+                    $discountAmount = ($originalPrice - $discountPrice) * $cartItem->quantity;
+                }
+
+                $subtotal = $discountPrice * $cartItem->quantity;
+
+                TrxOrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $product->id,
+                    'original_price' => $originalPrice,
+                    'quantity' => $cartItem->quantity,
+                    'price' => $discountPrice,
+                    'discount_amount' => $discountAmount,
+                    'discount_id' => $discountId,
+                    'subtotal' => $subtotal,
+                ]);
+
+                $totalAmount += $subtotal;
+                $totalDiscount += $discountAmount;
+
+                // Update stock
+                $product->decrement('stock', $cartItem->quantity);
+            }
+
+            // Update order totals
+            $order->update([
+                'total_amount' => $totalAmount,
+                'total_discount' => $totalDiscount,
+            ]);
+
+            // Clear cart
+            $cart->clearCart();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesanan berhasil dibuat!',
+                'order_id' => $order->id,
+                'order_number' => $order->order_number
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membuat pesanan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

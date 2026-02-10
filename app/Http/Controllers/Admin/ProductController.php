@@ -9,11 +9,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
+use App\Models\MdxProductDiscount;
+
 class ProductController extends Controller
 {
     public function index()
     {
-        $products = MdxProduct::with('category')->latest()->get();
+        $products = MdxProduct::with([
+            'category',
+            'discounts' => function ($q) {
+                $q->active();
+            }
+        ])->latest()->get();
         return view('admin.master.products.index', compact('products'));
     }
 
@@ -52,6 +59,7 @@ class ProductController extends Controller
     public function edit(MdxProduct $product)
     {
         $categories = MdxCategory::all();
+        $product->load('discounts');
         return view('admin.master.products.edit', compact('product', 'categories'));
     }
 
@@ -92,5 +100,60 @@ class ProductController extends Controller
         $product->delete();
         return redirect()->route('admin.master.products.index')
             ->with('success', 'Product deleted successfully.');
+    }
+
+    public function storeDiscount(Request $request, MdxProduct $product)
+    {
+        $request->validate([
+            'discount_type' => 'required|in:PERCENTAGE,FIXED',
+            'discount_value' => 'required|numeric|min:0',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $product->discounts()->create([
+            'discount_type' => $request->discount_type,
+            'discount_value' => $request->discount_value,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'created_by' => auth()->id(),
+        ]);
+
+        return redirect()->route('admin.master.products.edit', $product->id)
+            ->with('success', 'Discount added successfully.');
+    }
+
+    public function toggleDiscountStatus(MdxProductDiscount $discount)
+    {
+        $discount->update([
+            'is_active' => !$discount->is_active
+        ]);
+
+        return back()->with('success', 'Discount status updated.');
+    }
+
+    public function updateDiscount(Request $request, MdxProductDiscount $discount)
+    {
+        $request->validate([
+            'discount_type' => 'required|in:PERCENTAGE,FIXED',
+            'discount_value' => 'required|numeric|min:0',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+        ]);
+
+        $discount->update([
+            'discount_type' => $request->discount_type,
+            'discount_value' => $request->discount_value,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+        ]);
+
+        return back()->with('success', 'Discount updated successfully.');
+    }
+
+    public function destroyDiscount(MdxProductDiscount $discount)
+    {
+        $discount->delete();
+        return back()->with('success', 'Discount deleted successfully.');
     }
 }

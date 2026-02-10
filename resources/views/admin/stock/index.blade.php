@@ -8,7 +8,7 @@
         <div class="lg:col-span-1">
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="mb-4">
-                    <h3 class="text-lg font-semibold text-gray-800">Hasuransi Stok (Stock Adjustment)</h3>
+                    <h3 class="text-lg font-semibold text-gray-800">Stock Opname</h3>
                     <p class="text-sm text-gray-500">Sesuaikan stok produk secara manual.</p>
                 </div>
 

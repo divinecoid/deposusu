@@ -60,13 +60,14 @@ class TrxCart extends Model
         if ($cartItem) {
             // Update quantity
             $cartItem->quantity += $quantity;
+            $cartItem->price = $product->discounted_price; // Refresh price to latest discounted price
             $cartItem->save();
         } else {
             // Create new cart item
             $cartItem = $this->items()->create([
                 'product_id' => $productId,
                 'quantity' => $quantity,
-                'price' => $product->price,
+                'price' => $product->discounted_price,
             ]);
         }
 

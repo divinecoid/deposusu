@@ -27,6 +27,7 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::delete('/remove/{cartItem}', [CartController::class, 'remove'])->name('remove');
     Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
     Route::get('/data', [CartController::class, 'getCartData'])->name('data');
+    Route::post('/checkout', [CartController::class, 'checkout'])->name('checkout');
 });
 
 // Admin Routes
@@ -37,6 +38,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::prefix('master')->name('master.')->group(function () {
         Route::resource('categories', CategoryController::class)->except(['show']);
         Route::resource('products', ProductController::class)->except(['show']);
+        Route::post('products/{product}/discount', [ProductController::class, 'storeDiscount'])->name('products.discount.store');
+        Route::patch('discounts/{discount}/toggle', [ProductController::class, 'toggleDiscountStatus'])->name('products.discount.toggle');
+        Route::put('discounts/{discount}', [ProductController::class, 'updateDiscount'])->name('products.discount.update');
+        Route::delete('discounts/{discount}', [ProductController::class, 'destroyDiscount'])->name('products.discount.destroy');
         Route::resource('warehouses', WarehouseController::class)->except(['show', 'edit', 'create']);
         Route::resource('racks', RackController::class)->only(['store', 'destroy']);
         Route::get('customers', [UserController::class, 'indexCustomers'])->name('customers.index');

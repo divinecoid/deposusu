@@ -162,10 +162,21 @@
                         <div class="product-card glass-effect rounded-2xl overflow-hidden shadow-lg"
                             style="animation-delay: {{ ($loop->iteration - 1) * 0.1 }}s">
                             <div class="relative">
-                                <div class="absolute top-4 right-4 z-10">
-                                    <span class="px-3 py-1 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold">
+                                <div class="absolute top-4 right-4 z-10 flex flex-col gap-2 italic">
+                                    <span
+                                        class="px-3 py-1 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold shadow-sm">
                                         Featured
                                     </span>
+                                    @if($product->active_discount)
+                                        <span
+                                            class="px-3 py-1 bg-red-500 text-white rounded-full text-xs font-bold shadow-sm animate-pulse">
+                                            @if($product->active_discount->discount_type === 'PERCENTAGE')
+                                                {{ number_format($product->active_discount->discount_value, 0) }}% OFF
+                                            @else
+                                                Hemat Rp {{ number_format($product->active_discount->discount_value, 0, ',', '.') }}
+                                            @endif
+                                        </span>
+                                    @endif
                                 </div>
                                 <div class="aspect-square bg-gradient-to-br from-blue-50 to-blue-100 p-8">
                                     <img src="{{ $product->image && str_starts_with($product->image, 'storage/') ? asset($product->image) : $product->image }}"
@@ -181,12 +192,19 @@
                                     susu berkualitas premium dengan rasa yang lezat</p>
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-sm text-gray-500 line-through">Rp
-                                            {{ number_format($product->price * 1.3, 0, ',', '.') }}
-                                        </p>
-                                        <p class="text-2xl font-bold text-blue-600">Rp
-                                            {{ number_format($product->price, 0, ',', '.') }}
-                                        </p>
+                                        @if($product->active_discount)
+                                            <p class="text-sm text-gray-500 line-through">Rp
+                                                {{ number_format($product->price, 0, ',', '.') }}
+                                            </p>
+                                            <p class="text-2xl font-bold text-blue-600">Rp
+                                                {{ number_format($product->discounted_price, 0, ',', '.') }}
+                                            </p>
+                                        @else
+                                            <p class="text-sm text-gray-500 opacity-0">-</p>
+                                            <p class="text-2xl font-bold text-blue-600">Rp
+                                                {{ number_format($product->price, 0, ',', '.') }}
+                                            </p>
+                                        @endif
                                     </div>
                                     <button onclick="addToCart({{ $product->id }})"
                                         class="px-4 py-2 md:px-6 md:py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
@@ -239,6 +257,18 @@
                                     </svg>
                                 </button>
 
+                                @if($product->active_discount)
+                                    <div class="absolute top-3 left-3 z-10">
+                                        <span class="px-2 py-1 bg-red-500 text-white text-[10px] font-bold rounded-lg shadow-sm">
+                                            @if($product->active_discount->discount_type === 'PERCENTAGE')
+                                                -{{ number_format($product->active_discount->discount_value, 0) }}%
+                                            @else
+                                                Promo
+                                            @endif
+                                        </span>
+                                    </div>
+                                @endif
+
                                 <div class="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 p-6">
                                     <img src="{{ $product->image && str_starts_with($product->image, 'storage/') ? asset($product->image) : $product->image }}"
                                         alt="{{ $product->name }}"
@@ -282,10 +312,19 @@
 
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-base md:text-lg font-bold text-blue-600">Rp
-                                            {{ number_format($product->price, 0, ',', '.') }}
-                                        </p>
-                                        <p class="text-[10px] md:text-xs text-gray-400">per unit</p>
+                                        @if($product->active_discount)
+                                            <p class="text-xs text-gray-400 line-through">Rp
+                                                {{ number_format($product->price, 0, ',', '.') }}
+                                            </p>
+                                            <p class="text-base md:text-lg font-bold text-blue-600">Rp
+                                                {{ number_format($product->discounted_price, 0, ',', '.') }}
+                                            </p>
+                                        @else
+                                            <p class="text-base md:text-lg font-bold text-blue-600">Rp
+                                                {{ number_format($product->price, 0, ',', '.') }}
+                                            </p>
+                                            <p class="text-[10px] md:text-xs text-gray-400">per unit</p>
+                                        @endif
                                     </div>
                                     <button onclick="addToCart({{ $product->id }})"
                                         class="p-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-lg hover:shadow-lg transform hover:scale-110 transition-all duration-300">

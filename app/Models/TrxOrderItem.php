@@ -12,8 +12,11 @@ class TrxOrderItem extends Model
     protected $fillable = [
         'order_id',
         'product_id',
+        'original_price',
         'quantity',
         'price',
+        'discount_amount',
+        'discount_id',
         'subtotal',
     ];
 
