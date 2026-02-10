@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\RackController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\CartController;
+use App\Http\Controllers\Customer\WishlistController;
 
 // Customer Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -29,6 +30,12 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
     Route::get('/data', [CartController::class, 'getCartData'])->name('data');
     Route::post('/checkout', [CartController::class, 'checkout'])->name('checkout');
+});
+
+// Wishlist Routes
+Route::prefix('wishlist')->name('wishlist.')->middleware(['auth'])->group(function () {
+    Route::get('/', [WishlistController::class, 'index'])->name('index');
+    Route::post('/toggle', [WishlistController::class, 'toggle'])->name('toggle');
 });
 
 // Admin Routes

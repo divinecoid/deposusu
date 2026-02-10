@@ -78,4 +78,16 @@ class MdxProduct extends Model
         // FIXED discount
         return max(0, $this->price - $discount->discount_value);
     }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class, 'product_id');
+    }
+
+    public function isWishlistedBy($user)
+    {
+        if (!$user)
+            return false;
+        return $this->wishlists()->where('user_id', $user->id)->exists();
+    }
 }

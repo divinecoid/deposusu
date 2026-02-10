@@ -15,10 +15,13 @@
                 data-category-id="{{ $product->category_id }}" style="animation-delay: {{ ($loop->iteration - 1) * 0.05 }}s">
                 <div class="relative group">
                     <!-- Wishlist Button -->
-                    <button onclick="event.stopPropagation();"
-                        class="absolute top-3 right-3 z-10 p-2 bg-white rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-50">
-                        <svg class="w-5 h-5 text-gray-400 hover:text-red-500" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
+                    <button onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)"
+                        class="absolute top-3 right-3 z-10 p-2 bg-white rounded-full shadow-md transition-all duration-300 hover:bg-red-50">
+                        @php
+                            $isWishlisted = Auth::check() && $product->isWishlistedBy(Auth::user());
+                        @endphp
+                        <svg class="w-5 h-5 {{ $isWishlisted ? 'text-red-500' : 'text-gray-400' }} hover:text-red-500"
+                            fill="{{ $isWishlisted ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>

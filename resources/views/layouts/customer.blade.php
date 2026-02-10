@@ -56,6 +56,19 @@
                         </svg>
                     </button>
 
+                    <!-- Wishlist link -->
+                    <a href="{{ route('wishlist.index') }}" class="p-2 text-gray-500 hover:text-blue-500 relative">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                        <!-- Wishlist Badge -->
+                        <span
+                            class="wishlist-badge absolute top-0 right-0 bg-red-600 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center"
+                            style="display: none;">0</span>
+                    </a>
+
                     <!-- Cart (Always Visible) -->
                     <a href="{{ route('cart.index') }}" class="p-2 text-gray-500 hover:text-blue-500 relative">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"
@@ -205,6 +218,14 @@
                                     </svg>
                                     Keranjang
                                 </a>
+                                <a href="{{ route('wishlist.index') }}"
+                                    class="flex items-center gap-3 text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                    </svg>
+                                    Wishlist
+                                </a>
                             </div>
                         </div>
 
@@ -314,6 +335,52 @@
 
         // Call on page load
         document.addEventListener('DOMContentLoaded', updateCartBadge);
+        async function toggleWishlist(productId, button) {
+            try {
+                const response = await fetch('{{ route('wishlist.toggle') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({ product_id: productId })
+                });
+
+                if (response.status === 401) {
+                    window.location.href = '{{ route('login') }}';
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (data.status === 'added') {
+                        button.querySelector('svg').classList.remove('text-gray-400');
+                        button.querySelector('svg').classList.add('text-red-500');
+                        button.querySelector('svg').setAttribute('fill', 'currentColor');
+                    } else {
+                        button.querySelector('svg').classList.add('text-gray-400');
+                        button.querySelector('svg').classList.remove('text-red-500');
+                        button.querySelector('svg').setAttribute('fill', 'none');
+
+                        // If we are on the wishlist page, we might want to refresh or remove the card
+                        if (window.location.pathname.includes('/wishlist')) {
+                            const card = button.closest('.product-card');
+                            card.style.opacity = '0';
+                            card.style.transform = 'scale(0.9)';
+                            setTimeout(() => {
+                                card.remove();
+                                if (document.querySelectorAll('.product-card').length === 0) {
+                                    location.reload(); // Show empty state
+                                }
+                            }, 300);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error toggling wishlist:', error);
+            }
+        }
     </script>
 
 </body>
