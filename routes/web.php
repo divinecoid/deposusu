@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\WishlistController;
+use App\Http\Controllers\Customer\TransactionsController;
 
 // Customer Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -36,6 +37,12 @@ Route::prefix('cart')->name('cart.')->group(function () {
 Route::prefix('wishlist')->name('wishlist.')->middleware(['auth'])->group(function () {
     Route::get('/', [WishlistController::class, 'index'])->name('index');
     Route::post('/toggle', [WishlistController::class, 'toggle'])->name('toggle');
+});
+
+// Customer Transactions
+Route::prefix('transactions')->name('transactions.')->middleware(['auth'])->group(function () {
+    Route::get('/', [TransactionsController::class, 'index'])->name('index');
+    Route::get('/{order}', [TransactionsController::class, 'show'])->name('show');
 });
 
 // Admin Routes

@@ -124,6 +124,12 @@
                                 class="px-6 py-3 md:px-8 md:py-4 border-2 border-white text-white rounded-full font-semibold hover:bg-white hover:text-blue-600 transform hover:scale-105 transition-all duration-300 text-center text-sm md:text-base">
                                 Produk Promo
                             </a>
+                            @auth
+                                <a href="{{ route('transactions.index') }}"
+                                    class="px-6 py-3 md:px-8 md:py-4 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transform hover:scale-105 transition-all duration-300 shadow-lg text-center text-sm md:text-base">
+                                    Transaksi Saya
+                                </a>
+                            @endauth
                         </div>
                     </div>
                     <div class="hidden md:block animate-slide-in">

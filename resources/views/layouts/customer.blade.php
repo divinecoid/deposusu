@@ -82,6 +82,15 @@
                             class="cart-badge absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center"
                             style="display: none;">0</span>
                     </a>
+                    @auth
+                        <a href="{{ route('transactions.index') }}" class="hidden md:inline-flex p-2 text-gray-500 hover:text-blue-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 17v-2h6v2m-7 4h8a2 2 0 002-2V7a2 2 0 00-2-2h-3V3H9v2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </a>
+                    @endauth
 
                     <div class="h-6 w-px bg-gray-300 hidden md:block"></div>
 
@@ -105,6 +114,13 @@
 
                     <!-- Mobile User/Logout Icon -->
                     @auth
+                        <a href="{{ route('transactions.index') }}" class="md:hidden p-2 text-gray-500 hover:text-blue-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 17v-2h6v2m-7 4h8a2 2 0 002-2V7a2 2 0 00-2-2h-3V3H9v2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                        </a>
                         <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                             class="md:hidden p-2 text-red-500 hover:text-red-700">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
@@ -199,6 +215,16 @@
                                     </svg>
                                     Wishlist
                                 </a>
+                                @auth
+                                    <a href="{{ url('/transactions') }}"
+                                        class="flex items-center gap-3 text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 17v-2h6v2m-7 4h8a2 2 0 002-2V7a2 2 0 00-2-2h-3V3H9v2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                        Transaksi
+                                    </a>
+                                @endauth
                             </div>
                         </div>
 
