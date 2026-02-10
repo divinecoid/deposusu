@@ -11,7 +11,7 @@ class HomeController extends Controller
     public function index()
     {
         // Get products from database with discounts eager loaded
-        $products = MdxProduct::with(['discounts', 'category'])->orderBy('created_at', 'desc')->get();
+        $products = MdxProduct::with(['discounts', 'categories'])->orderBy('created_at', 'desc')->get();
         // Get all categories
         $categories = \App\Models\MdxCategory::orderBy('name')->get();
 
@@ -20,11 +20,13 @@ class HomeController extends Controller
 
     public function search(Request $request)
     {
-        $query = MdxProduct::with(['discounts', 'category'])->orderBy('created_at', 'desc');
+        $query = MdxProduct::with(['discounts', 'categories'])->orderBy('created_at', 'desc');
 
         // Filter by Category
         if ($request->has('category') && $request->category !== 'all') {
-            $query->where('category_id', $request->category);
+            $query->whereHas('categories', function ($q) use ($request) {
+                $q->where('mdx_categories.id', $request->category);
+            });
         }
 
         // Filter by Search Query

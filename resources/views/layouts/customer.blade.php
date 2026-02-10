@@ -490,8 +490,10 @@
             qvImage.src = imagePath;
             qvImage.alt = product.name;
             qvName.textContent = product.name;
-            qvCategory.textContent = product.category ? product.category.name : 'Susu Segar';
-            qvDescription.textContent = product.description || 'Produk susu berkualitas premium dengan rasa yang lezat. Kaya akan nutrisi dan vitamin untuk kesehatan keluarga Anda.';
+            qvCategory.textContent = product.categories && product.categories.length > 0
+                ? product.categories.map(c => c.name).join(', ')
+                : (product.category ? product.category.name : 'Susu Segar');
+            qvDescription.textContent = product.description;
             const price = parseFloat(product.price);
             let finalPrice = price;
             if (product.active_discount) {

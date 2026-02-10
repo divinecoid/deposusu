@@ -16,7 +16,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = MdxProduct::with([
-            'category',
+            'categories',
             'discounts' => function ($q) {
                 $q->active();
             }
@@ -34,7 +34,8 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'category_id' => 'required|exists:mdx_categories,id',
+            'categories' => 'required|array',
+            'categories.*' => 'exists:mdx_categories,id',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
             'description' => 'nullable|string',
@@ -43,14 +44,15 @@ class ProductController extends Controller
             'barcode' => 'nullable|string|unique:mdx_products,barcode',
         ]);
 
-        $data = $request->all();
+        $data = $request->except('categories');
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('products', 'public');
             $data['image'] = 'storage/' . $path;
         }
 
-        MdxProduct::create($data);
+        $product = MdxProduct::create($data);
+        $product->categories()->attach($request->categories);
 
         return redirect()->route('admin.master.products.index')
             ->with('success', 'Product created successfully.');
@@ -59,7 +61,7 @@ class ProductController extends Controller
     public function edit(MdxProduct $product)
     {
         $categories = MdxCategory::all();
-        $product->load('discounts');
+        $product->load(['discounts', 'categories']);
         return view('admin.master.products.edit', compact('product', 'categories'));
     }
 
@@ -67,7 +69,8 @@ class ProductController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'category_id' => 'required|exists:mdx_categories,id',
+            'categories' => 'required|array',
+            'categories.*' => 'exists:mdx_categories,id',
             'price' => 'required|numeric',
             'stock' => 'required|integer',
             'description' => 'nullable|string',
@@ -76,7 +79,7 @@ class ProductController extends Controller
             'barcode' => 'nullable|string|unique:mdx_products,barcode,' . $product->id,
         ]);
 
-        $data = $request->all();
+        $data = $request->except('categories');
 
         if ($request->hasFile('image')) {
             // Delete old image if exists
@@ -90,6 +93,7 @@ class ProductController extends Controller
         }
 
         $product->update($data);
+        $product->categories()->sync($request->categories);
 
         return redirect()->route('admin.master.products.index')
             ->with('success', 'Product updated successfully.');

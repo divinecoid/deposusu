@@ -4,19 +4,19 @@
 
 @section('content')
     <div class="bg-white rounded-lg shadow p-6" x-data="{
-            search: {
-                name: '',
-                category: '',
-                sku: '',
-                barcode: ''
-            },
-            isVisible(row) {
-                return (this.search.name === '' || row.name.toLowerCase().includes(this.search.name.toLowerCase())) &&
-                       (this.search.category === '' || row.category.toLowerCase().includes(this.search.category.toLowerCase())) &&
-                       (this.search.sku === '' || row.sku.toLowerCase().includes(this.search.sku.toLowerCase())) &&
-                       (this.search.barcode === '' || row.barcode.toLowerCase().includes(this.search.barcode.toLowerCase()));
-            }
-        }">
+                search: {
+                    name: '',
+                    category: '',
+                    sku: '',
+                    barcode: ''
+                },
+                isVisible(row) {
+                    return (this.search.name === '' || row.name.toLowerCase().includes(this.search.name.toLowerCase())) &&
+                           (this.search.category === '' || row.category.toLowerCase().includes(this.search.category.toLowerCase())) &&
+                           (this.search.sku === '' || row.sku.toLowerCase().includes(this.search.sku.toLowerCase())) &&
+                           (this.search.barcode === '' || row.barcode.toLowerCase().includes(this.search.barcode.toLowerCase()));
+                }
+            }">
         <div class="flex justify-between mb-4">
             <h2 class="text-xl font-semibold text-gray-800">Daftar Produk</h2>
             <a href="{{ route('admin.master.products.create') }}"
@@ -64,12 +64,12 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($products as $product)
-                        <tr x-show="isVisible({ 
-                                    name: '{{ addslashes($product->name) }}', 
-                                    category: '{{ addslashes($product->category->name ?? 'N/A') }}',
-                                    sku: '{{ addslashes($product->sku ?? '') }}',
-                                    barcode: '{{ addslashes($product->barcode ?? '') }}'
-                                })" x-transition>
+                        <tr x-show="isVisible({
+                                            name: '{{ addslashes($product->name) }}',
+                                            category: '{{ addslashes($product->categories->pluck('name')->implode(', ') ?: 'N/A') }}',
+                                            sku: '{{ addslashes($product->sku ?? '') }}',
+                                            barcode: '{{ addslashes($product->barcode ?? '') }}'
+                                        })" x-transition>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if($product->image)
                                     <img src="{{ asset($product->image) }}" alt="{{ $product->name }}"
@@ -85,7 +85,7 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ $product->category->name ?? 'N/A' }}
+                                {{ $product->categories->pluck('name')->implode(', ') ?: 'N/A' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 @if($product->active_discount)

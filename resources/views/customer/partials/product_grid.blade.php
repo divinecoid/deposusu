@@ -12,7 +12,8 @@
         @foreach($products as $product)
             <div onclick="openQuickView({{ json_encode($product) }})"
                 class="product-card bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl cursor-pointer"
-                data-category-id="{{ $product->category_id }}" style="animation-delay: {{ ($loop->iteration - 1) * 0.05 }}s">
+                data-category-ids="{{ $product->categories->pluck('id')->implode(',') }}"
+                style="animation-delay: {{ ($loop->iteration - 1) * 0.05 }}s">
                 <div class="relative group">
                     <!-- Wishlist Button -->
                     <button onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)"
@@ -52,7 +53,7 @@
                 <div class="p-4">
                     <div class="mb-2">
                         <span class="inline-block px-2 py-1 bg-blue-100 text-blue-600 text-xs font-semibold rounded">
-                            {{ $product->category->name ?? 'Uncategorized' }}
+                            {{ $product->categories->pluck('name')->implode(', ') ?: 'Uncategorized' }}
                         </span>
                     </div>
                     <h3 class="text-sm md:text-base font-bold text-gray-900 mb-1 line-clamp-2 h-10">

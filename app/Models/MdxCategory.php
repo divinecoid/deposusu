@@ -13,6 +13,6 @@ class MdxCategory extends Model
 
     public function products()
     {
-        return $this->hasMany(MdxProduct::class, 'category_id');
+        return $this->belongsToMany(MdxProduct::class, 'mdx_category_product', 'mdx_category_id', 'mdx_product_id');
     }
 }

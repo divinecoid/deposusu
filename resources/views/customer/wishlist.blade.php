@@ -12,14 +12,15 @@
     <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header -->
-            <div class="flex items-center justify-between mb-10">
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
                 <div>
                     <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Wishlist <span
                             class="text-blue-600">Saya</span></h1>
                     <p class="text-gray-500 mt-2">Daftar produk yang Anda simpan untuk dibeli nanti.</p>
                 </div>
                 <a href="{{ route('home') }}"
-                    class="flex items-center gap-2 text-blue-600 font-bold hover:text-blue-700 transition-colors">
+                    class="flex items-center gap-2 text-blue-600 font-bold hover:text-blue-700 transition-colors self-start md:self-auto">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -67,8 +68,8 @@
                             </div>
 
                             <div class="p-4">
-                                <span
-                                    class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">{{ $product->category->name ?? 'Uncategorized' }}</span>
+                                class="text-[10px] font-bold text-blue-500 uppercase
+                                tracking-widest">{{ $product->categories->pluck('name')->implode(', ') ?: 'Uncategorized' }}</span>
                                 <h3 class="text-sm font-bold text-gray-900 mt-1 line-clamp-1 capitalize">{{ $product->name }}</h3>
 
                                 <div class="mt-2 flex items-center justify-between">

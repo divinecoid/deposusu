@@ -29,11 +29,11 @@
                             class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:border-blue-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Kategori</label>
-                        <select name="category_id"
-                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:border-blue-500 focus:outline-none"
+                        <label class="block text-sm font-medium text-gray-700">Kategori (Ctrl+Click untuk pilih
+                            banyak)</label>
+                        <select name="categories[]" multiple
+                            class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:border-blue-500 focus:outline-none h-32"
                             required>
-                            <option value="">Pilih Kategori</option>
                             @foreach($categories as $category)
                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
                             @endforeach
@@ -66,11 +66,11 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Gambar Produk</label>
                     <input type="file" name="image" accept="image/*" class="mt-1 block w-full text-sm text-gray-500
-                                file:mr-4 file:py-2 file:px-4
-                                file:rounded-full file:border-0
-                                file:text-sm file:font-semibold
-                                file:bg-blue-50 file:text-blue-700
-                                hover:file:bg-blue-100">
+                                    file:mr-4 file:py-2 file:px-4
+                                    file:rounded-full file:border-0
+                                    file:text-sm file:font-semibold
+                                    file:bg-blue-50 file:text-blue-700
+                                    hover:file:bg-blue-100">
                     <p class="mt-1 text-xs text-gray-500">Format: JPG, PNG, GIF. Max: 2MB.</p>
                 </div>
 

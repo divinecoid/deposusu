@@ -15,7 +15,6 @@ class MdxProduct extends Model
         'name',
         'sku',
         'barcode',
-        'category_id',
         'price',
         'description',
         'image',
@@ -39,9 +38,10 @@ class MdxProduct extends Model
     {
         return $this->hasMany(TrxCartItem::class, 'product_id');
     }
-    public function category()
+
+    public function categories()
     {
-        return $this->belongsTo(MdxCategory::class);
+        return $this->belongsToMany(MdxCategory::class, 'mdx_category_product', 'mdx_product_id', 'mdx_category_id');
     }
 
     /**
