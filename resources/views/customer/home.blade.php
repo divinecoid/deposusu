@@ -357,104 +357,108 @@
             </div>
         </section>
 
+
         <!-- Promo Products Section -->
-        <section id="promo-section" class="py-12 animate-fade-in-up" style="animation-delay: 0.2s">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between mb-8">
-                    <div>
-                        <h2 class="text-2xl md:text-4xl font-bold text-gray-900">Produk Promo</h2>
-                        <p class="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">Jangan lewatkan diskon menarik minggu ini
-                        </p>
+        @if($products->whereNotNull('active_discount')->count() > 0)
+            <section id="promo-section" class="py-12 animate-fade-in-up" style="animation-delay: 0.2s">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 class="text-2xl md:text-4xl font-bold text-gray-900">Produk Promo</h2>
+                            <p class="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">Jangan lewatkan diskon menarik minggu ini
+                            </p>
+                        </div>
+                        <a href="#"
+                            class="hidden md:block text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-2">
+                            Lihat Semua
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
                     </div>
-                    <a href="#"
-                        class="hidden md:block text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-2">
-                        Lihat Semua
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </a>
-                </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    @foreach($products->whereNotNull('active_discount')->take(3) as $product)
-                        <div onclick="openQuickView({{ json_encode($product) }})"
-                            class="product-card group glass-effect rounded-2xl overflow-hidden shadow-lg cursor-pointer"
-                            style="animation-delay: {{ ($loop->iteration - 1) * 0.1 }}s">
-                            <div class="relative">
-                                <div class="absolute top-4 right-4 z-10 flex flex-col gap-2 italic">
-                                    <span class="px-3 py-1 bg-blue-600 text-white rounded-full text-xs font-bold shadow-sm">
-                                        Promo
-                                    </span>
-                                    @if($product->active_discount)
-                                        <span
-                                            class="px-3 py-1 bg-red-500 text-white rounded-full text-xs font-bold shadow-sm animate-pulse">
-                                            @if($product->active_discount->discount_type === 'PERCENTAGE')
-                                                {{ number_format($product->active_discount->discount_value, 0) }}% OFF
-                                            @else
-                                                Hemat Rp {{ number_format($product->active_discount->discount_value, 0, ',', '.') }}
-                                            @endif
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        @foreach($products->whereNotNull('active_discount')->take(3) as $product)
+                            <div onclick="openQuickView({{ json_encode($product) }})"
+                                class="product-card group glass-effect rounded-2xl overflow-hidden shadow-lg cursor-pointer"
+                                style="animation-delay: {{ ($loop->iteration - 1) * 0.1 }}s">
+                                <div class="relative">
+                                    <div class="absolute top-4 right-4 z-10 flex flex-col gap-2 italic">
+                                        <span class="px-3 py-1 bg-blue-600 text-white rounded-full text-xs font-bold shadow-sm">
+                                            Promo
                                         </span>
-                                    @endif
-                                </div>
-                                <div class="image-container skeleton aspect-square bg-blue-50 p-8 rounded-2xl overflow-hidden">
-                                    <img src="{{ $product->image && str_starts_with($product->image, 'storage/') ? asset($product->image) : $product->image }}"
-                                        alt="{{ $product->name }}"
-                                        class="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500"
-                                        style="filter: none !important; background-color: transparent !important;"
-                                        onload="this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');"
-                                        onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=No+Image'; this.classList.add('loaded'); this.parentElement.classList.remove('skeleton'); console.error('Image failing to load:', this.src);">
-
-                                    <!-- Wishlist Button -->
-                                    <button onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)"
-                                        class="absolute top-4 left-4 z-10 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-md transition-all duration-300 hover:bg-red-50">
-                                        @php
-                                            $isWishlisted = Auth::check() && $product->isWishlistedBy(Auth::user());
-                                        @endphp
-                                        <svg class="w-5 h-5 {{ $isWishlisted ? 'text-red-500' : 'text-gray-400' }} hover:text-red-500"
-                                            fill="{{ $isWishlisted ? 'currentColor' : 'none' }}" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="p-6">
-                                <h3 class="text-lg md:text-xl font-bold text-gray-900 mb-1 md:mb-2">{{ $product->name }}</h3>
-                                <p class="text-gray-600 text-xs md:text-sm mb-3 md:mb-4 line-clamp-2 md:line-clamp-none">Produk
-                                    susu berkualitas premium dengan rasa yang lezat</p>
-                                <div class="flex items-center justify-between">
-                                    <div>
                                         @if($product->active_discount)
-                                            <p class="text-sm text-gray-500 line-through">Rp
-                                                {{ number_format($product->price, 0, ',', '.') }}
-                                            </p>
-                                            <p class="text-2xl font-bold text-blue-600">Rp
-                                                {{ number_format($product->discounted_price, 0, ',', '.') }}
-                                            </p>
-                                        @else
-                                            <p class="text-sm text-gray-500 opacity-0">-</p>
-                                            <p class="text-2xl font-bold text-blue-600">Rp
-                                                {{ number_format($product->price, 0, ',', '.') }}
-                                            </p>
+                                            <span
+                                                class="px-3 py-1 bg-red-500 text-white rounded-full text-xs font-bold shadow-sm animate-pulse">
+                                                @if($product->active_discount->discount_type === 'PERCENTAGE')
+                                                    {{ number_format($product->active_discount->discount_value, 0) }}% OFF
+                                                @else
+                                                    Hemat Rp {{ number_format($product->active_discount->discount_value, 0, ',', '.') }}
+                                                @endif
+                                            </span>
                                         @endif
                                     </div>
-                                    <button onclick="event.stopPropagation(); addToCart({{ $product->id }})"
-                                        class="px-6 py-2.5 md:px-8 md:py-3.5 bg-blue-600 text-white rounded-full font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 flex items-center gap-2 text-sm md:text-base">
-                                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                        </svg>
-                                        <span>Add to Cart</span>
-                                    </button>
+                                    <div class="image-container skeleton aspect-square bg-blue-50 p-8 rounded-2xl overflow-hidden">
+                                        <img src="{{ $product->image && str_starts_with($product->image, 'storage/') ? asset($product->image) : $product->image }}"
+                                            alt="{{ $product->name }}"
+                                            class="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500"
+                                            style="filter: none !important; background-color: transparent !important;"
+                                            onload="this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');"
+                                            onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=No+Image'; this.classList.add('loaded'); this.parentElement.classList.remove('skeleton'); console.error('Image failing to load:', this.src);">
+
+                                        <!-- Wishlist Button -->
+                                        <button onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)"
+                                            class="absolute top-4 left-4 z-10 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-md transition-all duration-300 hover:bg-red-50">
+                                            @php
+                                                $isWishlisted = Auth::check() && $product->isWishlistedBy(Auth::user());
+                                            @endphp
+                                            <svg class="w-5 h-5 {{ $isWishlisted ? 'text-red-500' : 'text-gray-400' }} hover:text-red-500"
+                                                fill="{{ $isWishlisted ? 'currentColor' : 'none' }}" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="text-lg md:text-xl font-bold text-gray-900 mb-1 md:mb-2">{{ $product->name }}</h3>
+                                    <p class="text-gray-600 text-xs md:text-sm mb-3 md:mb-4 line-clamp-2 md:line-clamp-none">Produk
+                                        susu berkualitas premium dengan rasa yang lezat</p>
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            @if($product->active_discount)
+                                                <p class="text-sm text-gray-500 line-through">Rp
+                                                    {{ number_format($product->price, 0, ',', '.') }}
+                                                </p>
+                                                <p class="text-2xl font-bold text-blue-600">Rp
+                                                    {{ number_format($product->discounted_price, 0, ',', '.') }}
+                                                </p>
+                                            @else
+                                                <p class="text-sm text-gray-500 opacity-0">-</p>
+                                                <p class="text-2xl font-bold text-blue-600">Rp
+                                                    {{ number_format($product->price, 0, ',', '.') }}
+                                                </p>
+                                            @endif
+                                        </div>
+                                        <button onclick="event.stopPropagation(); addToCart({{ $product->id }})"
+                                            class="px-6 py-2.5 md:px-8 md:py-3.5 bg-blue-600 text-white rounded-full font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 flex items-center gap-2 text-sm md:text-base">
+                                            <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            </svg>
+                                            <span>Add to Cart</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        @endif
+
 
         <!-- Main Product Grid Section -->
         <section id="products" class="py-12 animate-fade-in-up" style="animation-delay: 0.4s">
