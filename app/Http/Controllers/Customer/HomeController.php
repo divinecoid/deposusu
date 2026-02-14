@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\MdxProduct;
+use App\Models\HeroSlide;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -14,8 +15,10 @@ class HomeController extends Controller
         $products = MdxProduct::with(['discounts', 'categories'])->orderBy('created_at', 'desc')->get();
         // Get all categories
         $categories = \App\Models\MdxCategory::orderBy('name')->get();
+        // Get active hero slides
+        $heroSlides = HeroSlide::active()->ordered()->get();
 
-        return view('customer.home', compact('products', 'categories'));
+        return view('customer.home', compact('products', 'categories', 'heroSlides'));
     }
 
     public function search(Request $request)

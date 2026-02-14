@@ -103,49 +103,231 @@
 
     <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
 
-        <!-- Hero Section -->
-        <section id="hero-section" class="gradient-bg text-white py-12 md:py-24 animate-fade-in-up">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="grid md:grid-cols-2 gap-8 items-center">
-                    <div class="space-y-6 text-center md:text-left">
-                        <h1 class="text-3xl md:text-6xl font-bold leading-tight">
-                            Produk Susu <br>
-                            <span class="text-blue-200">Terbaik</span> untuk Anda
-                        </h1>
-                        <p class="text-lg md:text-xl text-blue-100">
-                            Nikmati kesegaran dan kualitas terbaik dari berbagai pilihan produk susu premium
-                        </p>
-                        <div class="flex flex-col sm:flex-row gap-3 pt-4 justify-center md:justify-start">
-                            <a href="#products"
-                                class="px-6 py-3 md:px-8 md:py-4 bg-white text-blue-600 rounded-full font-semibold hover:bg-blue-500 hover:text-white transform hover:scale-105 transition-all duration-300 shadow-lg text-center text-sm md:text-base">
-                                Belanja Sekarang
-                            </a>
-                            <a href="#featured"
-                                class="px-6 py-3 md:px-8 md:py-4 border-2 border-white text-white rounded-full font-semibold hover:bg-white hover:text-blue-600 transform hover:scale-105 transition-all duration-300 text-center text-sm md:text-base">
-                                Produk Promo
-                            </a>
-                            @auth
-                                <a href="{{ route('transactions.index') }}"
-                                    class="px-6 py-3 md:px-8 md:py-4 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transform hover:scale-105 transition-all duration-300 shadow-lg text-center text-sm md:text-base">
-                                    Transaksi Saya
-                                </a>
-                            @endauth
+        <!-- Hero Carousel Section -->
+        <section id="hero-section" class="relative overflow-hidden animate-fade-in-up">
+            @if($heroSlides->count() > 0)
+                <div class="hero-carousel relative">
+                    @foreach($heroSlides as $slide)
+                        <div class="hero-slide {{ $loop->first ? 'active' : '' }}" data-slide-index="{{ $loop->index }}">
+                            @if($slide->type === 'text')
+                                <!-- Text Slide -->
+                                <div class="gradient-bg text-white py-12 md:py-24">
+                                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                                        <div class="grid md:grid-cols-2 gap-8 items-center">
+                                            <div class="space-y-6 text-center md:text-left">
+                                                <h1 class="text-3xl md:text-6xl font-bold leading-tight">
+                                                    {!! nl2br(e($slide->title ?: 'Produk Susu Terbaik untuk Anda')) !!}
+                                                </h1>
+                                                @if($slide->subtitle)
+                                                    <p class="text-lg md:text-xl text-blue-100">
+                                                        {{ $slide->subtitle }}
+                                                    </p>
+                                                @endif
+                                                <div class="flex flex-col sm:flex-row gap-3 pt-4 justify-center md:justify-start">
+                                                    <a href="#products"
+                                                        class="px-6 py-3 md:px-8 md:py-4 bg-white text-blue-600 rounded-full font-semibold hover:bg-blue-500 hover:text-white transform hover:scale-105 transition-all duration-300 shadow-lg text-center text-sm md:text-base">
+                                                        Belanja Sekarang
+                                                    </a>
+                                                    <a href="#featured"
+                                                        class="px-6 py-3 md:px-8 md:py-4 border-2 border-white text-white rounded-full font-semibold hover:bg-white hover:text-blue-600 transform hover:scale-105 transition-all duration-300 text-center text-sm md:text-base">
+                                                        Produk Promo
+                                                    </a>
+                                                    @auth
+                                                        <a href="{{ route('transactions.index') }}"
+                                                            class="px-6 py-3 md:px-8 md:py-4 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transform hover:scale-105 transition-all duration-300 shadow-lg text-center text-sm md:text-base">
+                                                            Transaksi Saya
+                                                        </a>
+                                                    @endauth
+                                                </div>
+                                            </div>
+                                            <div class="hidden md:block animate-slide-in">
+                                                <div class="relative">
+                                                    <div
+                                                        class="absolute inset-0 bg-blue-300 rounded-full blur-3xl opacity-30 animate-pulse">
+                                                    </div>
+                                                    <svg class="w-full h-auto relative z-10" viewBox="0 0 400 400" fill="none"
+                                                        xmlns="http://www.w3.org/2000/svg">
+                                                        <circle cx="200" cy="200" r="150" fill="white" opacity="0.2" />
+                                                        <circle cx="200" cy="200" r="120" fill="white" opacity="0.3" />
+                                                        <circle cx="200" cy="200" r="90" fill="white" opacity="0.4" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <!-- Image Slide -->
+                                <div class="relative h-[400px] md:h-[600px] bg-gray-900">
+                                    <img src="{{ asset('storage/' . $slide->image_path) }}" alt="{{ $slide->title }}"
+                                        class="w-full h-full object-cover opacity-90">
+                                    @if($slide->title)
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <div class="text-center text-white px-4">
+                                                <h2 class="text-3xl md:text-5xl font-bold drop-shadow-lg">
+                                                    {{ $slide->title }}
+                                                </h2>
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
-                    </div>
-                    <div class="hidden md:block animate-slide-in">
-                        <div class="relative">
-                            <div class="absolute inset-0 bg-blue-300 rounded-full blur-3xl opacity-30 animate-pulse">
-                            </div>
-                            <svg class="w-full h-auto relative z-10" viewBox="0 0 400 400" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="200" cy="200" r="150" fill="white" opacity="0.2" />
-                                <circle cx="200" cy="200" r="120" fill="white" opacity="0.3" />
-                                <circle cx="200" cy="200" r="90" fill="white" opacity="0.4" />
+                    @endforeach
+
+                    @if($heroSlides->count() > 1)
+                        <!-- Navigation Arrows -->
+                        <button onclick="prevSlide()"
+                            class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all z-10">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
+                        </button>
+                        <button onclick="nextSlide()"
+                            class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-3 rounded-full shadow-lg transition-all z-10">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </button>
+
+                        <!-- Dots Navigation -->
+                        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                            @foreach($heroSlides as $slide)
+                                <button onclick="goToSlide({{ $loop->index }})"
+                                    class="slide-dot w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-all {{ $loop->first ? 'active bg-white w-8' : '' }}">
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+
+                <style>
+                    .hero-slide {
+                        display: none;
+                        animation: fadeIn 0.5s ease-in;
+                    }
+
+                    .hero-slide.active {
+                        display: block;
+                    }
+
+                    .slide-dot.active {
+                        background: white;
+                        width: 2rem;
+                    }
+
+                    @keyframes fadeIn {
+                        from {
+                            opacity: 0;
+                        }
+
+                        to {
+                            opacity: 1;
+                        }
+                    }
+                </style>
+
+                <script>
+                    let currentSlideIndex = 0;
+                    const slides = document.querySelectorAll('.hero-slide');
+                    const dots = document.querySelectorAll('.slide-dot');
+                    const totalSlides = slides.length;
+                    let autoplayInterval;
+
+                    function showSlide(index) {
+                        slides.forEach(slide => slide.classList.remove('active'));
+                        dots.forEach(dot => {
+                            dot.classList.remove('active', 'w-8');
+                            dot.classList.add('w-3');
+                        });
+
+                        slides[index].classList.add('active');
+                        if (dots[index]) {
+                            dots[index].classList.add('active', 'w-8');
+                            dots[index].classList.remove('w-3');
+                        }
+                    }
+
+                    function nextSlide() {
+                        currentSlideIndex = (currentSlideIndex + 1) % totalSlides;
+                        showSlide(currentSlideIndex);
+                        resetAutoplay();
+                    }
+
+                    function prevSlide() {
+                        currentSlideIndex = (currentSlideIndex - 1 + totalSlides) % totalSlides;
+                        showSlide(currentSlideIndex);
+                        resetAutoplay();
+                    }
+
+                    function goToSlide(index) {
+                        currentSlideIndex = index;
+                        showSlide(currentSlideIndex);
+                        resetAutoplay();
+                    }
+
+                    function startAutoplay() {
+                        if (totalSlides > 1) {
+                            autoplayInterval = setInterval(nextSlide, 5000); // Change slide every 5 seconds
+                        }
+                    }
+
+                    function resetAutoplay() {
+                        clearInterval(autoplayInterval);
+                        startAutoplay();
+                    }
+
+                    // Start autoplay on page load
+                    startAutoplay();
+
+                    // Pause autoplay on hover
+                    document.querySelector('.hero-carousel')?.addEventListener('mouseenter', () => {
+                        clearInterval(autoplayInterval);
+                    });
+                    document.querySelector('.hero-carousel')?.addEventListener('mouseleave', () => {
+                        startAutoplay();
+                    });
+                </script>
+            @else
+                <!-- Fallback if no slides -->
+                <section class="gradient-bg text-white py-12 md:py-24">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="grid md:grid-cols-2 gap-8 items-center">
+                            <div class="space-y-6 text-center md:text-left">
+                                <h1 class="text-3xl md:text-6xl font-bold leading-tight">
+                                    Produk Susu <br>
+                                    <span class="text-blue-200">Terbaik</span> untuk Anda
+                                </h1>
+                                <p class="text-lg md:text-xl text-blue-100">
+                                    Nikmati kesegaran dan kualitas terbaik dari berbagai pilihan produk susu premium
+                                </p>
+                                <div class="flex flex-col sm:flex-row gap-3 pt-4 justify-center md:justify-start">
+                                    <a href="#products"
+                                        class="px-6 py-3 md:px-8 md:py-4 bg-white text-blue-600 rounded-full font-semibold hover:bg-blue-500 hover:text-white transform hover:scale-105 transition-all duration-300 shadow-lg text-center text-sm md:text-base">
+                                        Belanja Sekarang
+                                    </a>
+                                    <a href="#featured"
+                                        class="px-6 py-3 md:px-8 md:py-4 border-2 border-white text-white rounded-full font-semibold hover:bg-white hover:text-blue-600 transform hover:scale-105 transition-all duration-300 text-center text-sm md:text-base">
+                                        Produk Promo
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="hidden md:block animate-slide-in">
+                                <div class="relative">
+                                    <div class="absolute inset-0 bg-blue-300 rounded-full blur-3xl opacity-30 animate-pulse">
+                                    </div>
+                                    <svg class="w-full h-auto relative z-10" viewBox="0 0 400 400" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="200" cy="200" r="150" fill="white" opacity="0.2" />
+                                        <circle cx="200" cy="200" r="120" fill="white" opacity="0.3" />
+                                        <circle cx="200" cy="200" r="90" fill="white" opacity="0.4" />
+                                    </svg>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </section>
+            @endif
         </section>
 
         <!-- Category Selection Section -->
@@ -495,7 +677,7 @@
 
         function filterCategories() {
             if (!categorySearch || !categoryGrid) return;
-            
+
             const query = categorySearch.value.toLowerCase();
             const items = categoryGrid.querySelectorAll('.category-item');
             let hasResults = false;

@@ -41,6 +41,9 @@
                     class="block py-2.5 px-4 rounded hover:bg-slate-700 {{ request()->routeIs('admin.master.customers.*') ? 'bg-slate-700' : '' }}">Customer</a>
                 <a href="{{ route('admin.master.drivers.index') }}"
                     class="block py-2.5 px-4 rounded hover:bg-slate-700 {{ request()->routeIs('admin.master.drivers.*') ? 'bg-slate-700' : '' }}">Driver</a>
+                <a href="{{ route('admin.master.hero-slides.index') }}"
+                    class="block py-2.5 px-4 rounded hover:bg-slate-700 {{ request()->routeIs('admin.master.hero-slides.*') ? 'bg-slate-700' : '' }}">Hero
+                    Slides</a>
 
                 <div class="pt-4 pb-2">
                     <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Transaksi</p>
