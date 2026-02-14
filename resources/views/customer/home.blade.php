@@ -123,22 +123,6 @@
                                                         {{ $slide->subtitle }}
                                                     </p>
                                                 @endif
-                                                <div class="flex flex-col sm:flex-row gap-3 pt-4 justify-center md:justify-start">
-                                                    <a href="#products"
-                                                        class="px-6 py-3 md:px-8 md:py-4 bg-white text-blue-600 rounded-full font-semibold hover:bg-blue-500 hover:text-white transform hover:scale-105 transition-all duration-300 shadow-lg text-center text-sm md:text-base">
-                                                        Belanja Sekarang
-                                                    </a>
-                                                    <a href="#featured"
-                                                        class="px-6 py-3 md:px-8 md:py-4 border-2 border-white text-white rounded-full font-semibold hover:bg-white hover:text-blue-600 transform hover:scale-105 transition-all duration-300 text-center text-sm md:text-base">
-                                                        Produk Promo
-                                                    </a>
-                                                    @auth
-                                                        <a href="{{ route('transactions.index') }}"
-                                                            class="px-6 py-3 md:px-8 md:py-4 bg-blue-500 text-white rounded-full font-semibold hover:bg-blue-600 transform hover:scale-105 transition-all duration-300 shadow-lg text-center text-sm md:text-base">
-                                                            Transaksi Saya
-                                                        </a>
-                                                    @endauth
-                                                </div>
                                             </div>
                                             <div class="hidden md:block animate-slide-in">
                                                 <div class="relative">
@@ -301,16 +285,6 @@
                                 <p class="text-lg md:text-xl text-blue-100">
                                     Nikmati kesegaran dan kualitas terbaik dari berbagai pilihan produk susu premium
                                 </p>
-                                <div class="flex flex-col sm:flex-row gap-3 pt-4 justify-center md:justify-start">
-                                    <a href="#products"
-                                        class="px-6 py-3 md:px-8 md:py-4 bg-white text-blue-600 rounded-full font-semibold hover:bg-blue-500 hover:text-white transform hover:scale-105 transition-all duration-300 shadow-lg text-center text-sm md:text-base">
-                                        Belanja Sekarang
-                                    </a>
-                                    <a href="#featured"
-                                        class="px-6 py-3 md:px-8 md:py-4 border-2 border-white text-white rounded-full font-semibold hover:bg-white hover:text-blue-600 transform hover:scale-105 transition-all duration-300 text-center text-sm md:text-base">
-                                        Produk Promo
-                                    </a>
-                                </div>
                             </div>
                             <div class="hidden md:block animate-slide-in">
                                 <div class="relative">
@@ -328,6 +302,75 @@
                     </div>
                 </section>
             @endif
+        </section>
+
+        <!-- Quick Action Buttons Section -->
+        <section class="bg-gray-50 py-3 border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Mobile: Full Width Buttons -->
+                <div class="flex md:hidden gap-2">
+                    <a href="#products"
+                        class="flex-1 flex flex-col items-center justify-center gap-1 py-3 bg-white border border-gray-200 text-blue-600 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all duration-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <span class="text-xs font-medium">Belanja</span>
+                    </a>
+                    @if($products->whereNotNull('active_discount')->count() > 0)
+                        <a href="#promo-section"
+                            class="flex-1 flex flex-col items-center justify-center gap-1 py-3 bg-white border border-gray-200 text-blue-600 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                            </svg>
+                            <span class="text-xs font-medium">Promo</span>
+                        </a>
+                    @endif
+                    @auth
+                        <a href="{{ route('transactions.index') }}"
+                            class="flex-1 flex flex-col items-center justify-center gap-1 py-3 bg-white border border-gray-200 text-blue-600 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-all duration-200">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span class="text-xs font-medium">Transaksi</span>
+                        </a>
+                    @endauth
+                </div>
+
+                <!-- Desktop: Wider Buttons -->
+                <div class="hidden md:flex gap-3">
+                    <a href="#products"
+                        class="flex-1 justify-center px-8 py-3 bg-white border border-gray-200 text-blue-600 rounded-lg font-medium hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-200 flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <span>Belanja Sekarang</span>
+                    </a>
+                    @if($products->whereNotNull('active_discount')->count() > 0)
+                        <a href="#promo-section"
+                            class="flex-1 justify-center px-8 py-3 bg-white border border-gray-200 text-blue-600 rounded-lg font-medium hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-200 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                            </svg>
+                            <span>Produk Promo</span>
+                        </a>
+                    @endif
+                    @auth
+                        <a href="{{ route('transactions.index') }}"
+                            class="flex-1 justify-center px-8 py-3 bg-white border border-gray-200 text-blue-600 rounded-lg font-medium hover:bg-blue-600 hover:text-white hover:border-blue-600 transition-all duration-200 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span>Transaksi Saya</span>
+                        </a>
+                    @endauth
+                </div>
+            </div>
         </section>
 
         <!-- Category Selection Section -->
