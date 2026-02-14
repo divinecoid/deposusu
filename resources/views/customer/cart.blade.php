@@ -110,12 +110,31 @@
 
                                             <!-- Price -->
                                             <div class="text-right">
-                                                <p class="text-sm text-gray-500">Rp {{ number_format($item->price, 0, ',', '.') }} x
-                                                    {{ $item->quantity }}
-                                                </p>
-                                                <p class="item-subtotal text-lg md:text-xl font-bold text-blue-600">
-                                                    Rp {{ number_format($item->getSubtotal(), 0, ',', '.') }}
-                                                </p>
+                                                @php
+                                                    $product = $item->product;
+                                                    $hasDiscount = $product && $product->price > $item->price;
+                                                @endphp
+                                                
+                                                @if($hasDiscount)
+                                                    <div class="space-y-1">
+                                                        <p class="text-xs text-gray-400 line-through">
+                                                            Rp {{ number_format($product->price, 0, ',', '.') }} x {{ $item->quantity }}
+                                                        </p>
+                                                        <p class="text-sm font-semibold text-green-600">
+                                                            Rp {{ number_format($item->price, 0, ',', '.') }} x {{ $item->quantity }}
+                                                        </p>
+                                                        <p class="item-subtotal text-lg md:text-xl font-bold text-blue-600">
+                                                            Rp {{ number_format($item->getSubtotal(), 0, ',', '.') }}
+                                                        </p>
+                                                    </div>
+                                                @else
+                                                    <p class="text-sm text-gray-500">Rp {{ number_format($item->price, 0, ',', '.') }} x
+                                                        {{ $item->quantity }}
+                                                    </p>
+                                                    <p class="item-subtotal text-lg md:text-xl font-bold text-blue-600">
+                                                        Rp {{ number_format($item->getSubtotal(), 0, ',', '.') }}
+                                                    </p>
+                                                @endif
                                                 
                                                 <!-- Routine Toggle -->
                                                 <div class="mt-4 flex flex-col items-end gap-2">
