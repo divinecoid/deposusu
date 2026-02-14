@@ -63,6 +63,18 @@
                             class="w-full border border-gray-300 rounded px-3 py-2" required>
                     </div>
                 </div>
+                <div class="grid grid-cols-2 gap-2 mb-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Latitude</label>
+                        <input type="number" step="any" name="latitude" placeholder="Ex: -6.123456"
+                            class="w-full border border-gray-300 rounded px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Longitude</label>
+                        <input type="number" step="any" name="longitude" placeholder="Ex: 106.123456"
+                            class="w-full border border-gray-300 rounded px-3 py-2">
+                    </div>
+                </div>
                 <div class="mb-3">
                     <label class="block text-sm font-medium text-gray-700">Deskripsi</label>
                     <textarea name="description" class="w-full border border-gray-300 rounded px-3 py-2"
@@ -79,7 +91,8 @@
                         @if($branch->areas->count() > 0)
                             <div class="flex flex-wrap gap-2">
                                 @foreach($branch->areas as $area)
-                                    <div class="bg-white border border-gray-200 px-2 py-1 rounded text-xs flex items-center gap-2">
+                                    <div class="bg-white border border-gray-200 px-2 py-1 rounded text-xs flex items-center gap-2"
+                                        title="Lat: {{ $area->latitude ?? '-' }}, Long: {{ $area->longitude ?? '-' }}">
                                         {{ $area->name }} ({{ $area->code }})
                                         <form action="{{ route('admin.master.areas.destroy', $area->id) }}" method="POST"
                                             class="inline">

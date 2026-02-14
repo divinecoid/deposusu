@@ -9,7 +9,7 @@ class MdxArea extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'code', 'description', 'branch_id'];
+    protected $fillable = ['name', 'code', 'description', 'branch_id', 'latitude', 'longitude'];
 
     public function branch()
     {

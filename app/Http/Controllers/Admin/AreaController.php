@@ -16,6 +16,8 @@ class AreaController extends Controller
             'code' => 'required|string|max:50|unique:mdx_areas,code',
             'description' => 'nullable|string',
             'branch_id' => 'required|exists:mdx_branches,id',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
         ]);
 
         MdxArea::create($request->all());
@@ -30,6 +32,8 @@ class AreaController extends Controller
             'code' => ['required', 'string', 'max:50', Rule::unique('mdx_areas')->ignore($area->id)],
             'description' => 'nullable|string',
             'branch_id' => 'required|exists:mdx_branches,id',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
         ]);
 
         $area->update($request->all());
