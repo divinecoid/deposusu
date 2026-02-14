@@ -63,6 +63,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::get('customers', [UserController::class, 'indexCustomers'])->name('customers.index');
         Route::get('drivers', [UserController::class, 'indexDrivers'])->name('drivers.index');
         Route::post('drivers', [UserController::class, 'storeDriver'])->name('drivers.store');
+        Route::put('drivers/{driver}', [UserController::class, 'updateDriver'])->name('drivers.update');
+        Route::delete('drivers/{driver}', [UserController::class, 'destroyDriver'])->name('drivers.destroy');
         Route::resource('areas', \App\Http\Controllers\Admin\AreaController::class)->except(['show', 'create', 'edit']);
         Route::resource('branches', \App\Http\Controllers\Admin\BranchController::class)->except(['show', 'create', 'edit']);
     });
