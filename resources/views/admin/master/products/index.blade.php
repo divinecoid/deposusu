@@ -4,19 +4,19 @@
 
 @section('content')
     <div class="bg-white rounded-lg shadow p-6" x-data="{
-                search: {
-                    name: '',
-                    category: '',
-                    sku: '',
-                    barcode: ''
-                },
-                isVisible(row) {
-                    return (this.search.name === '' || row.name.toLowerCase().includes(this.search.name.toLowerCase())) &&
-                           (this.search.category === '' || row.category.toLowerCase().includes(this.search.category.toLowerCase())) &&
-                           (this.search.sku === '' || row.sku.toLowerCase().includes(this.search.sku.toLowerCase())) &&
-                           (this.search.barcode === '' || row.barcode.toLowerCase().includes(this.search.barcode.toLowerCase()));
-                }
-            }">
+                    search: {
+                        name: '',
+                        category: '',
+                        sku: '',
+                        barcode: ''
+                    },
+                    isVisible(row) {
+                        return (this.search.name === '' || row.name.toLowerCase().includes(this.search.name.toLowerCase())) &&
+                               (this.search.category === '' || row.category.toLowerCase().includes(this.search.category.toLowerCase())) &&
+                               (this.search.sku === '' || row.sku.toLowerCase().includes(this.search.sku.toLowerCase())) &&
+                               (this.search.barcode === '' || row.barcode.toLowerCase().includes(this.search.barcode.toLowerCase()));
+                    }
+                }">
         <div class="flex justify-between mb-4">
             <h2 class="text-xl font-semibold text-gray-800">Daftar Produk</h2>
             <a href="{{ route('admin.master.products.create') }}"
@@ -65,11 +65,11 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach($products as $product)
                         <tr x-show="isVisible({
-                                            name: '{{ addslashes($product->name) }}',
-                                            category: '{{ addslashes($product->categories->pluck('name')->implode(', ') ?: 'N/A') }}',
-                                            sku: '{{ addslashes($product->sku ?? '') }}',
-                                            barcode: '{{ addslashes($product->barcode ?? '') }}'
-                                        })" x-transition>
+                                                    name: '{{ addslashes($product->name) }}',
+                                                    category: '{{ addslashes($product->categories->pluck('name')->implode(', ') ?: 'N/A') }}',
+                                                    sku: '{{ addslashes($product->sku ?? '') }}',
+                                                    barcode: '{{ addslashes($product->barcode ?? '') }}'
+                                                })" x-transition>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if($product->image)
                                     <img src="{{ asset($product->image) }}" alt="{{ $product->name }}"
@@ -116,14 +116,31 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <a href="{{ route('admin.master.products.edit', $product->id) }}"
-                                    class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                                <form action="{{ route('admin.master.products.destroy', $product->id) }}" method="POST"
-                                    class="inline-block" onsubmit="return confirm('Are you sure?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
-                                </form>
+                                <div class="flex gap-2">
+                                    <a href="{{ route('admin.master.products.edit', $product->id) }}"
+                                        class="text-blue-600 hover:text-blue-800 text-sm px-3 py-1 rounded hover:bg-blue-50 transition-colors flex items-center gap-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                            </path>
+                                        </svg>
+                                        Edit
+                                    </a>
+                                    <form action="{{ route('admin.master.products.destroy', $product->id) }}" method="POST"
+                                        class="inline-block" onsubmit="return confirm('Are you sure?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                            class="text-red-600 hover:text-red-800 text-sm px-3 py-1 rounded hover:bg-red-50 transition-colors flex items-center gap-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                </path>
+                                            </svg>
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
