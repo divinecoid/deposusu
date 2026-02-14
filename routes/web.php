@@ -61,6 +61,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::resource('warehouses', WarehouseController::class)->except(['show', 'edit', 'create']);
         Route::resource('racks', RackController::class)->only(['store', 'destroy']);
         Route::get('customers', [UserController::class, 'indexCustomers'])->name('customers.index');
+        Route::put('customers/{customer}', [UserController::class, 'updateCustomer'])->name('customers.update');
+        Route::delete('customers/{customer}', [UserController::class, 'destroyCustomer'])->name('customers.destroy');
         Route::get('drivers', [UserController::class, 'indexDrivers'])->name('drivers.index');
         Route::post('drivers', [UserController::class, 'storeDriver'])->name('drivers.store');
         Route::put('drivers/{driver}', [UserController::class, 'updateDriver'])->name('drivers.update');

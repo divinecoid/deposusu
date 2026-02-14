@@ -82,4 +82,43 @@ class UserController extends Controller
         $driver->delete();
         return back()->with('success', 'Driver deleted successfully.');
     }
+
+    public function updateCustomer(Request $request, User $customer)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $customer->id,
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string',
+        ]);
+
+        $customer->update([
+            'name' => $request->name,
+            'email' => $request->email,
+        ]);
+
+        if ($customer->customerProfile) {
+            $customer->customerProfile->update([
+                'phone' => $request->phone,
+                'address' => $request->address,
+            ]);
+        } else {
+            MdxCustomer::create([
+                'user_id' => $customer->id,
+                'phone' => $request->phone,
+                'address' => $request->address,
+            ]);
+        }
+
+        return back()->with('success', 'Customer updated successfully.');
+    }
+
+    public function destroyCustomer(User $customer)
+    {
+        if ($customer->customerProfile) {
+            $customer->customerProfile->delete();
+        }
+        $customer->delete();
+        return back()->with('success', 'Customer deleted successfully.');
+    }
 }
