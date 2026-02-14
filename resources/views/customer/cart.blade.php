@@ -161,9 +161,16 @@
                                 </div>
                                 <div class="flex justify-between text-gray-600">
                                     <span>Subtotal</span>
-                                    <span class="font-semibold cart-subtotal">Rp
-                                        {{ number_format($totalPrice, 0, ',', '.') }}</span>
+                                    <span class="font-semibold cart-subtotal-before">Rp
+                                        {{ number_format($subtotalBeforeDiscount, 0, ',', '.') }}</span>
                                 </div>
+                                @if($totalDiscount > 0)
+                                    <div class="flex justify-between text-green-600">
+                                        <span>Diskon</span>
+                                        <span class="font-semibold cart-discount">- Rp
+                                            {{ number_format($totalDiscount, 0, ',', '.') }}</span>
+                                    </div>
+                                @endif
                                 <div class="border-t pt-4">
                                     <div class="flex justify-between items-center">
                                         <span class="text-lg font-bold text-gray-900">Total</span>
@@ -424,7 +431,27 @@
         // Update cart summary
         function updateCartSummary(cart) {
             document.querySelector('.cart-total-items').textContent = cart.total_items;
-            document.querySelector('.cart-subtotal').textContent = 'Rp ' + cart.total_price.toLocaleString('id-ID');
+            
+            // Update subtotal before discount
+            const subtotalBeforeEl = document.querySelector('.cart-subtotal-before');
+            if (subtotalBeforeEl) {
+                subtotalBeforeEl.textContent = 'Rp ' + (cart.subtotal_before_discount || cart.total_price).toLocaleString('id-ID');
+            }
+            
+            // Update discount
+            const discountEl = document.querySelector('.cart-discount');
+            if (cart.total_discount && cart.total_discount > 0) {
+                if (discountEl) {
+                    discountEl.textContent = '- Rp ' + cart.total_discount.toLocaleString('id-ID');
+                    discountEl.closest('.flex').classList.remove('hidden');
+                }
+            } else {
+                if (discountEl) {
+                    discountEl.closest('.flex').classList.add('hidden');
+                }
+            }
+            
+            // Update total
             document.querySelector('.cart-total').textContent = 'Rp ' + cart.total_price.toLocaleString('id-ID');
 
             // Update header badge

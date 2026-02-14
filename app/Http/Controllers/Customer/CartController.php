@@ -44,10 +44,13 @@ class CartController extends Controller
         $cart = $this->getCurrentCart();
         $cartItems = $cart->items()->with('product')->get();
         $totalItems = $cart->getTotalItems();
+        $subtotalBeforeDiscount = $cart->getSubtotalBeforeDiscount();
+        $totalDiscount = $cart->getTotalDiscount();
         $totalPrice = $cart->getTotalPrice();
 
-        return view('customer.cart', compact('cart', 'cartItems', 'totalItems', 'totalPrice'));
+        return view('customer.cart', compact('cart', 'cartItems', 'totalItems', 'subtotalBeforeDiscount', 'totalDiscount', 'totalPrice'));
     }
+
 
     /**
      * Add item to cart (AJAX)
@@ -117,6 +120,8 @@ class CartController extends Controller
             'message' => $quantity > 0 ? 'Jumlah berhasil diupdate' : 'Item berhasil dihapus',
             'cart' => [
                 'total_items' => $cart->getTotalItems(),
+                'subtotal_before_discount' => $cart->getSubtotalBeforeDiscount(),
+                'total_discount' => $cart->getTotalDiscount(),
                 'total_price' => $cart->getTotalPrice(),
             ],
             'item' => $updatedItem ? [
@@ -172,6 +177,8 @@ class CartController extends Controller
             'message' => 'Item berhasil dihapus dari keranjang',
             'cart' => [
                 'total_items' => $cart->getTotalItems(),
+                'subtotal_before_discount' => $cart->getSubtotalBeforeDiscount(),
+                'total_discount' => $cart->getTotalDiscount(),
                 'total_price' => $cart->getTotalPrice(),
             ]
         ]);

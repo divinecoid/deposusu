@@ -48,6 +48,27 @@ class TrxCart extends Model
     }
 
     /**
+     * Get subtotal before discount
+     */
+    public function getSubtotalBeforeDiscount()
+    {
+        return $this->items()->get()->sum(function ($item) {
+            // Get original price from product
+            $originalPrice = $item->product->price ?? $item->price;
+            return $item->quantity * $originalPrice;
+        });
+    }
+
+    /**
+     * Get total discount amount
+     */
+    public function getTotalDiscount()
+    {
+        return $this->getSubtotalBeforeDiscount() - $this->getTotalPrice();
+    }
+
+
+    /**
      * Add item to cart or update quantity if exists
      */
     public function addItem($productId, $quantity = 1)
