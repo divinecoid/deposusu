@@ -32,13 +32,24 @@
         }
     </style>
 
-    <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 py-8">
+    <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <!-- Header -->
-            <div class="mb-8">
-                <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Keranjang Belanja</h1>
-                <p class="text-gray-600">{{ $totalItems }} item dalam keranjang Anda</p>
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Keranjang <span
+                            class="text-blue-600">Belanja</span></h1>
+                    <p class="text-gray-500 mt-2">{{ $totalItems }} item dalam keranjang Anda</p>
+                </div>
+                <a href="{{ route('home') }}"
+                    class="flex items-center gap-2 text-blue-600 font-bold hover:text-blue-700 transition-colors self-start md:self-auto">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Lanjut Belanja
+                </a>
             </div>
 
             @if($cartItems->count() > 0)
@@ -178,17 +189,17 @@
                 </div>
             @else
                 <!-- Empty Cart State -->
-                <div class="max-w-md mx-auto text-center py-16">
-                    <div class="mb-6">
-                        <svg class="w-32 h-32 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="bg-white rounded-3xl p-12 text-center shadow-xl shadow-blue-500/5 border border-white">
+                    <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-12 h-12 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                 d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                         </svg>
                     </div>
-                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Keranjang Anda Kosong</h2>
-                    <p class="text-gray-600 mb-8">Sepertinya Anda belum menambahkan produk apapun</p>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Keranjang Anda masih kosong</h2>
+                    <p class="text-gray-500 max-w-md mx-auto mb-8">Anda belum menambahkan produk apa pun ke keranjang. Mulai jelajahi produk kami dan tambahkan yang Anda suka!</p>
                     <a href="{{ route('home') }}"
-                        class="inline-block px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
+                        class="inline-flex items-center px-8 py-3 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transform hover:scale-105 transition-all duration-300">
                         Mulai Belanja
                     </a>
                 </div>
