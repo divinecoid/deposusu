@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\OrderStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\TrxOrder;
 use App\Models\User;
 use App\Models\MdxDriver;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Enum;
 
 class OrderController extends Controller
 {
@@ -24,14 +26,16 @@ class OrderController extends Controller
 
         $counts = [
             'all' => TrxOrder::count(),
-            'pending' => TrxOrder::where('status', 'pending')->count(),
-            'onprocess' => TrxOrder::where('status', 'onprocess')->count(),
-            'ondelivery' => TrxOrder::where('status', 'ondelivery')->count(),
-            'delivered' => TrxOrder::where('status', 'delivered')->count(),
-            'partialdelivered' => TrxOrder::where('status', 'partialdelivered')->count(),
-            'done' => TrxOrder::where('status', 'done')->count(),
-            'cancelled' => TrxOrder::where('status', 'cancelled')->count(),
-            'rejected' => TrxOrder::where('status', 'rejected')->count(),
+            'pending' => TrxOrder::where('status', OrderStatusEnum::PENDING)->count(),
+            'onprocess' => TrxOrder::where('status', OrderStatusEnum::ON_PROCESS)->count(),
+            'onpreparation' => TrxOrder::where('status', OrderStatusEnum::ON_PREPARATION)->count(),
+            'prepared' => TrxOrder::where('status', OrderStatusEnum::PREPARED)->count(),
+            'ondelivery' => TrxOrder::where('status', OrderStatusEnum::ON_DELIVERY)->count(),
+            'delivered' => TrxOrder::where('status', OrderStatusEnum::DELIVERED)->count(),
+            'partialdelivered' => TrxOrder::where('status', OrderStatusEnum::PARTIAL_DELIVERED)->count(),
+            'done' => TrxOrder::where('status', OrderStatusEnum::DONE)->count(),
+            'cancelled' => TrxOrder::where('status', OrderStatusEnum::CANCELLED)->count(),
+            'rejected' => TrxOrder::where('status', OrderStatusEnum::REJECTED)->count(),
         ];
 
         return view('admin.orders.index', compact('orders', 'status', 'counts'));
@@ -48,7 +52,7 @@ class OrderController extends Controller
     public function updateStatus(Request $request, TrxOrder $order)
     {
         $request->validate([
-            'status' => 'required|in:pending,onprocess,ondelivery,delivered,partialdelivered,done,cancelled,rejected',
+            'status' => ['required', new Enum(OrderStatusEnum::class)],
             'driver_id' => 'nullable|exists:users,id',
         ]);
 
@@ -61,15 +65,15 @@ class OrderController extends Controller
         $order->save();
 
         // Check if invoice exists, if not create one when order is confirmed (e.g. onprocess)
-        if ($order->status === 'onprocess' && !$order->invoice) {
+        if ($order->status === OrderStatusEnum::ON_PROCESS && !$order->invoice) {
             $this->createInvoice($order);
         }
 
         // Sync Invoice Status
         if ($order->invoice) {
-            if ($order->status === 'done' || $order->status === 'delivered') {
+            if ($order->status === OrderStatusEnum::DONE || $order->status === OrderStatusEnum::DELIVERED) {
                 $order->invoice->update(['status' => 'PAID']);
-            } elseif ($order->status === 'cancelled' || $order->status === 'rejected') {
+            } elseif ($order->status === OrderStatusEnum::CANCELLED || $order->status === OrderStatusEnum::REJECTED) {
                 $order->invoice->update(['status' => 'CANCELLED']);
             }
         }

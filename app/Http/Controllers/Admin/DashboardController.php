@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\OrderStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\TrxOrder;
 use App\Models\MdxProduct;
@@ -13,7 +14,7 @@ class DashboardController extends Controller
     public function index()
     {
         $totalOrders = TrxOrder::count();
-        $pendingOrders = TrxOrder::where('status', 'pending')->count();
+        $pendingOrders = TrxOrder::where('status', OrderStatusEnum::PENDING)->count();
         $totalProducts = MdxProduct::count();
         $totalCustomers = User::where('role', 'customer')->count();
 

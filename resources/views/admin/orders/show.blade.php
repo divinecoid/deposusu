@@ -75,9 +75,9 @@
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold text-gray-800">Invoice</h3>
                         <span class="px-2 py-1 text-xs font-semibold rounded-full 
-                                @if($order->invoice->status == 'PAID') bg-green-100 text-green-800 
-                                @elseif($order->invoice->status == 'CANCELLED') bg-red-100 text-red-800 
-                                @else bg-yellow-100 text-yellow-800 @endif">
+                                        @if($order->invoice->status == 'PAID') bg-green-100 text-green-800 
+                                        @elseif($order->invoice->status == 'CANCELLED') bg-red-100 text-red-800 
+                                        @else bg-yellow-100 text-yellow-800 @endif">
                             {{ $order->invoice->status }}
                         </span>
                     </div>
@@ -108,23 +108,32 @@
                         <select name="status"
                             class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:border-blue-500"
                             onchange="toggleDriverSelect(this.value)">
-                            <option value="pending" {{ $order->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                            <option value="onprocess" {{ $order->status == 'onprocess' ? 'selected' : '' }}>On Process
-                                (Confirm)</option>
-                            <option value="ondelivery" {{ $order->status == 'ondelivery' ? 'selected' : '' }}>On Delivery
+                            <option value="pending" {{ $order->status->value == 'pending' ? 'selected' : '' }}>Pending
                             </option>
-                            <option value="delivered" {{ $order->status == 'delivered' ? 'selected' : '' }}>Delivered</option>
-                            <option value="partialdelivered" {{ $order->status == 'partialdelivered' ? 'selected' : '' }}>
+                            <option value="onprocess" {{ $order->status->value == 'onprocess' ? 'selected' : '' }}>On Process
+                                (Confirm)</option>
+                            <option value="onpreparation" {{ $order->status->value == 'onpreparation' ? 'selected' : '' }}>On
+                                Preparation</option>
+                            <option value="prepared" {{ $order->status->value == 'prepared' ? 'selected' : '' }}>Prepared
+                            </option>
+                            <option value="ondelivery" {{ $order->status->value == 'ondelivery' ? 'selected' : '' }}>On
+                                Delivery
+                            </option>
+                            <option value="delivered" {{ $order->status->value == 'delivered' ? 'selected' : '' }}>Delivered
+                            </option>
+                            <option value="partialdelivered" {{ $order->status->value == 'partialdelivered' ? 'selected' : '' }}>
                                 Partial Delivered</option>
-                            <option value="done" {{ $order->status == 'done' ? 'selected' : '' }}>Done (Complete)</option>
-                            <option value="cancelled" {{ $order->status == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                            <option value="rejected" {{ $order->status == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                            <option value="done" {{ $order->status->value == 'done' ? 'selected' : '' }}>Done (Complete)
+                            </option>
+                            <option value="cancelled" {{ $order->status->value == 'cancelled' ? 'selected' : '' }}>Cancelled
+                            </option>
+                            <option value="rejected" {{ $order->status->value == 'rejected' ? 'selected' : '' }}>Rejected
+                            </option>
                         </select>
                     </div>
 
-                    <!-- Driver Selection (Visible only for 'ondelivery' or 'onprocess' or relevant statuses) -->
                     <div id="driver-select-container"
-                        class="mb-6 {{ in_array($order->status, ['onprocess', 'ondelivery']) ? '' : 'hidden' }}">
+                        class="mb-6 {{ in_array($order->status->value, ['onprocess', 'onpreparation', 'prepared', 'ondelivery']) ? '' : 'hidden' }}">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Assign Driver</label>
                         <select name="driver_id"
                             class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:border-blue-500">
@@ -151,7 +160,7 @@
         function toggleDriverSelect(status) {
             const container = document.getElementById('driver-select-container');
             // Show driver select if status is related to delivery preparation or delivery itself
-            if (['onprocess', 'ondelivery'].includes(status)) {
+            if (['onprocess', 'onpreparation', 'prepared', 'ondelivery'].includes(status)) {
                 container.classList.remove('hidden');
             } else {
                 container.classList.add('hidden');

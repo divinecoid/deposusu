@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\OrderStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -16,10 +17,14 @@ class TrxOrder extends Model
         'customer_name',
         'total_amount',
         'total_discount',
-        'status',          // pending, onprocess, ondelivery, delivered, done, cancelled, rejected
+        'status',          // OrderStatusEnum
         'payment_status',  // UNPAID, PAID, CANCELLED
         'driver_id',
         'warehouse_id',
+    ];
+
+    protected $casts = [
+        'status' => OrderStatusEnum::class,
     ];
 
     public function invoice()
