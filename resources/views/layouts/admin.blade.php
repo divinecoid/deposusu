@@ -1,24 +1,25 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" translate="no" class="notranslate">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="google" content="notranslate">
     <title>Admin Dashboard - DEPOSUSU</title>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
-<body class="bg-gray-100 font-sans antialiased">
-    <div class="min-h-screen flex">
+<body class="bg-gray-100 font-sans antialiased h-screen overflow-hidden">
+    <div class="h-screen flex overflow-hidden">
         <!-- Sidebar -->
-        <aside class="w-64 bg-slate-800 text-white flex-shrink-0 hidden md:block">
-            <div class="h-16 flex items-center justify-center border-b border-slate-700">
+        <aside class="w-64 bg-slate-800 text-white flex-shrink-0 hidden md:flex flex-col h-full">
+            <div class="h-16 flex items-center justify-center border-b border-slate-700 flex-shrink-0">
                 <span class="text-xl font-bold">DEPOSUSU</span>
             </div>
 
-            <nav class="mt-4 px-4 space-y-2">
+            <nav class="mt-4 px-4 space-y-2 overflow-y-auto flex-1 pb-4">
                 <a href="{{ route('admin.dashboard') }}"
                     class="block py-2.5 px-4 rounded hover:bg-slate-700 {{ request()->routeIs('admin.dashboard') ? 'bg-slate-700' : '' }}">
                     Dashboard
@@ -60,9 +61,9 @@
         </aside>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col">
+        <div class="flex-1 flex flex-col h-full overflow-hidden">
             <!-- Topbar -->
-            <header class="h-16 bg-white shadow flex items-center justify-between px-6">
+            <header class="h-16 bg-white shadow flex items-center justify-between px-6 flex-shrink-0">
                 <div class="flex items-center">
                     <button class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

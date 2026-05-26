@@ -20,7 +20,18 @@ class AreaController extends Controller
             'longitude' => 'nullable|numeric|between:-180,180',
         ]);
 
-        MdxArea::create($request->all());
+        $data = $request->all();
+        $daysData = [
+            'is_monday' => $request->has('is_monday'),
+            'is_tuesday' => $request->has('is_tuesday'),
+            'is_wednesday' => $request->has('is_wednesday'),
+            'is_thursday' => $request->has('is_thursday'),
+            'is_friday' => $request->has('is_friday'),
+            'is_saturday' => $request->has('is_saturday'),
+            'is_sunday' => $request->has('is_sunday'),
+        ];
+
+        MdxArea::create(array_merge($data, $daysData));
 
         return back()->with('success', 'Area created successfully.');
     }
@@ -36,7 +47,18 @@ class AreaController extends Controller
             'longitude' => 'nullable|numeric|between:-180,180',
         ]);
 
-        $area->update($request->all());
+        $data = $request->all();
+        $daysData = [
+            'is_monday' => $request->has('is_monday'),
+            'is_tuesday' => $request->has('is_tuesday'),
+            'is_wednesday' => $request->has('is_wednesday'),
+            'is_thursday' => $request->has('is_thursday'),
+            'is_friday' => $request->has('is_friday'),
+            'is_saturday' => $request->has('is_saturday'),
+            'is_sunday' => $request->has('is_sunday'),
+        ];
+
+        $area->update(array_merge($data, $daysData));
 
         return back()->with('success', 'Area updated successfully.');
     }

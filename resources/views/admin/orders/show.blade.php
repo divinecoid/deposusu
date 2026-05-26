@@ -9,7 +9,7 @@
             <!-- Customer Info -->
             <div class="bg-white rounded-lg shadow p-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Informasi Customer</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <p class="text-sm text-gray-500">Nama Customer</p>
                         <p class="font-medium">{{ $order->customer_name }}</p>
@@ -18,7 +18,20 @@
                         <p class="text-sm text-gray-500">Tanggal Order</p>
                         <p class="font-medium">{{ $order->created_at->format('d M Y H:i') }}</p>
                     </div>
-                    <!-- Add more customer details here if relationship to User/Profile exists -->
+                    <div>
+                        <p class="text-sm text-gray-500">Sumber Order</p>
+                        <p class="font-medium">
+                            @if(($order->source ?? 'customer') === 'admin')
+                                <span class="px-2.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full bg-purple-100 text-purple-800 border border-purple-200">
+                                    Admin Toko (Manual)
+                                </span>
+                            @else
+                                <span class="px-2.5 py-0.5 inline-flex text-xs leading-4 font-semibold rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                                    Customer App
+                                </span>
+                            @endif
+                        </p>
+                    </div>
                 </div>
             </div>
 

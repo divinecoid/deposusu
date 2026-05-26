@@ -11,7 +11,7 @@
                 <a href="{{ route('transactions.index') }}" class="px-3 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 text-sm">Kembali</a>
             </div>
             <div class="mt-3 flex items-center gap-2">
-                <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800">{{ ucfirst($order->status) }}</span>
+                <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800">{{ $order->status->label() }}</span>
                 <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold {{ $order->payment_status === 'PAID' ? 'bg-green-100 text-green-800' : ($order->payment_status === 'CANCELLED' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">{{ $order->payment_status }}</span>
             </div>
         </div>

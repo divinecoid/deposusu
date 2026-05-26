@@ -48,7 +48,15 @@ class CartController extends Controller
         $totalDiscount = $cart->getTotalDiscount();
         $totalPrice = $cart->getTotalPrice();
 
-        return view('customer.cart', compact('cart', 'cartItems', 'totalItems', 'subtotalBeforeDiscount', 'totalDiscount', 'totalPrice'));
+        $activeDays = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+        if (auth()->check()) {
+            $user = auth()->user();
+            if ($user->customerProfile && $user->customerProfile->area) {
+                $activeDays = $user->customerProfile->area->active_days;
+            }
+        }
+
+        return view('customer.cart', compact('cart', 'cartItems', 'totalItems', 'subtotalBeforeDiscount', 'totalDiscount', 'totalPrice', 'activeDays'));
     }
 
 
@@ -139,6 +147,13 @@ class CartController extends Controller
             'is_routine' => 'required|boolean',
             'routine_schedule' => 'nullable|array',
         ]);
+
+        if (!auth()->check()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Silakan login terlebih dahulu untuk menggunakan fitur rutin'
+            ], 401);
+        }
 
         $cart = $this->getCurrentCart();
 
@@ -277,6 +292,15 @@ class CartController extends Controller
             $order->update([
                 'total_amount' => $totalAmount,
                 'total_discount' => $totalDiscount,
+            ]);
+
+            // Create Invoice immediately on order creation
+            $order->invoice()->create([
+                'invoice_number' => 'INV-' . $order->order_number,
+                'issue_date' => now(),
+                'due_date' => now()->addDays(7),
+                'status' => 'UNPAID',
+                'total_amount' => $order->total_amount,
             ]);
 
             // Clear cart

@@ -21,11 +21,20 @@ class TrxOrder extends Model
         'payment_status',  // UNPAID, PAID, CANCELLED
         'driver_id',
         'warehouse_id',
+        'preparist_id',
+        'source',
     ];
 
     protected $casts = [
         'status' => OrderStatusEnum::class,
+        'on_preparation_at' => 'datetime',
+        'prepared_at' => 'datetime',
     ];
+
+    public function preparist()
+    {
+        return $this->belongsTo(User::class, 'preparist_id');
+    }
 
     public function invoice()
     {

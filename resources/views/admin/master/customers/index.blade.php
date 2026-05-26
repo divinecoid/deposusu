@@ -18,6 +18,8 @@
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alamat
                         </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Area
+                        </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bergabung
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi
@@ -27,11 +29,11 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($customers as $customer)
                         <tr>
-                            <td class="px-6 py-4" colspan="6">
+                            <td class="px-6 py-4" colspan="7">
                                 <!-- View Mode -->
                                 <div class="view-mode-{{ $customer->id }}">
                                     <div class="flex items-center justify-between">
-                                        <div class="flex-1 grid grid-cols-6 gap-4">
+                                        <div class="flex-1 grid grid-cols-7 gap-4">
                                             <div>
                                                 <p class="text-sm font-medium text-gray-900">{{ $customer->name }}</p>
                                             </div>
@@ -46,6 +48,11 @@
                                             <div>
                                                 <p class="text-sm text-gray-500 max-w-xs truncate">
                                                     {{ $customer->customerProfile->address ?? '-' }}
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-500">
+                                                    {{ $customer->customerProfile->area->name ?? '-' }}
                                                 </p>
                                             </div>
                                             <div>
@@ -100,12 +107,23 @@
                                                     class="w-full border border-gray-300 rounded px-3 py-2 text-sm" required>
                                             </div>
                                         </div>
-                                        <div class="grid grid-cols-2 gap-3">
+                                        <div class="grid grid-cols-3 gap-3">
                                             <div>
                                                 <label class="block text-xs font-medium text-gray-700 mb-1">No. Telepon</label>
                                                 <input type="text" name="phone"
                                                     value="{{ $customer->customerProfile->phone ?? '' }}"
                                                     class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                                            </div>
+                                            <div>
+                                                <label class="block text-xs font-medium text-gray-700 mb-1">Area</label>
+                                                <select name="area_id" class="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                                                    <option value="">-- Pilih Area --</option>
+                                                    @foreach($areas as $area)
+                                                        <option value="{{ $area->id }}" {{ ($customer->customerProfile && $customer->customerProfile->area_id == $area->id) ? 'selected' : '' }}>
+                                                            {{ $area->name }} ({{ $area->code }})
+                                                        </option>
+                                                    @endforeach
+                                                </select>
                                             </div>
                                             <div>
                                                 <label class="block text-xs font-medium text-gray-700 mb-1">Alamat</label>
@@ -129,7 +147,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">Belum ada customer.</td>
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">Belum ada customer.</td>
                         </tr>
                     @endforelse
                 </tbody>

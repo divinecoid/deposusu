@@ -11,23 +11,50 @@ class InvoiceController extends Controller
     public function index(Request $request)
     {
         $status = $request->query('status', 'all');
+        $deliveryStatus = $request->query('delivery_status', 'all');
 
-        $query = TrxInvoice::with(['order.customerProfile']); // Eager load order and customer
+        $query = TrxInvoice::with(['order']); // Eager load order
 
         if ($status !== 'all') {
             $query->where('status', strtoupper($status));
         }
 
+        if ($deliveryStatus !== 'all') {
+            if ($deliveryStatus === 'shipped') {
+                $query->whereHas('order', function ($q) {
+                    $q->whereIn('status', ['delivered', 'partialdelivered', 'done']);
+                });
+            } elseif ($deliveryStatus === 'pending') {
+                $query->whereHas('order', function ($q) {
+                    $q->whereNotIn('status', ['delivered', 'partialdelivered', 'done']);
+                });
+            }
+        }
+
         $invoices = $query->latest()->paginate(20);
 
+        // Calculate counts dynamically preserving delivery_status filter
+        $countQuery = TrxInvoice::query();
+        if ($deliveryStatus !== 'all') {
+            if ($deliveryStatus === 'shipped') {
+                $countQuery->whereHas('order', function ($q) {
+                    $q->whereIn('status', ['delivered', 'partialdelivered', 'done']);
+                });
+            } elseif ($deliveryStatus === 'pending') {
+                $countQuery->whereHas('order', function ($q) {
+                    $q->whereNotIn('status', ['delivered', 'partialdelivered', 'done']);
+                });
+            }
+        }
+
         $counts = [
-            'all' => TrxInvoice::count(),
-            'unpaid' => TrxInvoice::where('status', 'UNPAID')->count(),
-            'paid' => TrxInvoice::where('status', 'PAID')->count(),
-            'cancelled' => TrxInvoice::where('status', 'CANCELLED')->count(),
+            'all' => (clone $countQuery)->count(),
+            'unpaid' => (clone $countQuery)->where('status', 'UNPAID')->count(),
+            'paid' => (clone $countQuery)->where('status', 'PAID')->count(),
+            'cancelled' => (clone $countQuery)->where('status', 'CANCELLED')->count(),
         ];
 
-        return view('admin.invoices.index', compact('invoices', 'status', 'counts'));
+        return view('admin.invoices.index', compact('invoices', 'status', 'counts', 'deliveryStatus'));
     }
 
     public function updateStatus(Request $request, TrxInvoice $invoice)

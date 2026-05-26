@@ -76,6 +76,39 @@
                     </div>
                 </div>
                 <div class="mb-3">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Hari Pengiriman Aktif</label>
+                    <div class="grid grid-cols-4 gap-2 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <label class="flex items-center gap-1.5 text-xs text-gray-700 cursor-pointer">
+                            <input type="checkbox" name="is_monday" value="1" checked class="rounded text-blue-600 focus:ring-blue-500">
+                            <span>Senin</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 text-xs text-gray-700 cursor-pointer">
+                            <input type="checkbox" name="is_tuesday" value="1" checked class="rounded text-blue-600 focus:ring-blue-500">
+                            <span>Selasa</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 text-xs text-gray-700 cursor-pointer">
+                            <input type="checkbox" name="is_wednesday" value="1" checked class="rounded text-blue-600 focus:ring-blue-500">
+                            <span>Rabu</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 text-xs text-gray-700 cursor-pointer">
+                            <input type="checkbox" name="is_thursday" value="1" checked class="rounded text-blue-600 focus:ring-blue-500">
+                            <span>Kamis</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 text-xs text-gray-700 cursor-pointer">
+                            <input type="checkbox" name="is_friday" value="1" checked class="rounded text-blue-600 focus:ring-blue-500">
+                            <span>Jumat</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 text-xs text-gray-700 cursor-pointer">
+                            <input type="checkbox" name="is_saturday" value="1" checked class="rounded text-blue-600 focus:ring-blue-500">
+                            <span>Sabtu</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 text-xs text-gray-700 cursor-pointer">
+                            <input type="checkbox" name="is_sunday" value="1" checked class="rounded text-blue-600 focus:ring-blue-500">
+                            <span>Minggu</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="mb-3">
                     <label class="block text-sm font-medium text-gray-700">Deskripsi</label>
                     <textarea name="description" class="w-full border border-gray-300 rounded px-3 py-2"
                         rows="2"></textarea>
@@ -134,8 +167,23 @@
                                                         </div>
 
                                                         @if($area->description)
-                                                            <p class="text-xs text-gray-600 mb-2">{{ $area->description }}</p>
+                                                            <p class="text-xs text-gray-600 mb-1">{{ $area->description }}</p>
                                                         @endif
+
+                                                        <div class="mt-2 mb-2">
+                                                            <span class="text-[10px] uppercase font-bold text-gray-500 tracking-wider">Hari Kirim:</span>
+                                                            <div class="flex flex-wrap gap-1 mt-0.5">
+                                                                @if(count($area->active_days) === 7)
+                                                                    <span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-green-50 text-green-700 border border-green-200">Setiap Hari</span>
+                                                                @elseif(count($area->active_days) === 0)
+                                                                    <span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-red-50 text-red-700 border border-red-200">Tidak Ada Pengiriman</span>
+                                                                @else
+                                                                    @foreach($area->active_days as $day)
+                                                                        <span class="px-2 py-0.5 text-[10px] font-semibold rounded bg-blue-50 text-blue-700 border border-blue-200">{{ $day }}</span>
+                                                                    @endforeach
+                                                                @endif
+                                                            </div>
+                                                        </div>
 
                                                         @if($area->latitude || $area->longitude)
                                                             <div class="flex items-center gap-3 text-xs text-gray-500">
@@ -214,6 +262,39 @@
                                                                 class="w-full border border-gray-300 rounded px-2 py-1 text-sm">
                                                         </div>
                                                     </div>
+                                                    <div class="mb-2">
+                                                         <label class="block text-xs font-medium text-gray-700 mb-1">Hari Pengiriman Aktif</label>
+                                                         <div class="grid grid-cols-4 gap-1 bg-gray-50 p-2 rounded border border-gray-200">
+                                                             <label class="flex items-center gap-1 text-[10px] text-gray-700 cursor-pointer">
+                                                                 <input type="checkbox" name="is_monday" value="1" {{ $area->is_monday ? 'checked' : '' }} class="rounded text-blue-600 focus:ring-blue-500 scale-75">
+                                                                 <span>Senin</span>
+                                                             </label>
+                                                             <label class="flex items-center gap-1 text-[10px] text-gray-700 cursor-pointer">
+                                                                 <input type="checkbox" name="is_tuesday" value="1" {{ $area->is_tuesday ? 'checked' : '' }} class="rounded text-blue-600 focus:ring-blue-500 scale-75">
+                                                                 <span>Selasa</span>
+                                                             </label>
+                                                             <label class="flex items-center gap-1 text-[10px] text-gray-700 cursor-pointer">
+                                                                 <input type="checkbox" name="is_wednesday" value="1" {{ $area->is_wednesday ? 'checked' : '' }} class="rounded text-blue-600 focus:ring-blue-500 scale-75">
+                                                                 <span>Rabu</span>
+                                                             </label>
+                                                             <label class="flex items-center gap-1 text-[10px] text-gray-700 cursor-pointer">
+                                                                 <input type="checkbox" name="is_thursday" value="1" {{ $area->is_thursday ? 'checked' : '' }} class="rounded text-blue-600 focus:ring-blue-500 scale-75">
+                                                                 <span>Kamis</span>
+                                                             </label>
+                                                             <label class="flex items-center gap-1 text-[10px] text-gray-700 cursor-pointer">
+                                                                 <input type="checkbox" name="is_friday" value="1" {{ $area->is_friday ? 'checked' : '' }} class="rounded text-blue-600 focus:ring-blue-500 scale-75">
+                                                                 <span>Jumat</span>
+                                                             </label>
+                                                             <label class="flex items-center gap-1 text-[10px] text-gray-700 cursor-pointer">
+                                                                 <input type="checkbox" name="is_saturday" value="1" {{ $area->is_saturday ? 'checked' : '' }} class="rounded text-blue-600 focus:ring-blue-500 scale-75">
+                                                                 <span>Sabtu</span>
+                                                             </label>
+                                                             <label class="flex items-center gap-1 text-[10px] text-gray-700 cursor-pointer">
+                                                                 <input type="checkbox" name="is_sunday" value="1" {{ $area->is_sunday ? 'checked' : '' }} class="rounded text-blue-600 focus:ring-blue-500 scale-75">
+                                                                 <span>Minggu</span>
+                                                             </label>
+                                                         </div>
+                                                     </div>
                                                     <div>
                                                         <label class="block text-xs font-medium text-gray-700 mb-1">Deskripsi</label>
                                                         <textarea name="description" rows="2"

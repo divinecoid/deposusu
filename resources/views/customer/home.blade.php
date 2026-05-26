@@ -104,8 +104,8 @@
     <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100">
 
         <!-- Hero Carousel Section -->
-        <section id="hero-section" class="relative overflow-hidden animate-fade-in-up">
-            @if($heroSlides->count() > 0)
+        @if($heroSlides->count() > 0)
+            <section id="hero-section" class="relative overflow-hidden animate-fade-in-up">
                 <div class="hero-carousel relative">
                     @foreach($heroSlides as $slide)
                         <div class="hero-slide {{ $loop->first ? 'active' : '' }}" data-slide-index="{{ $loop->index }}">
@@ -272,37 +272,8 @@
                         startAutoplay();
                     });
                 </script>
-            @else
-                <!-- Fallback if no slides -->
-                <section class="gradient-bg text-white py-12 md:py-24">
-                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div class="grid md:grid-cols-2 gap-8 items-center">
-                            <div class="space-y-6 text-center md:text-left">
-                                <h1 class="text-3xl md:text-6xl font-bold leading-tight">
-                                    Produk Susu <br>
-                                    <span class="text-blue-200">Terbaik</span> untuk Anda
-                                </h1>
-                                <p class="text-lg md:text-xl text-blue-100">
-                                    Nikmati kesegaran dan kualitas terbaik dari berbagai pilihan produk susu premium
-                                </p>
-                            </div>
-                            <div class="hidden md:block animate-slide-in">
-                                <div class="relative">
-                                    <div class="absolute inset-0 bg-blue-300 rounded-full blur-3xl opacity-30 animate-pulse">
-                                    </div>
-                                    <svg class="w-full h-auto relative z-10" viewBox="0 0 400 400" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <circle cx="200" cy="200" r="150" fill="white" opacity="0.2" />
-                                        <circle cx="200" cy="200" r="120" fill="white" opacity="0.3" />
-                                        <circle cx="200" cy="200" r="90" fill="white" opacity="0.4" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            @endif
-        </section>
+            </section>
+        @endif
 
         <!-- Quick Action Buttons Section -->
         <section class="bg-gray-50 py-3 border-b border-gray-100">

@@ -136,30 +136,32 @@
                                                     </p>
                                                 @endif
                                                 
-                                                <!-- Routine Toggle -->
-                                                <div class="mt-4 flex flex-col items-end gap-2">
-                                                    <label class="inline-flex items-center cursor-pointer">
-                                                        <input type="checkbox" value="" class="sr-only peer" 
-                                                            onchange="toggleRoutine({{ $item->id }}, this.checked)"
-                                                            {{ $item->is_routine ? 'checked' : '' }}>
-                                                        <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                                        <span class="ms-3 text-sm font-medium text-gray-900">Rutin</span>
-                                                    </label>
-
-                                                    <!-- Day Selection -->
-                                                    <div id="routine-days-{{ $item->id }}" class="flex flex-wrap gap-1 justify-end {{ $item->is_routine ? '' : 'hidden' }}">
-                                                        @php
-                                                            $days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-                                                            $selectedDays = $item->routine_schedule ?? [];
-                                                        @endphp
-                                                        @foreach($days as $day)
-                                                            <button onclick="toggleDay({{ $item->id }}, '{{ $day }}')"
-                                                                class="day-btn-{{ $item->id }}-{{ $day }} px-2 py-1 text-xs rounded-full border {{ in_array($day, $selectedDays) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50' }} transition-colors">
-                                                                {{ substr($day, 0, 3) }}
-                                                            </button>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
+                                                 @auth
+                                                     <!-- Routine Toggle -->
+                                                     <div class="mt-4 flex flex-col items-end gap-2">
+                                                         <label class="inline-flex items-center cursor-pointer">
+                                                             <input type="checkbox" value="" class="sr-only peer" 
+                                                                 onchange="toggleRoutine({{ $item->id }}, this.checked)"
+                                                                 {{ $item->is_routine ? 'checked' : '' }}>
+                                                             <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                                             <span class="ms-3 text-sm font-medium text-gray-900">Rutin</span>
+                                                         </label>
+ 
+                                                         <!-- Day Selection -->
+                                                         <div id="routine-days-{{ $item->id }}" class="flex flex-wrap gap-1 justify-end {{ $item->is_routine ? '' : 'hidden' }}">
+                                                             @php
+                                                                 $days = $activeDays ?? ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+                                                                 $selectedDays = $item->routine_schedule ?? [];
+                                                             @endphp
+                                                             @foreach($days as $day)
+                                                                 <button onclick="toggleDay({{ $item->id }}, '{{ $day }}')"
+                                                                     class="day-btn-{{ $item->id }}-{{ $day }} px-2 py-1 text-xs rounded-full border {{ in_array($day, $selectedDays) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50' }} transition-colors">
+                                                                     {{ substr($day, 0, 3) }}
+                                                                 </button>
+                                                             @endforeach
+                                                         </div>
+                                                     </div>
+                                                 @endauth
                                             </div>
                                         </div>
                                     </div>

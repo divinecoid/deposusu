@@ -13,8 +13,9 @@ class UserController extends Controller
 {
     public function indexCustomers()
     {
-        $customers = User::where('role', 'customer')->with('customerProfile')->latest()->paginate(20);
-        return view('admin.master.customers.index', compact('customers'));
+        $customers = User::where('role', 'customer')->with(['customerProfile.area'])->latest()->paginate(20);
+        $areas = \App\Models\MdxArea::orderBy('name')->get();
+        return view('admin.master.customers.index', compact('customers', 'areas'));
     }
 
     public function indexDrivers()
@@ -90,6 +91,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . $customer->id,
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string',
+            'area_id' => 'nullable|exists:mdx_areas,id',
         ]);
 
         $customer->update([
@@ -101,12 +103,14 @@ class UserController extends Controller
             $customer->customerProfile->update([
                 'phone' => $request->phone,
                 'address' => $request->address,
+                'area_id' => $request->area_id,
             ]);
         } else {
             MdxCustomer::create([
                 'user_id' => $customer->id,
                 'phone' => $request->phone,
                 'address' => $request->address,
+                'area_id' => $request->area_id,
             ]);
         }
 
