@@ -73,6 +73,21 @@ class User extends Authenticatable
         return $this->hasOne(MdxDriver::class);
     }
 
+    public function attendances()
+    {
+        return $this->hasMany(DriverAttendance::class);
+    }
+
+    public function locations()
+    {
+        return $this->hasMany(DriverLocation::class);
+    }
+
+    public function activityLogs()
+    {
+        return $this->hasMany(DriverActivityLog::class);
+    }
+
     // Helpers
     public function isAdmin()
     {

@@ -23,12 +23,23 @@ class TrxOrder extends Model
         'warehouse_id',
         'preparist_id',
         'source',
+        'picked_up_at',
+        'delivered_at',
+        'delivery_proof_photo',
+        'recipient_name',
+        'recipient_signature',
+        'delivery_latitude',
+        'delivery_longitude',
     ];
 
     protected $casts = [
         'status' => OrderStatusEnum::class,
         'on_preparation_at' => 'datetime',
         'prepared_at' => 'datetime',
+        'picked_up_at' => 'datetime',
+        'delivered_at' => 'datetime',
+        'delivery_latitude' => 'float',
+        'delivery_longitude' => 'float',
     ];
 
     public function preparist()
@@ -54,6 +65,13 @@ class TrxOrder extends Model
     public function items()
     {
         return $this->hasMany(TrxOrderItem::class, 'order_id');
+    }
+
+    public function getCustomerAttribute()
+    {
+        return User::where('name', $this->customer_name)
+            ->where('role', 'customer')
+            ->first();
     }
 }
 
