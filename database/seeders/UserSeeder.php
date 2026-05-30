@@ -53,6 +53,7 @@ class UserSeeder extends Seeder
             ['email' => 'driver1@deposusu.com'],
             [
                 'name' => 'Budi Driver',
+                'phone' => '081234567891',
                 'password' => Hash::make('password'),
                 'role' => 'driver',
                 'email_verified_at' => now(),
@@ -67,6 +68,7 @@ class UserSeeder extends Seeder
             ['email' => 'driver2@deposusu.com'],
             [
                 'name' => 'Anto Driver',
+                'phone' => '081234567892',
                 'password' => Hash::make('password'),
                 'role' => 'driver',
                 'email_verified_at' => now(),
@@ -75,6 +77,22 @@ class UserSeeder extends Seeder
         MdxDriver::updateOrCreate(
             ['user_id' => $driver2->id],
             ['license_plate' => 'B 5678 EF', 'vehicle_type' => 'L300']
+        );
+
+        // Demo Driver (matching login page defaults)
+        $driverDemo = User::updateOrCreate(
+            ['email' => 'driver@deposusu.com'],
+            [
+                'name' => 'Budi Kurir Demo',
+                'phone' => '081234567890',
+                'password' => Hash::make('password123'),
+                'role' => 'driver',
+                'email_verified_at' => now(),
+            ]
+        );
+        MdxDriver::updateOrCreate(
+            ['user_id' => $driverDemo->id],
+            ['license_plate' => 'B 9999 DD', 'vehicle_type' => 'Suzuki Carry Box']
         );
 
         // 5. Customers

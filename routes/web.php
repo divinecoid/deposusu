@@ -21,8 +21,10 @@ use App\Http\Controllers\Customer\TransactionsController;
 // Customer Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/products/search', [HomeController::class, 'search'])->name('products.search');
+Route::get('/products/suggest', [HomeController::class, 'suggest'])->name('products.suggest');
+Route::get('/products/{product}', [HomeController::class, 'show'])->name('products.show');
 
-// Cart Routes
+// Cart & Checkout Routes
 Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/add', [CartController::class, 'add'])->name('add');
@@ -31,7 +33,12 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::patch('/update-routine/{cartItem}', [CartController::class, 'updateRoutine'])->name('update-routine');
     Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
     Route::get('/data', [CartController::class, 'getCartData'])->name('data');
-    Route::post('/checkout', [CartController::class, 'checkout'])->name('checkout');
+});
+
+// Checkout Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/checkout', [\App\Http\Controllers\Customer\CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/process', [CartController::class, 'checkout'])->name('checkout.process');
 });
 
 // Wishlist Routes
@@ -44,6 +51,14 @@ Route::prefix('wishlist')->name('wishlist.')->middleware(['auth'])->group(functi
 Route::prefix('transactions')->name('transactions.')->middleware(['auth'])->group(function () {
     Route::get('/', [TransactionsController::class, 'index'])->name('index');
     Route::get('/{order}', [TransactionsController::class, 'show'])->name('show');
+    Route::post('/{order}/reorder', [TransactionsController::class, 'reorder'])->name('reorder');
+    Route::get('/{order}/invoice', [TransactionsController::class, 'invoice'])->name('invoice');
+    Route::post('/{order}/invoice/log-print', [TransactionsController::class, 'logPrint'])->name('invoice.logPrint');
+});
+
+// Account Route
+Route::middleware(['auth'])->group(function () {
+    Route::get('/account', [\App\Http\Controllers\Customer\AccountController::class, 'index'])->name('account.index');
 });
 
 // Admin Routes
@@ -88,10 +103,20 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::put('/{invoice}/status', [InvoiceController::class, 'updateStatus'])->name('updateStatus');
     });
 
-    // Stock Opname
+    // Stock Opname (legacy)
     Route::prefix('stock')->name('stock.')->group(function () {
         Route::get('/', [StockOpnameController::class, 'index'])->name('index');
         Route::post('/adjust', [StockOpnameController::class, 'adjust'])->name('adjust');
+    });
+
+    // WMS - Warehouse Management System
+    Route::prefix('warehouse')->name('warehouse.')->group(function () {
+        Route::get('/stock', [\App\Http\Controllers\Admin\StockMovementController::class, 'stock'])->name('stock');
+        Route::get('/movements', [\App\Http\Controllers\Admin\StockMovementController::class, 'movements'])->name('movements');
+        Route::get('/receive', [\App\Http\Controllers\Admin\StockMovementController::class, 'receiveForm'])->name('receive');
+        Route::post('/receive', [\App\Http\Controllers\Admin\StockMovementController::class, 'receiveStore'])->name('receive.store');
+        Route::get('/transfer', [\App\Http\Controllers\Admin\StockMovementController::class, 'transferForm'])->name('transfer');
+        Route::post('/transfer', [\App\Http\Controllers\Admin\StockMovementController::class, 'transferStore'])->name('transfer.store');
     });
 });
 

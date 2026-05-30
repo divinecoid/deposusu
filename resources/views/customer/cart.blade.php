@@ -57,7 +57,10 @@
                     <!-- Cart Items -->
                     <div class="lg:col-span-2 space-y-4">
                         @foreach($cartItems as $item)
-                            <div class="cart-item bg-white rounded-2xl shadow-md p-4 md:p-6" data-item-id="{{ $item->id }}">
+                            <div class="cart-item bg-white rounded-2xl shadow-md p-4 md:p-6" 
+                                data-item-id="{{ $item->id }}"
+                                data-item-price="{{ $item->price }}"
+                                data-item-quantity="{{ $item->quantity }}">
                                 <div class="flex gap-4 md:gap-6">
                                     <!-- Product Image -->
                                     <div class="flex-shrink-0">
@@ -89,16 +92,20 @@
                                             <div class="flex items-center gap-3">
                                                 <span class="text-sm text-gray-600">Jumlah:</span>
                                                 <div class="flex items-center gap-2 bg-gray-100 rounded-lg px-2 py-1">
-                                                    <button onclick="updateQuantity({{ $item->id }}, {{ $item->quantity - 1 }})"
+                                                    <button onclick="changeQuantity({{ $item->id }}, -1)"
                                                         class="quantity-btn p-1 text-blue-600 hover:text-blue-700">
                                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                                 d="M20 12H4" />
                                                         </svg>
                                                     </button>
-                                                    <span
-                                                        class="quantity-value w-8 text-center font-semibold">{{ $item->quantity }}</span>
-                                                    <button onclick="updateQuantity({{ $item->id }}, {{ $item->quantity + 1 }})"
+                                                    <input type="number" 
+                                                        value="{{ $item->quantity }}" 
+                                                        min="1" 
+                                                        class="quantity-value w-12 text-center font-semibold bg-transparent border-none focus:ring-0 p-0 text-gray-900"
+                                                        onchange="updateQuantity({{ $item->id }}, this.value)"
+                                                        onkeyup="if(event.key === 'Enter') this.blur();">
+                                                    <button onclick="changeQuantity({{ $item->id }}, 1)"
                                                         class="quantity-btn p-1 text-blue-600 hover:text-blue-700">
                                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -241,35 +248,21 @@
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
         // Checkout
-        async function checkout() {
-            if (!confirm('Lanjutkan ke checkout?')) {
-                return;
-            }
-
-            try {
-                const response = await fetch('/cart/checkout', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    showNotification(data.message, 'success');
-                    setTimeout(() => {
-                        window.location.href = '/'; // Static redirect to home for now
-                    }, 2000);
-                } else {
-                    showNotification(data.message, 'error');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showNotification('Terjadi kesalahan saat checkout', 'error');
-            }
+        function checkout() {
+            window.location.href = '{{ route("checkout.index") }}';
         }
+
+        // Helper for quantity buttons
+        function changeQuantity(cartItemId, delta) {
+            const itemEl = document.querySelector(`[data-item-id="${cartItemId}"]`);
+            if (!itemEl) return;
+            const currentQty = parseInt(itemEl.dataset.itemQuantity) || 1;
+            const newQty = currentQty + delta;
+            updateQuantity(cartItemId, newQty);
+        }
+
+        // Global debounce timer for quantity updates to prevent spamming server
+        let updateQuantityTimer = null;
 
         // Update quantity
         async function updateQuantity(cartItemId, newQuantity) {
@@ -279,50 +272,97 @@
                 }
             }
 
-            try {
-                const response = await fetch(`/cart/update/${cartItemId}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    body: JSON.stringify({ quantity: newQuantity })
-                });
+            const itemEl = document.querySelector(`[data-item-id="${cartItemId}"]`);
+            if (!itemEl) return;
 
-                const data = await response.json();
+            const oldQty = parseInt(itemEl.dataset.itemQuantity) || 1;
+            const price = parseInt(itemEl.dataset.itemPrice) || 0;
+            const qtyDiff = newQuantity - oldQty;
 
-                if (data.success) {
-                    if (newQuantity === 0) {
-                        // Remove item from DOM
-                        document.querySelector(`[data-item-id="${cartItemId}"]`).remove();
-
-                        // Check if cart is empty
-                        if (data.cart.total_items === 0) {
-                            location.reload();
-                        }
-                    } else {
-                        // Update item quantity display
-                        const itemEl = document.querySelector(`[data-item-id="${cartItemId}"]`);
-                        itemEl.querySelector('.quantity-value').textContent = newQuantity;
-
-                        // Update subtotal
-                        if (data.item) {
-                            itemEl.querySelector('.item-subtotal').textContent =
-                                'Rp ' + data.item.subtotal.toLocaleString('id-ID');
-                        }
-                    }
-
-                    // Update cart summary
-                    updateCartSummary(data.cart);
-
-                    showNotification(data.message, 'success');
+            // --- OPTIMISTIC UI UPDATE ---
+            if (newQuantity > 0) {
+                // Update item display immediately
+                itemEl.dataset.itemQuantity = newQuantity;
+                const inputEl = itemEl.querySelector('.quantity-value');
+                if (inputEl.tagName === 'INPUT') {
+                    inputEl.value = newQuantity;
                 } else {
-                    showNotification(data.message, 'error');
+                    inputEl.textContent = newQuantity;
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                showNotification('Terjadi kesalahan', 'error');
+                
+                const newSubtotal = price * newQuantity;
+                const subtotalEl = itemEl.querySelector('.item-subtotal');
+                if (subtotalEl) {
+                    subtotalEl.textContent = 'Rp ' + newSubtotal.toLocaleString('id-ID');
+                }
+
+                // Update total items optimistically
+                const totalItemsEl = document.querySelector('.cart-total-items');
+                if (totalItemsEl) {
+                    const currentTotalItems = parseInt(totalItemsEl.textContent) || 0;
+                    totalItemsEl.textContent = currentTotalItems + qtyDiff;
+                }
             }
+
+            // Disable buttons temporarily
+            const btns = itemEl.querySelectorAll('.quantity-btn');
+            btns.forEach(b => b.classList.add('opacity-50', 'pointer-events-none'));
+
+            // Debounce the actual server request if user clicks rapidly
+            if (updateQuantityTimer) clearTimeout(updateQuantityTimer);
+
+            updateQuantityTimer = setTimeout(async () => {
+                try {
+                    const response = await fetch(`/cart/update/${cartItemId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify({ quantity: newQuantity })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        if (newQuantity === 0) {
+                            // Remove item from DOM
+                            itemEl.remove();
+                            if (data.cart.total_items === 0) location.reload();
+                        } else {
+                            // Sync with actual server data
+                            itemEl.dataset.itemQuantity = newQuantity;
+                            const inputEl = itemEl.querySelector('.quantity-value');
+                            if (inputEl.tagName === 'INPUT') {
+                                inputEl.value = newQuantity;
+                            } else {
+                                inputEl.textContent = newQuantity;
+                            }
+                            if (data.item) {
+                                itemEl.querySelector('.item-subtotal').textContent = 'Rp ' + data.item.subtotal.toLocaleString('id-ID');
+                            }
+                        }
+                        updateCartSummary(data.cart);
+                    } else {
+                        // Revert on error
+                        showNotification(data.message, 'error');
+                        const inputEl = itemEl.querySelector('.quantity-value');
+                        if (inputEl.tagName === 'INPUT') inputEl.value = oldQty;
+                        else inputEl.textContent = oldQty;
+                        itemEl.dataset.itemQuantity = oldQty;
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showNotification('Terjadi kesalahan', 'error');
+                    // Revert on error
+                    const inputEl = itemEl.querySelector('.quantity-value');
+                    if (inputEl.tagName === 'INPUT') inputEl.value = oldQty;
+                    else inputEl.textContent = oldQty;
+                    itemEl.dataset.itemQuantity = oldQty;
+                } finally {
+                    btns.forEach(b => b.classList.remove('opacity-50', 'pointer-events-none'));
+                }
+            }, 300); // 300ms debounce
         }
 
         // Remove item

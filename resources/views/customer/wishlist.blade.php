@@ -48,7 +48,7 @@
             @else
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     @foreach($wishlistItems as $product)
-                        <div onclick="openQuickView({{ json_encode($product) }})"
+                        <div onclick="window.location.href='{{ route('products.show', $product->id) }}'"
                             class="product-card bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl cursor-pointer relative group">
 
                             <!-- Remove from Wishlist Button -->
@@ -68,8 +68,7 @@
                             </div>
 
                             <div class="p-4">
-                                class="text-[10px] font-bold text-blue-500 uppercase
-                                tracking-widest">{{ $product->categories->pluck('name')->implode(', ') ?: 'Uncategorized' }}</span>
+                                <span class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">{{ $product->categories->pluck('name')->implode(', ') ?: 'Uncategorized' }}</span>
                                 <h3 class="text-sm font-bold text-gray-900 mt-1 line-clamp-1 capitalize">{{ $product->name }}</h3>
 
                                 <div class="mt-2 flex items-center justify-between">

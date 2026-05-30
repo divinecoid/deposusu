@@ -114,6 +114,11 @@
                                         Low
                                     </span>
                                 @endif
+                                @if($product->variants->count() > 0)
+                                    <div class="mt-1 text-xs text-gray-400">
+                                        + {{ $product->variants->count() }} Varian (Total Stok: {{ $product->variants->sum('stock') }})
+                                    </div>
+                                @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex gap-2">

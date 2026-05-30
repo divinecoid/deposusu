@@ -90,4 +90,14 @@ class MdxProduct extends Model
             return false;
         return $this->wishlists()->where('user_id', $user->id)->exists();
     }
+
+    public function variants()
+    {
+        return $this->hasMany(MdxProductVariant::class, 'mdx_product_id');
+    }
+
+    public function wholesales()
+    {
+        return $this->hasMany(MdxProductWholesale::class, 'mdx_product_id');
+    }
 }

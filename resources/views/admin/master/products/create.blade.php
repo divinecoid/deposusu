@@ -82,6 +82,86 @@
                 </div>
             </div>
 
+            <!-- Varian Produk -->
+            <div class="mt-8 border-t border-gray-200 pt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Varian Produk (Opsional)</h3>
+                    <button type="button" onclick="addVariant()" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 text-sm">
+                        + Tambah Varian
+                    </button>
+                </div>
+                <div id="variants-container" class="space-y-4">
+                    <!-- Variant rows will be appended here -->
+                </div>
+            </div>
+
+            <!-- Harga Grosir -->
+            <div class="mt-8 border-t border-gray-200 pt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Harga Grosir (Opsional)</h3>
+                    <button type="button" onclick="addWholesale()" class="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 text-sm">
+                        + Tambah Aturan Harga
+                    </button>
+                </div>
+                <div id="wholesales-container" class="space-y-4">
+                    <!-- Wholesale rows will be appended here -->
+                </div>
+            </div>
+
+            <script>
+                let variantCount = 0;
+                function addVariant() {
+                    const container = document.getElementById('variants-container');
+                    const html = `
+                        <div class="flex gap-4 items-end bg-gray-50 p-4 rounded-md border border-gray-200" id="variant-${variantCount}">
+                            <div class="flex-1">
+                                <label class="block text-xs font-medium text-gray-700">Nama Varian</label>
+                                <input type="text" name="variants[${variantCount}][name]" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm" placeholder="Contoh: Rasa Coklat">
+                            </div>
+                            <div class="w-32">
+                                <label class="block text-xs font-medium text-gray-700">SKU (Kosong=Auto)</label>
+                                <input type="text" name="variants[${variantCount}][sku]" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm" placeholder="SKU">
+                            </div>
+                            <div class="w-32">
+                                <label class="block text-xs font-medium text-gray-700">Harga</label>
+                                <input type="number" name="variants[${variantCount}][price]" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm" placeholder="Harga">
+                            </div>
+                            <div class="w-24">
+                                <label class="block text-xs font-medium text-gray-700">Stok</label>
+                                <input type="number" name="variants[${variantCount}][stock]" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm" placeholder="Stok">
+                            </div>
+                            <div>
+                                <button type="button" onclick="document.getElementById('variant-${variantCount}').remove()" class="px-3 py-2 bg-red-50 text-red-600 rounded hover:bg-red-100 text-sm">Hapus</button>
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', html);
+                    variantCount++;
+                }
+
+                let wholesaleCount = 0;
+                function addWholesale() {
+                    const container = document.getElementById('wholesales-container');
+                    const html = `
+                        <div class="flex gap-4 items-end bg-gray-50 p-4 rounded-md border border-gray-200" id="wholesale-${wholesaleCount}">
+                            <div class="w-1/3">
+                                <label class="block text-xs font-medium text-gray-700">Min. Qty</label>
+                                <input type="number" name="wholesales[${wholesaleCount}][min_qty]" required min="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm" placeholder="Misal: 10">
+                            </div>
+                            <div class="w-1/3">
+                                <label class="block text-xs font-medium text-gray-700">Harga Grosir (Per Pcs)</label>
+                                <input type="number" name="wholesales[${wholesaleCount}][price]" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm" placeholder="Harga Grosir">
+                            </div>
+                            <div>
+                                <button type="button" onclick="document.getElementById('wholesale-${wholesaleCount}').remove()" class="px-3 py-2 bg-red-50 text-red-600 rounded hover:bg-red-100 text-sm">Hapus</button>
+                            </div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', html);
+                    wholesaleCount++;
+                }
+            </script>
+
             <div class="mt-6 flex justify-end gap-3">
                 <a href="{{ route('admin.master.products.index') }}"
                     class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">

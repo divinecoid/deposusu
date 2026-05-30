@@ -12,6 +12,7 @@ class DriverAttendance extends Model
     protected $fillable = [
         'user_id',
         'date',
+        'shift',
         'check_in_at',
         'check_out_at',
         'check_in_latitude',

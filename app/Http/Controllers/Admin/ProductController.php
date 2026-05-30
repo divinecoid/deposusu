@@ -17,6 +17,8 @@ class ProductController extends Controller
     {
         $products = MdxProduct::with([
             'categories',
+            'variants',
+            'wholesales',
             'discounts' => function ($q) {
                 $q->active();
             }
@@ -39,12 +41,28 @@ class ProductController extends Controller
             'price' => 'required|numeric',
             'stock' => 'required|integer',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048', // Validation for image file
+            'image' => 'nullable|image|max:2048',
             'sku' => 'nullable|string|unique:mdx_products,sku',
             'barcode' => 'nullable|string|unique:mdx_products,barcode',
+            'variants' => 'nullable|array',
+            'variants.*.name' => 'required|string',
+            'variants.*.sku' => 'nullable|string',
+            'variants.*.price' => 'required|numeric',
+            'variants.*.stock' => 'required|integer',
+            'wholesales' => 'nullable|array',
+            'wholesales.*.min_qty' => 'required|integer|min:2',
+            'wholesales.*.price' => 'required|numeric',
         ]);
 
-        $data = $request->except('categories');
+        $data = $request->except(['categories', 'variants', 'wholesales']);
+
+        if (empty($data['sku'])) {
+            $data['sku'] = 'DP-' . strtoupper(Str::random(6));
+        }
+        
+        if (empty($data['barcode'])) {
+            $data['barcode'] = $data['sku'];
+        }
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('products', 'public');
@@ -54,6 +72,21 @@ class ProductController extends Controller
         $product = MdxProduct::create($data);
         $product->categories()->attach($request->categories);
 
+        if ($request->has('variants') && is_array($request->variants)) {
+            foreach ($request->variants as $variant) {
+                if (empty($variant['sku'])) {
+                    $variant['sku'] = $product->sku . '-' . strtoupper(Str::random(3));
+                }
+                $product->variants()->create($variant);
+            }
+        }
+
+        if ($request->has('wholesales') && is_array($request->wholesales)) {
+            foreach ($request->wholesales as $wholesale) {
+                $product->wholesales()->create($wholesale);
+            }
+        }
+
         return redirect()->route('admin.master.products.index')
             ->with('success', 'Product created successfully.');
     }
@@ -61,7 +94,7 @@ class ProductController extends Controller
     public function edit(MdxProduct $product)
     {
         $categories = MdxCategory::all();
-        $product->load(['discounts', 'categories']);
+        $product->load(['discounts', 'categories', 'variants', 'wholesales']);
         return view('admin.master.products.edit', compact('product', 'categories'));
     }
 
@@ -77,9 +110,27 @@ class ProductController extends Controller
             'image' => 'nullable|image|max:2048',
             'sku' => 'nullable|string|unique:mdx_products,sku,' . $product->id,
             'barcode' => 'nullable|string|unique:mdx_products,barcode,' . $product->id,
+            'variants' => 'nullable|array',
+            'variants.*.id' => 'nullable|exists:mdx_product_variants,id',
+            'variants.*.name' => 'required|string',
+            'variants.*.sku' => 'nullable|string',
+            'variants.*.price' => 'required|numeric',
+            'variants.*.stock' => 'required|integer',
+            'wholesales' => 'nullable|array',
+            'wholesales.*.id' => 'nullable|exists:mdx_product_wholesales,id',
+            'wholesales.*.min_qty' => 'required|integer|min:2',
+            'wholesales.*.price' => 'required|numeric',
         ]);
 
-        $data = $request->except('categories');
+        $data = $request->except(['categories', 'variants', 'wholesales']);
+
+        if (empty($data['sku'])) {
+            $data['sku'] = 'DP-' . strtoupper(Str::random(6));
+        }
+        
+        if (empty($data['barcode'])) {
+            $data['barcode'] = $data['sku'];
+        }
 
         if ($request->hasFile('image')) {
             // Delete old image if exists
@@ -94,6 +145,46 @@ class ProductController extends Controller
 
         $product->update($data);
         $product->categories()->sync($request->categories);
+
+        // Update variants
+        $variantIdsToKeep = [];
+        if ($request->has('variants') && is_array($request->variants)) {
+            foreach ($request->variants as $variantData) {
+                if (empty($variantData['sku'])) {
+                    $variantData['sku'] = $product->sku . '-' . strtoupper(Str::random(3));
+                }
+                
+                if (isset($variantData['id']) && $variantData['id']) {
+                    $variant = $product->variants()->find($variantData['id']);
+                    if ($variant) {
+                        $variant->update($variantData);
+                        $variantIdsToKeep[] = $variant->id;
+                    }
+                } else {
+                    $newVariant = $product->variants()->create($variantData);
+                    $variantIdsToKeep[] = $newVariant->id;
+                }
+            }
+        }
+        $product->variants()->whereNotIn('id', $variantIdsToKeep)->delete();
+
+        // Update wholesales
+        $wholesaleIdsToKeep = [];
+        if ($request->has('wholesales') && is_array($request->wholesales)) {
+            foreach ($request->wholesales as $wholesaleData) {
+                if (isset($wholesaleData['id']) && $wholesaleData['id']) {
+                    $wholesale = $product->wholesales()->find($wholesaleData['id']);
+                    if ($wholesale) {
+                        $wholesale->update($wholesaleData);
+                        $wholesaleIdsToKeep[] = $wholesale->id;
+                    }
+                } else {
+                    $newWholesale = $product->wholesales()->create($wholesaleData);
+                    $wholesaleIdsToKeep[] = $newWholesale->id;
+                }
+            }
+        }
+        $product->wholesales()->whereNotIn('id', $wholesaleIdsToKeep)->delete();
 
         return redirect()->route('admin.master.products.index')
             ->with('success', 'Product updated successfully.');

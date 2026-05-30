@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [DriverController::class, 'login']);
+Route::post('/driver/request-otp', [DriverController::class, 'requestOtp']);
+Route::post('/driver/verify-otp', [DriverController::class, 'verifyOtp']);
+Route::get('/orders/track/{order_number}', [DriverController::class, 'trackOrder']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
@@ -16,6 +19,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/dashboard', [PreparistController::class, 'dashboard']);
         Route::get('/orders', [PreparistController::class, 'index']);
         Route::post('/orders/{order}/start', [PreparistController::class, 'startPreparation']);
+        Route::patch('/orders/{order}/sync', [PreparistController::class, 'syncOrder']);
         Route::post('/orders/{order}/finish', [PreparistController::class, 'finishPreparation']);
     });
 

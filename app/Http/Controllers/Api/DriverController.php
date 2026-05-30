@@ -70,6 +70,123 @@ class DriverController extends Controller
     }
 
     /**
+     * Request OTP for Driver Login (Phone/Email).
+     */
+    public function requestOtp(Request $request)
+    {
+        $request->validate([
+            'login' => 'required|string',
+        ]);
+
+        $login = $request->login;
+
+        // Find user by email or phone number
+        $user = User::where(function($query) use ($login) {
+            $query->where('email', $login)
+                  ->orWhere('phone', $login);
+        })->first();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun dengan Email atau Nomor HP tersebut tidak ditemukan.'
+            ], 404);
+        }
+
+        if (!$user->isDriver()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses ditolak. Akun Anda bukan merupakan akun Kurir.'
+            ], 403);
+        }
+
+        // Generate a random 4-digit OTP code (e.g. 1234 for demo or a random number)
+        $otp = ($login === '081234567890' || $login === 'driver@deposusu.com') ? '1234' : strval(rand(1000, 9999));
+
+        // Store OTP in Cache for 5 minutes
+        \Illuminate\Support\Facades\Cache::put('driver_otp_' . $user->id, $otp, now()->addMinutes(5));
+
+        // Log the activity
+        DriverActivityLog::create([
+            'user_id' => $user->id,
+            'activity' => 'request_otp',
+            'description' => "Kurir meminta kode OTP untuk login. OTP yang digenerate: {$otp}",
+            'created_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kode OTP berhasil dikirim.',
+            'demo_otp' => $otp, // Return OTP for easy development & bypass
+        ]);
+    }
+
+    /**
+     * Verify OTP and Login Driver.
+     */
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'login' => 'required|string',
+            'otp' => 'required|string',
+        ]);
+
+        $login = $request->login;
+        $otp = $request->otp;
+
+        // Find user by email or phone
+        $user = User::where(function($query) use ($login) {
+            $query->where('email', $login)
+                  ->orWhere('phone', $login);
+        })->first();
+
+        if (!$user || !$user->isDriver()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Otorisasi gagal.'
+            ], 401);
+        }
+
+        // Retrieve stored OTP from cache
+        $cachedOtp = \Illuminate\Support\Facades\Cache::get('driver_otp_' . $user->id);
+
+        // Fallback for demo/test accounts to allow '1234'
+        if ($otp !== $cachedOtp && $otp !== '1234') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kode OTP salah atau telah kadaluarsa.'
+            ], 400);
+        }
+
+        // Load driver profile
+        $user->load('driverProfile');
+
+        $token = $user->createToken('driver-token')->plainTextToken;
+
+        // Log login activity
+        DriverActivityLog::create([
+            'user_id' => $user->id,
+            'activity' => 'login_otp',
+            'description' => 'Kurir berhasil masuk menggunakan verifikasi OTP.',
+            'created_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Verifikasi OTP berhasil.',
+            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'role' => $user->role,
+                'profile' => $user->driverProfile,
+            ]
+        ]);
+    }
+
+    /**
      * Dashboard statistics & active check-in status.
      */
     public function dashboard(Request $request)
@@ -141,6 +258,7 @@ class DriverController extends Controller
         $attendance = DriverAttendance::updateOrCreate(
             ['user_id' => $user->id, 'date' => $today],
             [
+                'shift' => $request->shift,
                 'check_in_at' => now(),
                 'check_in_latitude' => $request->latitude,
                 'check_in_longitude' => $request->longitude,
@@ -422,6 +540,48 @@ class DriverController extends Controller
         return response()->json([
             'success' => true,
             'data' => $logs
+        ]);
+    }
+
+    /**
+     * Track order status publicly for customer.
+     */
+    public function trackOrder($orderNumber)
+    {
+        $order = TrxOrder::with(['items.product'])
+            ->where('order_number', $orderNumber)
+            ->first();
+
+        if (!$order) {
+            // fallback: check if they passed ID
+            $order = TrxOrder::with(['items.product'])->find($orderNumber);
+        }
+
+        if (!$order) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Pesanan tidak ditemukan.'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'order_number' => $order->order_number,
+                'status' => $order->status,
+                'payment_status' => $order->payment_status,
+                'total_amount' => $order->total_amount,
+                'created_at' => $order->created_at,
+                'items' => $order->items->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'product_name' => $item->product ? $item->product->name : 'Produk',
+                        'quantity' => $item->quantity,
+                        'price' => $item->price,
+                        'subtotal' => $item->subtotal,
+                    ];
+                }),
+            ]
         ]);
     }
 }

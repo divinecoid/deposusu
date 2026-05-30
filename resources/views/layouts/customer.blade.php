@@ -34,7 +34,7 @@
                 </div>
 
                 <!-- Search Bar (Desktop) -->
-                <div class="hidden md:block flex-1 max-w-2xl mx-4">
+                <div class="hidden md:block flex-1 max-w-2xl mx-4 relative" id="desktop-search-container">
                     <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,9 +42,13 @@
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
-                        <input type="text" id="product-search" onkeyup="searchProducts()"
+                        <input type="text" id="product-search" onkeyup="handleSearchInput(this.value, 'desktop')" onfocus="handleSearchInput(this.value, 'desktop')"
                             class="block w-full pl-10 pr-3 py-2 border border-blue-500 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 sm:text-sm"
                             placeholder="Cari Produk...">
+                    </div>
+                    <!-- Suggestions Dropdown -->
+                    <div id="desktop-suggestions" class="hidden absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50">
+                        <ul id="desktop-suggestions-list" class="max-h-80 overflow-y-auto py-2"></ul>
                     </div>
                 </div>
 
@@ -100,8 +104,9 @@
                     <div class="hidden md:flex items-center gap-4">
                         @auth
                             <div class="flex items-center gap-4">
-                                <span class="text-sm font-medium text-gray-700">Halo, <span
-                                        class="text-blue-600 font-bold">{{ Auth::user()->name }}</span></span>
+                                <a href="{{ route('account.index') }}" class="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+                                    Halo, <span class="font-bold">{{ Auth::user()->name }}</span>
+                                </a>
                                 <a href="#"
                                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                                     class="px-4 py-2 border border-red-500 text-red-500 rounded-xl hover:bg-red-50 font-bold text-xs transition-all uppercase tracking-wider">Keluar</a>
@@ -148,16 +153,22 @@
     <!-- Mobile Search Bar -->
     <div id="mobile-search-bar"
         class="hidden md:hidden bg-white border-b border-gray-100 p-4 sticky top-16 left-0 w-full z-45 animate-slide-in shadow-sm">
-        <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+        <div class="relative" id="mobile-search-container">
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" id="mobile-product-search" onkeyup="handleSearchInput(this.value, 'mobile')" onfocus="handleSearchInput(this.value, 'mobile')"
+                    class="block w-full pl-10 pr-3 py-2 border border-blue-500 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 sm:text-sm"
+                    placeholder="Cari Produk...">
             </div>
-            <input type="text" id="mobile-product-search" onkeyup="searchProducts('mobile')"
-                class="block w-full pl-10 pr-3 py-2 border border-blue-500 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600 sm:text-sm"
-                placeholder="Cari Produk...">
+            <!-- Suggestions Dropdown -->
+            <div id="mobile-suggestions" class="hidden absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50">
+                <ul id="mobile-suggestions-list" class="max-h-80 overflow-y-auto py-2"></ul>
+            </div>
         </div>
     </div>
 
@@ -218,13 +229,20 @@
                                     Wishlist
                                 </a>
                                 @auth
-                                    <a href="{{ url('/transactions') }}"
+                                    <a href="{{ route('transactions.index') }}"
                                         class="flex items-center gap-3 text-gray-700 hover:text-blue-600 font-medium transition-colors">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M9 17v-2h6v2m-7 4h8a2 2 0 002-2V7a2 2 0 00-2-2h-3V3H9v2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                         </svg>
                                         Transaksi
+                                    </a>
+                                    <a href="{{ route('account.index') }}"
+                                        class="flex items-center gap-3 text-gray-700 hover:text-blue-600 font-medium transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        Akun Saya
                                     </a>
                                 @endauth
                             </div>
@@ -583,6 +601,98 @@
 
         // Call on page load
         document.addEventListener('DOMContentLoaded', updateCartBadge);
+
+        // --- Auto Suggestions Logic ---
+        let suggestionTimeout = null;
+
+        function handleSearchInput(query, platform) {
+            // Also trigger the existing searchProducts on home page if we are there
+            if (typeof searchProducts === 'function' && window.location.pathname === '/') {
+                searchProducts(platform);
+            }
+
+            const dropdownId = platform === 'desktop' ? 'desktop-suggestions' : 'mobile-suggestions';
+            const listId = platform === 'desktop' ? 'desktop-suggestions-list' : 'mobile-suggestions-list';
+            const dropdown = document.getElementById(dropdownId);
+            const list = document.getElementById(listId);
+
+            if (!query || query.trim() === '') {
+                dropdown.classList.add('hidden');
+                return;
+            }
+
+            if (suggestionTimeout) clearTimeout(suggestionTimeout);
+
+            suggestionTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch(`/products/suggest?q=${encodeURIComponent(query)}`);
+                    const results = await response.json();
+
+                    list.innerHTML = '';
+                    if (results.length > 0) {
+                        results.forEach(item => {
+                            const li = document.createElement('li');
+                            li.className = 'hover:bg-blue-50 transition-colors cursor-pointer border-b border-gray-50 last:border-0';
+                            
+                            // Navigate to product page
+                            li.onclick = () => {
+                                dropdown.classList.add('hidden');
+                                window.location.href = `/products/${item.id}`;
+                            };
+
+                            let priceHtml = '';
+                            if (item.has_discount) {
+                                priceHtml = `
+                                    <span class="text-xs text-gray-400 line-through">${item.original_price_formatted}</span>
+                                    <span class="text-sm font-bold text-blue-600">${item.price_formatted}</span>
+                                `;
+                            } else {
+                                priceHtml = `<span class="text-sm font-bold text-blue-600">${item.price_formatted}</span>`;
+                            }
+
+                            li.innerHTML = `
+                                <div class="flex items-center gap-3 px-4 py-2">
+                                    <img src="${item.image}" alt="${item.name}" class="w-10 h-10 object-contain rounded bg-gray-50 flex-shrink-0">
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="text-sm font-semibold text-gray-900 truncate">${item.name}</h4>
+                                        <div class="flex items-center gap-2 mt-0.5">
+                                            ${priceHtml}
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                            list.appendChild(li);
+                        });
+                        dropdown.classList.remove('hidden');
+                    } else {
+                        list.innerHTML = `
+                            <li class="px-4 py-3 text-sm text-gray-500 text-center">
+                                Produk tidak ditemukan.
+                            </li>
+                        `;
+                        dropdown.classList.remove('hidden');
+                    }
+                } catch (err) {
+                    console.error('Error fetching suggestions:', err);
+                }
+            }, 300); // 300ms debounce
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const desktopContainer = document.getElementById('desktop-search-container');
+            const mobileContainer = document.getElementById('mobile-search-container');
+            
+            if (desktopContainer && !desktopContainer.contains(e.target)) {
+                const dd = document.getElementById('desktop-suggestions');
+                if (dd) dd.classList.add('hidden');
+            }
+            if (mobileContainer && !mobileContainer.contains(e.target)) {
+                const md = document.getElementById('mobile-suggestions');
+                if (md) md.classList.add('hidden');
+            }
+        });
+
     </script>
 
 </body>

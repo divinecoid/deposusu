@@ -344,75 +344,132 @@
             </div>
         </section>
 
-        <!-- Category Selection Section -->
-        <section id="category-navigation"
-            class="py-6 bg-white shadow-sm sticky top-[64px] z-30 animate-slide-in border-b border-gray-100 transition-all duration-300">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex flex-col md:flex-row md:items-center justify-end gap-4">
 
-                    <button onclick="openCategoryModal()"
-                        class="flex items-center justify-between gap-4 px-6 py-3 bg-gray-50 border border-gray-200 rounded-2xl hover:border-blue-500 hover:bg-white transition-all duration-300 group shadow-sm">
-                        <div class="flex items-center gap-3">
-                            <svg class="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            <span class="text-gray-600 font-medium" id="selected-category-name">Semua Produk</span>
-                        </div>
-                        <div class="flex items-center gap-2 text-blue-600 font-bold text-sm">
-                            Pilih Kategori
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </div>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-
-        <!-- Promo Products Section -->
         @if($products->whereNotNull('active_discount')->count() > 0)
-            <section id="promo-section" class="py-12 animate-fade-in-up" style="animation-delay: 0.2s">
+            <!-- Flash Sale Section -->
+            <section class="py-6 md:py-8 bg-red-600 animate-fade-in-up mt-2 mb-2" style="animation-delay: 0.2s">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div class="flex items-center justify-between mb-8">
-                        <div>
-                            <h2 class="text-2xl md:text-4xl font-bold text-gray-900">Produk Promo</h2>
-                            <p class="text-gray-600 mt-1 md:mt-2 text-sm md:text-base">Jangan lewatkan diskon menarik minggu ini
-                            </p>
+                    <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+                        <div class="flex items-center gap-3">
+                            <h2 class="text-2xl md:text-3xl font-black text-white italic tracking-wide flex items-center gap-2">
+                                <svg class="w-8 h-8 text-yellow-300" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" />
+                                </svg>
+                                FLASH SALE
+                            </h2>
+                            <div class="flex items-center gap-1 bg-white/20 px-3 py-1.5 rounded-lg text-white font-mono font-bold text-lg backdrop-blur-sm">
+                                <span id="fs-hours">02</span><span class="text-red-200 animate-pulse">:</span><span id="fs-mins">45</span><span class="text-red-200 animate-pulse">:</span><span id="fs-secs">10</span>
+                            </div>
                         </div>
-                        <a href="#"
-                            class="hidden md:block text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-2">
+                        <a href="#products" class="text-white font-bold text-sm flex items-center gap-1 hover:text-red-100 transition-colors">
                             Lihat Semua
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                             </svg>
                         </a>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        @foreach($products->whereNotNull('active_discount')->take(3) as $product)
-                            <div onclick="openQuickView({{ json_encode($product) }})"
-                                class="product-card group glass-effect rounded-2xl overflow-hidden shadow-lg cursor-pointer"
-                                style="animation-delay: {{ ($loop->iteration - 1) * 0.1 }}s">
+                    <!-- Horizontal Scroll for Flash Sale -->
+                    <div class="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar">
+                        @foreach($products->whereNotNull('active_discount')->take(4) as $product)
+                            <div onclick="window.location.href='{{ route('products.show', $product->id) }}'"
+                                class="flex-none w-[160px] md:w-[220px] product-card group bg-white rounded-2xl overflow-hidden shadow-xl cursor-pointer snap-start relative border-2 border-transparent hover:border-red-400 transition-all">
+                                
+                                <div class="absolute top-0 left-0 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-br-xl z-20 shadow-md">
+                                    Segera Habis!
+                                </div>
+
                                 <div class="relative">
-                                    <div class="absolute top-4 right-4 z-10 flex flex-col gap-2 italic">
-                                        <span class="px-3 py-1 bg-blue-600 text-white rounded-full text-xs font-bold shadow-sm">
-                                            Promo
-                                        </span>
+                                    <div class="absolute top-2 right-2 z-10 flex flex-col gap-1">
                                         @if($product->active_discount)
-                                            <span
-                                                class="px-3 py-1 bg-red-500 text-white rounded-full text-xs font-bold shadow-sm animate-pulse">
+                                            <span class="px-2 py-1 bg-yellow-400 text-red-900 rounded-lg text-xs font-black shadow-sm transform rotate-3 scale-110">
                                                 @if($product->active_discount->discount_type === 'PERCENTAGE')
-                                                    {{ number_format($product->active_discount->discount_value, 0) }}% OFF
+                                                    -{{ number_format($product->active_discount->discount_value, 0) }}%
                                                 @else
-                                                    Hemat Rp {{ number_format($product->active_discount->discount_value, 0, ',', '.') }}
+                                                    -{{ $product->active_discount->discount_value >= 1000 ? number_format($product->active_discount->discount_value / 1000, 0) . 'K' : number_format($product->active_discount->discount_value, 0, ',', '.') }}
                                                 @endif
                                             </span>
                                         @endif
                                     </div>
-                                    <div class="image-container skeleton aspect-square bg-blue-50 p-8 rounded-2xl overflow-hidden">
+
+                                    <div class="image-container skeleton aspect-square bg-gray-50 overflow-hidden relative">
+                                        <img src="{{ $product->image && str_starts_with($product->image, 'storage/') ? asset($product->image) : $product->image }}"
+                                            alt="{{ $product->name }}"
+                                            class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+                                            style="filter: none !important; background-color: transparent !important;"
+                                            onload="this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');"
+                                            onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=No+Image'; this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');">
+                                    </div>
+                                </div>
+
+                                <div class="p-4">
+                                    <h3 class="text-sm font-bold text-gray-900 mb-2 line-clamp-2 h-10 leading-tight">{{ $product->name }}</h3>
+                                    
+                                    <div class="mb-3">
+                                        @if($product->active_discount)
+                                            <p class="text-[10px] md:text-xs text-gray-400 line-through">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
+                                            <p class="text-base md:text-lg font-black text-red-600 leading-none">Rp {{ number_format($product->discounted_price, 0, ',', '.') }}</p>
+                                        @else
+                                            <p class="text-base md:text-lg font-black text-red-600 leading-none">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
+                                        @endif
+                                    </div>
+                                    
+                                    <!-- Stock Progress Bar -->
+                                    <div class="w-full bg-gray-200 rounded-full h-2 mb-1">
+                                        <div class="bg-red-500 h-2 rounded-full" style="width: 85%"></div>
+                                    </div>
+                                    <div class="text-[10px] text-gray-500 font-semibold mb-3">Sisa 5 produk!</div>
+
+                                    <button onclick="event.stopPropagation(); addToCart({{ $product->id }})"
+                                        class="w-full py-2 bg-red-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 hover:bg-red-700 active:scale-95 transition-all shadow-md">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                        Sikat!
+                                    </button>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </section>
+
+            <!-- Promo Mingguan Section -->
+            <section id="promo-section" class="py-6 md:py-8 animate-fade-in-up" style="animation-delay: 0.3s">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h2 class="text-xl md:text-2xl font-bold text-gray-900">Spesial Promo Mingguan 🤑</h2>
+                        </div>
+                        <a href="#products" onclick="selectCategory('promo', 'Spesial Promo')" class="text-blue-600 font-bold text-sm flex items-center gap-1">
+                            Lihat Semua
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                    </div>
+
+                    <!-- Horizontal Scroll for Promo (Astro style) -->
+                    <div class="flex overflow-x-auto gap-4 pb-4 snap-x hide-scrollbar">
+                        @foreach($products->whereNotNull('active_discount')->take(5) as $product)
+                            <div onclick="window.location.href='{{ route('products.show', $product->id) }}'"
+                                class="flex-none w-[160px] md:w-[200px] product-card group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-gray-100 cursor-pointer snap-start"
+                                style="animation-delay: {{ ($loop->iteration - 1) * 0.1 }}s">
+                                
+                                <div class="relative">
+                                    <div class="absolute top-2 left-2 z-10 flex flex-col gap-1">
+                                        @if($product->active_discount)
+                                            <span class="px-2 py-0.5 bg-red-500 text-white rounded text-[10px] md:text-xs font-bold shadow-sm animate-pulse">
+                                                @if($product->active_discount->discount_type === 'PERCENTAGE')
+                                                    -{{ number_format($product->active_discount->discount_value, 0) }}%
+                                                @else
+                                                    -{{ $product->active_discount->discount_value >= 1000 ? number_format($product->active_discount->discount_value / 1000, 0) . 'K' : number_format($product->active_discount->discount_value, 0, ',', '.') }}
+                                                @endif
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <div class="image-container skeleton aspect-square bg-gray-50 overflow-hidden relative">
                                         <img src="{{ $product->image && str_starts_with($product->image, 'storage/') ? asset($product->image) : $product->image }}"
                                             alt="{{ $product->name }}"
                                             class="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500"
@@ -420,13 +477,12 @@
                                             onload="this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');"
                                             onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=No+Image'; this.classList.add('loaded'); this.parentElement.classList.remove('skeleton'); console.error('Image failing to load:', this.src);">
 
-                                        <!-- Wishlist Button -->
                                         <button onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)"
-                                            class="absolute top-4 left-4 z-10 p-2 bg-white/80 backdrop-blur-sm rounded-full shadow-md transition-all duration-300 hover:bg-red-50">
+                                            class="absolute top-2 right-2 z-10 p-1.5 bg-white/90 backdrop-blur-sm rounded-full shadow-sm transition-all duration-300 hover:bg-red-50">
                                             @php
                                                 $isWishlisted = Auth::check() && $product->isWishlistedBy(Auth::user());
                                             @endphp
-                                            <svg class="w-5 h-5 {{ $isWishlisted ? 'text-red-500' : 'text-gray-400' }} hover:text-red-500"
+                                            <svg class="w-4 h-4 {{ $isWishlisted ? 'text-red-500' : 'text-gray-400' }} hover:text-red-500"
                                                 fill="{{ $isWishlisted ? 'currentColor' : 'none' }}" stroke="currentColor"
                                                 viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -435,34 +491,26 @@
                                         </button>
                                     </div>
                                 </div>
-                                <div class="p-6">
-                                    <h3 class="text-lg md:text-xl font-bold text-gray-900 mb-1 md:mb-2">{{ $product->name }}</h3>
-                                    <p class="text-gray-600 text-xs md:text-sm mb-3 md:mb-4 line-clamp-2 md:line-clamp-none">Produk
-                                        susu berkualitas premium dengan rasa yang lezat</p>
-                                    <div class="flex items-center justify-between">
-                                        <div>
+
+                                <div class="p-3">
+                                    <h3 class="text-xs md:text-sm font-semibold text-gray-900 mb-1 line-clamp-2 h-8 leading-tight">{{ $product->name }}</h3>
+                                    
+                                    <div class="mt-2 flex items-end justify-between gap-1">
+                                        <div class="flex-1">
                                             @if($product->active_discount)
-                                                <p class="text-sm text-gray-500 line-through">Rp
-                                                    {{ number_format($product->price, 0, ',', '.') }}
-                                                </p>
-                                                <p class="text-2xl font-bold text-blue-600">Rp
-                                                    {{ number_format($product->discounted_price, 0, ',', '.') }}
-                                                </p>
+                                                <p class="text-[9px] md:text-[10px] text-gray-400 line-through">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
+                                                <p class="text-sm md:text-base font-bold text-gray-900 leading-none">Rp {{ number_format($product->discounted_price, 0, ',', '.') }}</p>
                                             @else
-                                                <p class="text-sm text-gray-500 opacity-0">-</p>
-                                                <p class="text-2xl font-bold text-blue-600">Rp
-                                                    {{ number_format($product->price, 0, ',', '.') }}
-                                                </p>
+                                                <p class="text-sm md:text-base font-bold text-gray-900 leading-none">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
                                             @endif
                                         </div>
+                                        
                                         <button onclick="event.stopPropagation(); addToCart({{ $product->id }})"
-                                            class="px-6 py-2.5 md:px-8 md:py-3.5 bg-blue-600 text-white rounded-full font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 flex items-center gap-2 text-sm md:text-base">
-                                            <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            class="flex-shrink-0 w-7 h-7 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 hover:scale-110 active:scale-95 transition-all shadow-sm"
+                                            title="Tambah ke Keranjang">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
                                             </svg>
-                                            <span>Add to Cart</span>
                                         </button>
                                     </div>
                                 </div>
@@ -472,6 +520,46 @@
                 </div>
             </section>
         @endif
+
+        <!-- Category Horizontal List -->
+        <section class="py-4 md:py-6 bg-white animate-fade-in-up border-y border-gray-100 sticky top-[64px] z-30" style="animation-delay: 0.3s">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-4">Belanja Berdasarkan Kategori</h2>
+                <div class="flex overflow-x-auto gap-4 md:gap-6 pb-2 hide-scrollbar snap-x">
+                    <button onclick="selectCategory('all', 'Semua Produk')" class="flex flex-col items-center gap-2 group snap-start">
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-blue-50 border border-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-100 group-hover:scale-105 transition-all">
+                            <span class="text-xl md:text-2xl font-bold text-blue-600">All</span>
+                        </div>
+                        <span class="text-[10px] md:text-xs font-semibold text-center text-gray-700 group-hover:text-blue-600 max-w-[80px]">Semua</span>
+                    </button>
+                    <!-- Promo Category Chip -->
+                    <button onclick="selectCategory('promo', 'Spesial Promo')" class="flex flex-col items-center gap-2 group snap-start">
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-red-50 border border-red-100 rounded-full flex items-center justify-center group-hover:bg-red-100 group-hover:scale-105 transition-all relative overflow-hidden">
+                            <div class="absolute inset-0 bg-red-500 opacity-10 animate-pulse"></div>
+                            <span class="text-xl md:text-2xl font-bold text-red-600">%</span>
+                        </div>
+                        <span class="text-[10px] md:text-xs font-bold text-center text-red-600 max-w-[80px]">Promo</span>
+                    </button>
+                    @foreach($categories as $category)
+                        <button onclick="selectCategory('{{ $category->id }}', '{{ $category->name }}')" class="flex flex-col items-center gap-2 group snap-start">
+                            <div class="w-16 h-16 md:w-20 md:h-20 bg-gray-50 border border-gray-100 rounded-full flex items-center justify-center group-hover:bg-blue-50 group-hover:border-blue-200 group-hover:scale-105 transition-all">
+                                <span class="text-xl md:text-2xl font-bold text-gray-600 group-hover:text-blue-600">{{ substr($category->name, 0, 1) }}</span>
+                            </div>
+                            <span class="text-[10px] md:text-xs font-semibold text-center text-gray-700 group-hover:text-blue-600 max-w-[80px] leading-tight line-clamp-2">{{ $category->name }}</span>
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+            <style>
+                .hide-scrollbar::-webkit-scrollbar {
+                    display: none;
+                }
+                .hide-scrollbar {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                }
+            </style>
+        </section>
 
 
         <!-- Main Product Grid Section -->
@@ -565,85 +653,7 @@
 
     </div>
 
-    <!-- Category Selection Modal -->
-    <div id="category-modal" class="fixed inset-0 z-[70] hidden overflow-y-auto" role="dialog" aria-modal="true">
-        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <!-- Background Overlay -->
-            <div class="fixed inset-0 transition-opacity bg-gray-900/60 backdrop-blur-md" onclick="closeCategoryModal()">
-            </div>
 
-            <!-- Modal Content -->
-            <div
-                class="inline-block overflow-hidden text-left align-bottom transition-all transform bg-white rounded-3xl shadow-2xl sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full animate-fade-in-up relative">
-                <!-- Header -->
-                <div class="px-8 py-6 border-b border-gray-100 sticky top-0 bg-white/80 backdrop-blur-md z-10">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-2xl font-bold text-gray-900">Pilih Kategori</h3>
-                        <button onclick="closeCategoryModal()"
-                            class="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-100 rounded-full transition-all">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <!-- Search Input -->
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
-                        <input type="text" id="category-search" onkeyup="filterCategories()"
-                            class="block w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-200 rounded-2xl leading-5 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-lg"
-                            placeholder="Cari kategori (misal: Yogurt, Keju...)">
-                    </div>
-                </div>
-
-                <!-- Category List -->
-                <div class="px-8 py-8 max-h-[60vh] overflow-y-auto">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="category-grid">
-                        <!-- All Products Option -->
-                        <button onclick="selectCategory('all', 'Semua Produk')"
-                            class="category-item flex items-center p-4 bg-blue-50 border border-blue-200 rounded-2xl hover:shadow-md transition-all group text-left">
-                            <div
-                                class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white mr-4 shadow-lg shadow-blue-200">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                                </svg>
-                            </div>
-                            <span class="font-bold text-blue-700">Semua Produk</span>
-                        </button>
-
-                        @foreach($categories as $category)
-                            <button onclick="selectCategory('{{ $category->id }}', '{{ $category->name }}')"
-                                class="category-item flex items-center p-4 bg-gray-50 border border-gray-100 rounded-2xl hover:border-blue-500 hover:bg-white hover:shadow-md transition-all group text-left">
-                                <div
-                                    class="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-blue-600 mr-4 shadow-sm group-hover:bg-blue-600 group-hover:text-white transition-all">
-                                    <span class="text-xl font-bold">{{ substr($category->name, 0, 1) }}</span>
-                                </div>
-                                <span
-                                    class="font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">{{ $category->name }}</span>
-                            </button>
-                        @endforeach
-                    </div>
-
-                    <!-- No Results -->
-                    <div id="no-category-results" class="hidden py-12 text-center">
-                        <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9.172 9.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <p class="text-gray-500 text-lg">Kategori tidak ditemukan...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
 
     <script>
@@ -669,51 +679,44 @@
             });
         });
 
-        // Category Modal Logic
-        const categoryModal = document.getElementById('category-modal');
-        const categorySearch = document.getElementById('category-search');
-        const categoryGrid = document.getElementById('category-grid');
-        const noCategoryResults = document.getElementById('no-category-results');
-        const selectedCategoryName = document.getElementById('selected-category-name');
 
-        function openCategoryModal() {
-            if (categoryModal) {
-                categoryModal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-                setTimeout(() => categorySearch.focus(), 100);
-            }
-        }
 
-        function closeCategoryModal() {
-            if (categoryModal) {
-                categoryModal.classList.add('hidden');
-                document.body.style.overflow = '';
-                categorySearch.value = '';
-                filterCategories();
-            }
-        }
 
-        function filterCategories() {
-            if (!categorySearch || !categoryGrid) return;
 
-            const query = categorySearch.value.toLowerCase();
-            const items = categoryGrid.querySelectorAll('.category-item');
-            let hasResults = false;
-
-            items.forEach(item => {
-                const name = item.querySelector('span').textContent.toLowerCase();
-                if (name.includes(query)) {
-                    item.classList.remove('hidden');
-                    hasResults = true;
-                } else {
-                    item.classList.add('hidden');
+        // Flash Sale Countdown Logic
+        function startFlashSaleTimer() {
+            let hours = 2;
+            let minutes = 45;
+            let seconds = 10;
+            
+            setInterval(() => {
+                seconds--;
+                if (seconds < 0) {
+                    seconds = 59;
+                    minutes--;
+                    if (minutes < 0) {
+                        minutes = 59;
+                        hours--;
+                        if (hours < 0) {
+                            hours = 2; // Reset for demo purposes
+                        }
+                    }
                 }
-            });
-
-            if (noCategoryResults) {
-                noCategoryResults.classList.toggle('hidden', hasResults);
-            }
+                
+                const hEl = document.getElementById('fs-hours');
+                const mEl = document.getElementById('fs-mins');
+                const sEl = document.getElementById('fs-secs');
+                
+                if (hEl && mEl && sEl) {
+                    hEl.textContent = hours.toString().padStart(2, '0');
+                    mEl.textContent = minutes.toString().padStart(2, '0');
+                    sEl.textContent = seconds.toString().padStart(2, '0');
+                }
+            }, 1000);
         }
+        
+        // Start timer
+        startFlashSaleTimer();
 
         // Global filtering state
         let currentCategoryId = 'all';
@@ -785,10 +788,6 @@
 
         function selectCategory(id, name) {
             currentCategoryId = id;
-            if (selectedCategoryName) {
-                selectedCategoryName.textContent = name;
-            }
-            closeCategoryModal();
             applyFilters();
 
             // Smooth scroll to product section
@@ -797,12 +796,5 @@
                 productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
-
-        // Close modal on escape key
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                closeCategoryModal();
-            }
-        });
     </script>
 @endsection

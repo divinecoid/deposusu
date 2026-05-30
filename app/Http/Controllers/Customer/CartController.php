@@ -8,6 +8,7 @@ use App\Models\TrxOrder;
 use App\Models\TrxOrderItem;
 use App\Models\TrxCart;
 use App\Models\TrxCartItem;
+use App\Enums\OrderStatusEnum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
@@ -250,7 +251,7 @@ class CartController extends Controller
                 'customer_name' => auth()->check() ? auth()->user()->name : 'Guest',
                 'total_amount' => 0, // Placeholder
                 'total_discount' => 0, // Placeholder
-                'status' => 'pending',
+                'status' => OrderStatusEnum::ON_PROCESS,
                 'payment_status' => 'UNPAID',
             ]);
 

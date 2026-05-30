@@ -7,6 +7,8 @@ use App\Models\TrxOrder;
 use App\Enums\OrderStatusEnum;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class PreparistController extends Controller
 {
@@ -95,6 +97,31 @@ class PreparistController extends Controller
     }
 
     /**
+     * Sync preparation of an order (logs, checked quantities)
+     */
+    public function syncOrder(Request $request, TrxOrder $order)
+    {
+        if ($order->status !== OrderStatusEnum::ON_PREPARATION) {
+            return response()->json(['success' => false, 'message' => 'Order is not being prepared.'], 400);
+        }
+
+        if ($request->has('logs')) {
+            $order->update(['packing_logs' => json_encode($request->input('logs'))]);
+        }
+
+        if ($request->has('items')) {
+            foreach ($request->input('items') as $itemData) {
+                $item = $order->items()->find($itemData['id']);
+                if ($item) {
+                    $item->update(['checked_quantity' => $itemData['checked_quantity']]);
+                }
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => 'Order synced.']);
+    }
+
+    /**
      * Finish preparation of an order (submit)
      */
     public function finishPreparation(Request $request, TrxOrder $order)
@@ -106,7 +133,6 @@ class PreparistController extends Controller
             ], 400);
         }
 
-        // Optional: Check if the current user is the one who started it
         if ($order->preparist_id !== $request->user()->id) {
             return response()->json([
                 'success' => false,
@@ -114,9 +140,27 @@ class PreparistController extends Controller
             ], 403);
         }
 
+        $photoIsiPath = null;
+        $photoFinalPath = null;
+
+        if ($request->hasFile('photo_isi')) {
+            $photoIsiPath = $request->file('photo_isi')->store('packing_photos', 'public');
+        }
+
+        if ($request->hasFile('photo_final')) {
+            $photoFinalPath = $request->file('photo_final')->store('packing_photos', 'public');
+        }
+
+        $driver = \App\Models\User::where('role', 'driver')->where('email', 'driver@deposusu.com')->first()
+            ?? \App\Models\User::where('role', 'driver')->first();
+
         $order->update([
             'status' => OrderStatusEnum::PREPARED,
+            'driver_id' => $driver ? $driver->id : null,
             'prepared_at' => now(),
+            'packing_photo_isi' => $photoIsiPath,
+            'packing_photo_final' => $photoFinalPath,
+            'packing_logs' => $request->has('logs') ? json_encode($request->input('logs')) : $order->packing_logs,
         ]);
 
         return response()->json([
