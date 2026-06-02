@@ -42,6 +42,44 @@ class TrxOrder extends Model
         'delivery_longitude' => 'float',
     ];
 
+    protected $appends = [
+        'customer_phone',
+        'customer_address',
+        'distance',
+        'deadline',
+        'order_source',
+    ];
+
+    public function getCustomerPhoneAttribute()
+    {
+        $customer = $this->customer;
+        return $customer && $customer->customerProfile ? $customer->customerProfile->phone : '';
+    }
+
+    public function getCustomerAddressAttribute()
+    {
+        $customer = $this->customer;
+        return $customer && $customer->customerProfile ? $customer->customerProfile->address : '';
+    }
+
+    public function getDistanceAttribute()
+    {
+        // Stable mock distance based on ID for demo purposes, e.g., between 0.8 and 5.0 km
+        return round(0.8 + (($this->id * 7) % 43) / 10, 1);
+    }
+
+    public function getDeadlineAttribute()
+    {
+        // Stable deadline (60 minutes after order creation)
+        $baseTime = $this->created_at ?: now();
+        return $baseTime->addMinutes(60)->toIso8601String();
+    }
+
+    public function getOrderSourceAttribute()
+    {
+        return $this->source ?: 'app';
+    }
+
     public function preparist()
     {
         return $this->belongsTo(User::class, 'preparist_id');

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\PreparistController;
 use App\Http\Controllers\Api\DriverController;
+use App\Http\Controllers\Api\CustomerApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -9,6 +10,7 @@ Route::post('/login', [DriverController::class, 'login']);
 Route::post('/driver/request-otp', [DriverController::class, 'requestOtp']);
 Route::post('/driver/verify-otp', [DriverController::class, 'verifyOtp']);
 Route::get('/orders/track/{order_number}', [DriverController::class, 'trackOrder']);
+Route::post('/customer/checkout', [CustomerApiController::class, 'checkout']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
