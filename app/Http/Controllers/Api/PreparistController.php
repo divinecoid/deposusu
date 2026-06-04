@@ -18,30 +18,29 @@ class PreparistController extends Controller
     public function dashboard(Request $request)
     {
         $user = $request->user();
-        $now = Carbon::now();
+        $today = Carbon::today();
 
-        $stats = [
-            'hour' => TrxOrder::where('preparist_id', $user->id)
-                ->where('status', OrderStatusEnum::PREPARED)
-                ->where('prepared_at', '>=', $now->copy()->startOfHour())
-                ->count(),
-            'day' => TrxOrder::where('preparist_id', $user->id)
-                ->where('status', OrderStatusEnum::PREPARED)
-                ->where('prepared_at', '>=', $now->copy()->startOfDay())
-                ->count(),
-            'week' => TrxOrder::where('preparist_id', $user->id)
-                ->where('status', OrderStatusEnum::PREPARED)
-                ->where('prepared_at', '>=', $now->copy()->startOfWeek())
-                ->count(),
-            'month' => TrxOrder::where('preparist_id', $user->id)
-                ->where('status', OrderStatusEnum::PREPARED)
-                ->where('prepared_at', '>=', $now->copy()->startOfMonth())
-                ->count(),
-        ];
+        $newOrders = TrxOrder::where('status', OrderStatusEnum::ON_PROCESS)->count();
+        $processingOrders = TrxOrder::where('preparist_id', $user->id)
+            ->where('status', OrderStatusEnum::ON_PREPARATION)
+            ->count();
+        // Priority orders: status onprocess created more than 15 minutes ago
+        $priorityOrders = TrxOrder::where('status', OrderStatusEnum::ON_PROCESS)
+            ->where('created_at', '<=', now()->subMinutes(15))
+            ->count();
+        $completedToday = TrxOrder::where('preparist_id', $user->id)
+            ->whereIn('status', [OrderStatusEnum::PREPARED, OrderStatusEnum::ON_DELIVERY, OrderStatusEnum::DELIVERED, OrderStatusEnum::DONE])
+            ->whereDate('prepared_at', $today)
+            ->count();
 
         return response()->json([
             'success' => true,
-            'performance' => $stats
+            'performance' => [
+                'newOrders' => $newOrders,
+                'processingOrders' => $processingOrders,
+                'priorityOrders' => $priorityOrders,
+                'completedTodayOrders' => $completedToday,
+            ]
         ]);
     }
 
