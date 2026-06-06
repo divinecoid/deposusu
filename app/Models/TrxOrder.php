@@ -22,7 +22,13 @@ class TrxOrder extends Model
         'driver_id',
         'warehouse_id',
         'preparist_id',
+        'packer_name',
         'source',
+        'packing_photo_isi',
+        'packing_photo_final',
+        'packing_logs',
+        'prepared_at',
+        'on_preparation_at',
         'picked_up_at',
         'delivered_at',
         'delivery_proof_photo',
@@ -48,6 +54,8 @@ class TrxOrder extends Model
         'distance',
         'deadline',
         'order_source',
+        'assigned_to',
+        'packer_name',
     ];
 
     public function getCustomerPhoneAttribute()
@@ -78,6 +86,16 @@ class TrxOrder extends Model
     public function getOrderSourceAttribute()
     {
         return $this->source ?: 'app';
+    }
+
+    public function getAssignedToAttribute()
+    {
+        return $this->attributes['packer_name'] ?? ($this->preparist ? $this->preparist->name : null);
+    }
+
+    public function getPackerNameAttribute()
+    {
+        return $this->attributes['packer_name'] ?? ($this->preparist ? $this->preparist->name : null);
     }
 
     public function preparist()

@@ -3,14 +3,32 @@
 use App\Http\Controllers\Api\PreparistController;
 use App\Http\Controllers\Api\DriverController;
 use App\Http\Controllers\Api\CustomerApiController;
+use App\Http\Controllers\Api\CashierApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 
+Route::get('/migrate-db', function () {
+    try {
+        Artisan::call('migrate', ['--force' => true]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Database migrated successfully!',
+            'output' => Artisan::output()
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Migration failed: ' . $e->getMessage()
+        ], 500);
+    }
+});
 Route::post('/login', [DriverController::class, 'login']);
 Route::post('/driver/request-otp', [DriverController::class, 'requestOtp']);
 Route::post('/driver/verify-otp', [DriverController::class, 'verifyOtp']);
 Route::get('/orders/track/{order_number}', [DriverController::class, 'trackOrder']);
 Route::post('/customer/checkout', [CustomerApiController::class, 'checkout']);
+Route::post('/cashier/login', [CashierApiController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
@@ -33,5 +51,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/orders/{order}', [DriverController::class, 'showOrder']);
         Route::post('/orders/{order}/pickup', [DriverController::class, 'pickupOrder']);
         Route::post('/orders/{order}/finish', [DriverController::class, 'finishOrder']);
+    });
+
+    Route::prefix('cashier')->group(function () {
+        Route::get('/products', [CashierApiController::class, 'products']);
+        Route::post('/checkout', [CashierApiController::class, 'checkout']);
+        Route::get('/orders', [CashierApiController::class, 'orders']);
     });
 });
