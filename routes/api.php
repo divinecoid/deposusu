@@ -35,6 +35,12 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
+    Route::prefix('profile')->group(function () {
+        Route::post('/update-basic', [\App\Http\Controllers\Api\ProfileController::class, 'updateBasicProfile']);
+        Route::post('/request-otp', [\App\Http\Controllers\Api\ProfileController::class, 'requestOtp']);
+        Route::post('/verify-otp', [\App\Http\Controllers\Api\ProfileController::class, 'verifyOtpAndUpdate']);
+    });
+
     Route::prefix('preparist')->group(function () {
         Route::get('/dashboard', [PreparistController::class, 'dashboard']);
         Route::get('/orders', [PreparistController::class, 'index']);
