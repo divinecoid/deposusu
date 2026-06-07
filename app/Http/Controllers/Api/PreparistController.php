@@ -61,11 +61,17 @@ class PreparistController extends Controller
 
         if ($status === 'history') {
             $query->whereIn('status', [OrderStatusEnum::ON_DELIVERY, OrderStatusEnum::DELIVERED, OrderStatusEnum::DONE]);
+            $orders = $query->latest()->paginate(15);
+        } else if ($status === 'onprocess') {
+            $query->where('status', $status);
+            // Priority Queue (Instant/Sameday first), then FIFO (oldest first)
+            $query->orderByRaw("CASE WHEN delivery_type IN ('instant', 'sameday') THEN 1 ELSE 2 END ASC")
+                  ->orderBy('created_at', 'asc');
+            $orders = $query->paginate(15);
         } else {
             $query->where('status', $status);
+            $orders = $query->latest()->paginate(15);
         }
-
-        $orders = $query->latest()->paginate(15);
 
         return response()->json([
             'success' => true,
