@@ -24,10 +24,8 @@ class PreparistController extends Controller
         $processingOrders = TrxOrder::where('preparist_id', $user->id)
             ->where('status', OrderStatusEnum::ON_PREPARATION)
             ->count();
-        // Priority orders: status onprocess created more than 15 minutes ago
-        $priorityOrders = TrxOrder::where('status', OrderStatusEnum::ON_PROCESS)
-            ->where('created_at', '<=', now()->subMinutes(15))
-            ->count();
+        // Waiting for driver: status prepared
+        $waitingDriverOrders = TrxOrder::where('status', OrderStatusEnum::PREPARED)->count();
         $completedToday = TrxOrder::where('preparist_id', $user->id)
             ->whereIn('status', [OrderStatusEnum::PREPARED, OrderStatusEnum::ON_DELIVERY, OrderStatusEnum::DELIVERED, OrderStatusEnum::DONE])
             ->whereDate('prepared_at', $today)
@@ -38,7 +36,7 @@ class PreparistController extends Controller
             'performance' => [
                 'newOrders' => $newOrders,
                 'processingOrders' => $processingOrders,
-                'priorityOrders' => $priorityOrders,
+                'waitingDriverOrders' => $waitingDriverOrders,
                 'completedTodayOrders' => $completedToday,
             ]
         ]);
