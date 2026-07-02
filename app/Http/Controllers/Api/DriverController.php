@@ -35,25 +35,28 @@ class DriverController extends Controller
             ], 401);
         }
 
-        if (!$user->isDriver()) {
+        if (!$user->isDriver() && !$user->isPreparist()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Akses ditolak. Akun Anda bukan merupakan akun Kurir.'
+                'message' => 'Akses ditolak.'
             ], 403);
         }
 
-        // Load driver profile
-        $user->load('driverProfile');
+        $tokenName = $user->isDriver() ? 'driver-token' : 'preparist-token';
+        $token = $user->createToken($tokenName)->plainTextToken;
 
-        $token = $user->createToken('driver-token')->plainTextToken;
+        if ($user->isDriver()) {
+            // Load driver profile
+            $user->load('driverProfile');
 
-        // Log login activity
-        DriverActivityLog::create([
-            'user_id' => $user->id,
-            'activity' => 'login',
-            'description' => 'Kurir berhasil masuk ke dalam aplikasi.',
-            'created_at' => now(),
-        ]);
+            // Log login activity
+            DriverActivityLog::create([
+                'user_id' => $user->id,
+                'activity' => 'login',
+                'description' => 'Kurir berhasil masuk ke dalam aplikasi.',
+                'created_at' => now(),
+            ]);
+        }
 
         return response()->json([
             'success' => true,
@@ -64,7 +67,7 @@ class DriverController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'role' => $user->role,
-                'profile' => $user->driverProfile,
+                'profile' => $user->isDriver() ? $user->driverProfile : null,
             ]
         ]);
     }

@@ -22,7 +22,13 @@ class TrxOrder extends Model
         'driver_id',
         'warehouse_id',
         'preparist_id',
+        'packer_name',
         'source',
+        'packing_photo_isi',
+        'packing_photo_final',
+        'packing_logs',
+        'prepared_at',
+        'on_preparation_at',
         'picked_up_at',
         'delivered_at',
         'delivery_proof_photo',
@@ -41,6 +47,56 @@ class TrxOrder extends Model
         'delivery_latitude' => 'float',
         'delivery_longitude' => 'float',
     ];
+
+    protected $appends = [
+        'customer_phone',
+        'customer_address',
+        'distance',
+        'deadline',
+        'order_source',
+        'assigned_to',
+        'packer_name',
+    ];
+
+    public function getCustomerPhoneAttribute()
+    {
+        $customer = $this->customer;
+        return $customer && $customer->customerProfile ? $customer->customerProfile->phone : '';
+    }
+
+    public function getCustomerAddressAttribute()
+    {
+        $customer = $this->customer;
+        return $customer && $customer->customerProfile ? $customer->customerProfile->address : '';
+    }
+
+    public function getDistanceAttribute()
+    {
+        // Stable mock distance based on ID for demo purposes, e.g., between 0.8 and 5.0 km
+        return round(0.8 + (($this->id * 7) % 43) / 10, 1);
+    }
+
+    public function getDeadlineAttribute()
+    {
+        // Stable deadline (60 minutes after order creation)
+        $baseTime = $this->created_at ?: now();
+        return $baseTime->addMinutes(60)->toIso8601String();
+    }
+
+    public function getOrderSourceAttribute()
+    {
+        return $this->source ?: 'app';
+    }
+
+    public function getAssignedToAttribute()
+    {
+        return $this->attributes['packer_name'] ?? ($this->preparist ? $this->preparist->name : null);
+    }
+
+    public function getPackerNameAttribute()
+    {
+        return $this->attributes['packer_name'] ?? ($this->preparist ? $this->preparist->name : null);
+    }
 
     public function preparist()
     {

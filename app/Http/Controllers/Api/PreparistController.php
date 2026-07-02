@@ -18,30 +18,27 @@ class PreparistController extends Controller
     public function dashboard(Request $request)
     {
         $user = $request->user();
-        $now = Carbon::now();
+        $today = Carbon::today();
 
-        $stats = [
-            'hour' => TrxOrder::where('preparist_id', $user->id)
-                ->where('status', OrderStatusEnum::PREPARED)
-                ->where('prepared_at', '>=', $now->copy()->startOfHour())
-                ->count(),
-            'day' => TrxOrder::where('preparist_id', $user->id)
-                ->where('status', OrderStatusEnum::PREPARED)
-                ->where('prepared_at', '>=', $now->copy()->startOfDay())
-                ->count(),
-            'week' => TrxOrder::where('preparist_id', $user->id)
-                ->where('status', OrderStatusEnum::PREPARED)
-                ->where('prepared_at', '>=', $now->copy()->startOfWeek())
-                ->count(),
-            'month' => TrxOrder::where('preparist_id', $user->id)
-                ->where('status', OrderStatusEnum::PREPARED)
-                ->where('prepared_at', '>=', $now->copy()->startOfMonth())
-                ->count(),
-        ];
+        $newOrders = TrxOrder::where('status', OrderStatusEnum::ON_PROCESS)->count();
+        $processingOrders = TrxOrder::where('preparist_id', $user->id)
+            ->where('status', OrderStatusEnum::ON_PREPARATION)
+            ->count();
+        // Waiting for driver: status prepared
+        $waitingDriverOrders = TrxOrder::where('status', OrderStatusEnum::PREPARED)->count();
+        $completedToday = TrxOrder::where('preparist_id', $user->id)
+            ->whereIn('status', [OrderStatusEnum::PREPARED, OrderStatusEnum::ON_DELIVERY, OrderStatusEnum::DELIVERED, OrderStatusEnum::DONE])
+            ->whereDate('prepared_at', $today)
+            ->count();
 
         return response()->json([
             'success' => true,
-            'performance' => $stats
+            'performance' => [
+                'newOrders' => $newOrders,
+                'processingOrders' => $processingOrders,
+                'waitingDriverOrders' => $waitingDriverOrders,
+                'completedTodayOrders' => $completedToday,
+            ]
         ]);
     }
 
@@ -53,17 +50,28 @@ class PreparistController extends Controller
         $status = $request->query('status', 'onprocess');
 
         // Validate status
-        if (!in_array($status, ['onprocess', 'onpreparation'])) {
+        if (!in_array($status, ['onprocess', 'onpreparation', 'prepared', 'history'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid status filter'
             ], 400);
         }
 
-        $orders = TrxOrder::with(['items.product'])
-            ->where('status', $status)
-            ->latest()
-            ->paginate(15);
+        $query = TrxOrder::with(['items.product', 'preparist']);
+
+        if ($status === 'history') {
+            $query->whereIn('status', [OrderStatusEnum::ON_DELIVERY, OrderStatusEnum::DELIVERED, OrderStatusEnum::DONE]);
+            $orders = $query->latest()->paginate(15);
+        } else if ($status === 'onprocess') {
+            $query->where('status', $status);
+            // Priority Queue (Instant/Sameday first), then FIFO (oldest first)
+            $query->orderByRaw("CASE WHEN delivery_type IN ('instant', 'sameday') THEN 1 ELSE 2 END ASC")
+                  ->orderBy('created_at', 'asc');
+            $orders = $query->paginate(15);
+        } else {
+            $query->where('status', $status);
+            $orders = $query->latest()->paginate(15);
+        }
 
         return response()->json([
             'success' => true,
@@ -86,6 +94,7 @@ class PreparistController extends Controller
         $order->update([
             'status' => OrderStatusEnum::ON_PREPARATION,
             'preparist_id' => $request->user()->id,
+            'packer_name' => $request->input('assigned_to'),
             'on_preparation_at' => now(),
         ]);
 
@@ -133,7 +142,7 @@ class PreparistController extends Controller
             ], 400);
         }
 
-        if ($order->preparist_id !== $request->user()->id) {
+        if ($order->preparist_id != $request->user()->id) {
             return response()->json([
                 'success' => false,
                 'message' => 'You are not the assigned preparist for this order.'
