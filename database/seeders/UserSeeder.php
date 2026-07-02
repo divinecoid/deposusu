@@ -43,7 +43,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Staf Gudang',
                 'password' => Hash::make('password'),
-                'role' => 'warehouse_staff', // Adjust if role key is different in logic, but 'warehouse' logic was implied
+                'role' => 'preparist', // Adjusted to match the isPreparist() logic
                 'email_verified_at' => now(),
             ]
         );

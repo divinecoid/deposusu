@@ -46,6 +46,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/orders', [PreparistController::class, 'index']);
         Route::post('/orders/{order}/start', [PreparistController::class, 'startPreparation']);
         Route::patch('/orders/{order}/sync', [PreparistController::class, 'syncOrder']);
+        Route::post('/orders/{order}/cancel', [PreparistController::class, 'cancelPreparation']);
+
         Route::post('/orders/{order}/finish', [PreparistController::class, 'finishPreparation']);
     });
 
