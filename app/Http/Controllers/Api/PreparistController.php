@@ -108,6 +108,29 @@ class PreparistController extends Controller
     /**
      * Sync preparation of an order (logs, checked quantities)
      */
+    public function cancelPreparation(Request $request, TrxOrder $order)
+    {
+        if ($order->status !== OrderStatusEnum::ON_PREPARATION) {
+            return response()->json([
+                "success" => false,
+                "message" => "Order is not in preparation state."
+            ], 400);
+        }
+
+        $order->update([
+            "status" => OrderStatusEnum::ON_PROCESS,
+            "preparist_id" => null,
+            "packer_name" => null,
+            "on_preparation_at" => null,
+        ]);
+
+        return response()->json([
+            "success" => true,
+            "message" => "Preparation canceled, order is back to onprocess.",
+            "order" => $order
+        ]);
+    }
+
     public function syncOrder(Request $request, TrxOrder $order)
     {
         if ($order->status !== OrderStatusEnum::ON_PREPARATION) {
