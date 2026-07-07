@@ -14,15 +14,25 @@ class ProfileController extends Controller
      */
     public function updateBasicProfile(Request $request)
     {
+        $user = $request->user();
+
         $request->validate([
             'name' => 'sometimes|string|max:255',
             'photo' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'phone' => 'sometimes|string|max:20|unique:users,phone,' . $user->id,
+            'email' => 'sometimes|string|email|max:255|unique:users,email,' . $user->id,
         ]);
-
-        $user = $request->user();
 
         if ($request->has('name')) {
             $user->name = $request->name;
+        }
+
+        if ($request->has('phone')) {
+            $user->phone = $request->phone;
+        }
+
+        if ($request->has('email')) {
+            $user->email = $request->email;
         }
 
         if ($request->hasFile('photo')) {

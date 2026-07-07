@@ -65,8 +65,20 @@ class PreparistController extends Controller
         $query = TrxOrder::with(['items.product', 'preparist']);
 
         if ($status === 'history') {
-            $query->whereIn('status', [OrderStatusEnum::ON_DELIVERY, OrderStatusEnum::DELIVERED, OrderStatusEnum::DONE]);
-            $orders = $query->orderBy('created_at', $sort)->paginate(15);
+            $query->whereIn('status', [OrderStatusEnum::PREPARED, OrderStatusEnum::ON_DELIVERY, OrderStatusEnum::DELIVERED, OrderStatusEnum::DONE]);
+            
+            if ($request->has('history_status')) {
+                $subStatus = $request->query('history_status');
+                if ($subStatus === 'prepared') {
+                    $query->where('status', OrderStatusEnum::PREPARED);
+                } else if ($subStatus === 'ondelivery') {
+                    $query->where('status', OrderStatusEnum::ON_DELIVERY);
+                } else if ($subStatus === 'completed') {
+                    $query->whereIn('status', [OrderStatusEnum::DELIVERED, OrderStatusEnum::DONE]);
+                }
+            }
+            
+            $orders = $query->orderBy('prepared_at', 'desc')->paginate(15);
         } else if ($status === 'onprocess') {
             $query->where('status', $status);
             // Priority Queue (Instant/Sameday first), then sort
