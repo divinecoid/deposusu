@@ -16,6 +16,8 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
+        Log::info('Profile Update Request for User ID ' . $user->id, $request->all());
+
         $request->validate([
             'name' => 'sometimes|string|max:255',
             'photo' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -24,15 +26,15 @@ class ProfileController extends Controller
         ]);
 
         if ($request->has('name')) {
-            $user->name = $request->name;
+            $user->name = $request->input('name');
         }
 
         if ($request->has('phone')) {
-            $user->phone = $request->phone;
+            $user->phone = $request->input('phone');
         }
 
         if ($request->has('email')) {
-            $user->email = $request->email;
+            $user->email = $request->input('email');
         }
 
         if ($request->hasFile('photo')) {
