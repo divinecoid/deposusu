@@ -188,6 +188,34 @@ class PreparistController extends Controller
             $photoFinalPath = $request->file('photo_final')->store('packing_photos', 'public');
         }
 
+        if ($request->has('items')) {
+            $itemsData = $request->input('items');
+            if (is_string($itemsData)) {
+                $itemsData = json_decode($itemsData, true);
+            }
+            if (is_array($itemsData)) {
+                foreach ($itemsData as $itemData) {
+                    if (isset($itemData['id']) && isset($itemData['checked_quantity'])) {
+                        $item = $order->items()->find($itemData['id']);
+                        if ($item) {
+                            $item->update(['checked_quantity' => $itemData['checked_quantity']]);
+                        }
+                    }
+                }
+            }
+        }
+
+        $logsData = $order->packing_logs;
+        if ($request->has('logs')) {
+            $reqLogs = $request->input('logs');
+            if (is_string($reqLogs)) {
+                $reqLogs = json_decode($reqLogs, true);
+            }
+            if (is_array($reqLogs)) {
+                $logsData = json_encode($reqLogs);
+            }
+        }
+
         $driver = \App\Models\User::where('role', 'driver')->where('email', 'driver@deposusu.com')->first()
             ?? \App\Models\User::where('role', 'driver')->first();
 
@@ -197,7 +225,7 @@ class PreparistController extends Controller
             'prepared_at' => now(),
             'packing_photo_isi' => $photoIsiPath,
             'packing_photo_final' => $photoFinalPath,
-            'packing_logs' => $request->has('logs') ? json_encode($request->input('logs')) : $order->packing_logs,
+            'packing_logs' => $logsData,
         ]);
 
         return response()->json([
