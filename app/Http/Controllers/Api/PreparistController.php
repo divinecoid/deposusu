@@ -24,8 +24,10 @@ class PreparistController extends Controller
         $processingOrders = TrxOrder::where('preparist_id', $user->id)
             ->where('status', OrderStatusEnum::ON_PREPARATION)
             ->count();
-        // Waiting for driver: status prepared
-        $waitingDriverOrders = TrxOrder::where('status', OrderStatusEnum::PREPARED)->count();
+        // Waiting for driver: status prepared (filtered by logged in preparist)
+        $waitingDriverOrders = TrxOrder::where('preparist_id', $user->id)
+            ->where('status', OrderStatusEnum::PREPARED)
+            ->count();
         $completedToday = TrxOrder::where('preparist_id', $user->id)
             ->whereIn('status', [OrderStatusEnum::PREPARED, OrderStatusEnum::ON_DELIVERY, OrderStatusEnum::DELIVERED, OrderStatusEnum::DONE])
             ->whereDate('prepared_at', $today)
@@ -98,7 +100,8 @@ class PreparistController extends Controller
         $query = TrxOrder::with(['items.product', 'preparist']);
 
         if ($status === 'history') {
-            $query->whereIn('status', [OrderStatusEnum::PREPARED, OrderStatusEnum::ON_DELIVERY, OrderStatusEnum::DELIVERED, OrderStatusEnum::DONE]);
+            $query->where('preparist_id', $request->user()->id)
+                  ->whereIn('status', [OrderStatusEnum::PREPARED, OrderStatusEnum::ON_DELIVERY, OrderStatusEnum::DELIVERED, OrderStatusEnum::DONE]);
             
             if ($request->has('history_status')) {
                 $subStatus = $request->query('history_status');
@@ -121,6 +124,7 @@ class PreparistController extends Controller
         } else {
             $query->where('status', $status);
             if ($status === 'prepared') {
+                $query->where('preparist_id', $request->user()->id);
                 $orders = $query->orderBy('prepared_at', 'desc')->paginate(15);
             } else {
                 $orders = $query->orderBy('created_at', $sort)->paginate(15);
