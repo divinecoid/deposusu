@@ -19,7 +19,10 @@
                 <span class="text-xl font-bold">DEPOSUSU</span>
             </div>
 
-            <nav class="mt-4 px-4 space-y-2 overflow-y-auto flex-1 pb-4">
+            <nav class="mt-4 px-4 space-y-2 overflow-y-auto flex-1 pb-4" x-data="{ 
+                openGroup: '{{ request()->routeIs('admin.master.*') ? 'master' : (request()->routeIs('admin.orders.*') || request()->routeIs('admin.invoices.*') ? 'transaction' : (request()->routeIs('admin.warehouse.*') || request()->routeIs('admin.stock.*') ? 'wms' : '')) }}' 
+            }">
+                <!-- Dashboard Link -->
                 <a href="{{ route('admin.dashboard') }}"
                     class="block py-2.5 px-4 rounded hover:bg-slate-700 {{ request()->routeIs('admin.dashboard') ? 'bg-slate-700' : '' }}">
                     <div class="flex items-center gap-3">
@@ -28,34 +31,96 @@
                     </div>
                 </a>
 
-                <a href="{{ route('admin.master.products.index') }}"
-                    class="block py-2.5 px-4 rounded hover:bg-slate-700 {{ request()->routeIs('admin.master.products.*') ? 'bg-slate-700' : '' }}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                        Produk
+                <!-- Group 1: Master Data -->
+                <div>
+                    <button @click="openGroup = openGroup === 'master' ? '' : 'master'" 
+                        class="w-full flex items-center justify-between py-2.5 px-4 rounded hover:bg-slate-700 text-slate-300 focus:outline-none"
+                        :class="openGroup === 'master' ? 'bg-slate-700/50' : ''">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                            <span class="font-medium text-sm">Master Data</span>
+                        </div>
+                        <svg class="w-4 h-4 transform transition-transform" :class="openGroup === 'master' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div x-show="openGroup === 'master'" x-collapse class="pl-8 pr-2 py-1 space-y-1 bg-slate-900/30 rounded-b">
+                        <a href="{{ route('admin.master.products.index') }}"
+                            class="block py-2 px-3 text-sm rounded hover:text-white transition-colors {{ request()->routeIs('admin.master.products.*') ? 'text-white font-semibold' : 'text-slate-400' }}">
+                            Produk
+                        </a>
+                        <a href="{{ route('admin.master.warehouses.index') }}"
+                            class="block py-2 px-3 text-sm rounded hover:text-white transition-colors {{ request()->routeIs('admin.master.warehouses.index') ? 'text-white font-semibold' : 'text-slate-400' }}">
+                            Gudang & Rak
+                        </a>
+                        <a href="{{ route('admin.master.customers.index') }}"
+                            class="block py-2 px-3 text-sm rounded hover:text-white transition-colors {{ request()->routeIs('admin.master.customers.*') ? 'text-white font-semibold' : 'text-slate-400' }}">
+                            Customer
+                        </a>
                     </div>
-                </a>
+                </div>
 
-                <a href="{{ route('admin.orders.index') }}"
-                    class="block py-2.5 px-4 rounded hover:bg-slate-700 {{ request()->routeIs('admin.orders.*') ? 'bg-slate-700' : '' }}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                        Order
+                <!-- Group 2: Transaksi -->
+                <div>
+                    <button @click="openGroup = openGroup === 'transaction' ? '' : 'transaction'" 
+                        class="w-full flex items-center justify-between py-2.5 px-4 rounded hover:bg-slate-700 text-slate-300 focus:outline-none"
+                        :class="openGroup === 'transaction' ? 'bg-slate-700/50' : ''">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                            <span class="font-medium text-sm">Transaksi</span>
+                        </div>
+                        <svg class="w-4 h-4 transform transition-transform" :class="openGroup === 'transaction' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div x-show="openGroup === 'transaction'" x-collapse class="pl-8 pr-2 py-1 space-y-1 bg-slate-900/30 rounded-b">
+                        <a href="{{ route('admin.orders.index') }}"
+                            class="block py-2 px-3 text-sm rounded hover:text-white transition-colors {{ request()->routeIs('admin.orders.*') ? 'text-white font-semibold' : 'text-slate-400' }}">
+                            Order Pelanggan
+                        </a>
+                        <a href="{{ route('admin.invoices.index') }}"
+                            class="block py-2 px-3 text-sm rounded hover:text-white transition-colors {{ request()->routeIs('admin.invoices.*') ? 'text-white font-semibold' : 'text-slate-400' }}">
+                            Invoice & Pembayaran
+                        </a>
                     </div>
-                </a>
+                </div>
 
+                <!-- Group 3: WMS & Logistik -->
+                <div>
+                    <button @click="openGroup = openGroup === 'wms' ? '' : 'wms'" 
+                        class="w-full flex items-center justify-between py-2.5 px-4 rounded hover:bg-slate-700 text-slate-300 focus:outline-none"
+                        :class="openGroup === 'wms' ? 'bg-slate-700/50' : ''">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            <span class="font-medium text-sm">WMS & Logistik</span>
+                        </div>
+                        <svg class="w-4 h-4 transform transition-transform" :class="openGroup === 'wms' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div x-show="openGroup === 'wms'" x-collapse class="pl-8 pr-2 py-1 space-y-1 bg-slate-900/30 rounded-b">
+                        <a href="{{ route('admin.warehouse.stock') }}"
+                            class="block py-2 px-3 text-sm rounded hover:text-white transition-colors {{ request()->routeIs('admin.warehouse.stock') ? 'text-white font-semibold' : 'text-slate-400' }}">
+                            Stok Gudang
+                        </a>
+                        <a href="{{ route('admin.warehouse.receive') }}"
+                            class="block py-2 px-3 text-sm rounded hover:text-white transition-colors {{ request()->routeIs('admin.warehouse.receive') ? 'text-white font-semibold' : 'text-slate-400' }}">
+                            Receive Barang
+                        </a>
+                        <a href="{{ route('admin.warehouse.transfer') }}"
+                            class="block py-2 px-3 text-sm rounded hover:text-white transition-colors {{ request()->routeIs('admin.warehouse.transfer') ? 'text-white font-semibold' : 'text-slate-400' }}">
+                            Transfer Antar Gudang
+                        </a>
+                        <a href="{{ route('admin.warehouse.movements') }}"
+                            class="block py-2 px-3 text-sm rounded hover:text-white transition-colors {{ request()->routeIs('admin.warehouse.movements') ? 'text-white font-semibold' : 'text-slate-400' }}">
+                            Mutasi Stok
+                        </a>
+                        <a href="{{ route('admin.stock.index') }}"
+                            class="block py-2 px-3 text-sm rounded hover:text-white transition-colors {{ request()->routeIs('admin.stock.index') ? 'text-white font-semibold' : 'text-slate-400' }}">
+                            Stock Opname
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Marketplace / Extra Links -->
                 <a href="#" class="block py-2.5 px-4 rounded hover:bg-slate-700 text-slate-300">
                     <div class="flex items-center gap-3">
                         <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Marketplace
-                    </div>
-                </a>
-
-                <a href="{{ route('admin.warehouse.stock') }}"
-                    class="block py-2.5 px-4 rounded hover:bg-slate-700 {{ request()->routeIs('admin.warehouse.*') ? 'bg-slate-700' : '' }}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                        Gudang
                     </div>
                 </a>
 
@@ -66,25 +131,10 @@
                     </div>
                 </a>
 
-                <a href="{{ route('admin.master.customers.index') }}"
-                    class="block py-2.5 px-4 rounded hover:bg-slate-700 {{ request()->routeIs('admin.master.customers.*') ? 'bg-slate-700' : '' }}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        Customer
-                    </div>
-                </a>
-
                 <a href="#" class="block py-2.5 px-4 rounded hover:bg-slate-700 text-slate-300">
                     <div class="flex items-center gap-3">
                         <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         Laporan
-                    </div>
-                </a>
-
-                <a href="#" class="block py-2.5 px-4 rounded hover:bg-slate-700 text-slate-300">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                        AI Generator
                     </div>
                 </a>
 
