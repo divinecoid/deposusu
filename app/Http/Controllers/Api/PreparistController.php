@@ -32,22 +32,23 @@ class PreparistController extends Controller
             ->count();
 
         // Group completed orders by hour for today (08:00 to 17:00 standard shift)
+        $todayOrders = TrxOrder::where('preparist_id', $user->id)
+            ->whereNotNull('prepared_at')
+            ->whereDate('prepared_at', $today)
+            ->get();
+
         $todayHourly = [];
         for ($h = 8; $h <= 17; $h++) {
             $todayHourly[$h] = 0;
         }
 
-        $hourlyData = TrxOrder::where('preparist_id', $user->id)
-            ->whereNotNull('prepared_at')
-            ->whereDate('prepared_at', $today)
-            ->selectRaw('HOUR(prepared_at) as hour, COUNT(*) as count')
-            ->groupBy('hour')
-            ->get();
-
-        foreach ($hourlyData as $item) {
-            $hourInt = (int)$item->hour;
+        foreach ($todayOrders as $order) {
+            // Convert prepared_at from UTC to Asia/Jakarta local timezone
+            $localPreparedAt = Carbon::parse($order->prepared_at)->timezone('Asia/Jakarta');
+            $hourInt = (int)$localPreparedAt->format('H');
+            
             if (isset($todayHourly[$hourInt])) {
-                $todayHourly[$hourInt] = (int)$item->count;
+                $todayHourly[$hourInt]++;
             }
         }
 
