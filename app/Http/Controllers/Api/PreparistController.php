@@ -75,7 +75,11 @@ class PreparistController extends Controller
             $orders = $query->paginate(15);
         } else {
             $query->where('status', $status);
-            $orders = $query->orderBy('created_at', $sort)->paginate(15);
+            if ($status === 'prepared') {
+                $orders = $query->orderBy('prepared_at', 'desc')->paginate(15);
+            } else {
+                $orders = $query->orderBy('created_at', $sort)->paginate(15);
+            }
         }
 
         return response()->json([
