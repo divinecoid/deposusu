@@ -48,6 +48,11 @@ class PreparistController extends Controller
     public function index(Request $request)
     {
         $status = $request->query('status', 'onprocess');
+        $sort = $request->query('sort', 'desc');
+
+        if (!in_array($sort, ['asc', 'desc'])) {
+            $sort = 'desc';
+        }
 
         // Validate status
         if (!in_array($status, ['onprocess', 'onpreparation', 'prepared', 'history'])) {
@@ -61,16 +66,16 @@ class PreparistController extends Controller
 
         if ($status === 'history') {
             $query->whereIn('status', [OrderStatusEnum::ON_DELIVERY, OrderStatusEnum::DELIVERED, OrderStatusEnum::DONE]);
-            $orders = $query->latest()->paginate(15);
+            $orders = $query->orderBy('created_at', $sort)->paginate(15);
         } else if ($status === 'onprocess') {
             $query->where('status', $status);
-            // Priority Queue (Instant/Sameday first), then FIFO (oldest first)
+            // Priority Queue (Instant/Sameday first), then sort
             $query->orderByRaw("CASE WHEN delivery_type IN ('instant', 'sameday') THEN 1 ELSE 2 END ASC")
-                  ->orderBy('created_at', 'asc');
+                  ->orderBy('created_at', $sort);
             $orders = $query->paginate(15);
         } else {
             $query->where('status', $status);
-            $orders = $query->latest()->paginate(15);
+            $orders = $query->orderBy('created_at', $sort)->paginate(15);
         }
 
         return response()->json([
