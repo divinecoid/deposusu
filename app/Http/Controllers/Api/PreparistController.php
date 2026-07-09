@@ -24,12 +24,46 @@ class PreparistController extends Controller
         $processingOrders = TrxOrder::where('preparist_id', $user->id)
             ->where('status', OrderStatusEnum::ON_PREPARATION)
             ->count();
-        // Waiting for driver: status prepared
-        $waitingDriverOrders = TrxOrder::where('status', OrderStatusEnum::PREPARED)->count();
+        // Waiting for driver: status prepared (filtered by logged in preparist)
+        $waitingDriverOrders = TrxOrder::where('preparist_id', $user->id)
+            ->where('status', OrderStatusEnum::PREPARED)
+            ->count();
         $completedToday = TrxOrder::where('preparist_id', $user->id)
             ->whereIn('status', [OrderStatusEnum::PREPARED, OrderStatusEnum::ON_DELIVERY, OrderStatusEnum::DELIVERED, OrderStatusEnum::DONE])
             ->whereDate('prepared_at', $today)
             ->count();
+
+        // Group completed orders by hour for today (08:00 to 17:00 standard shift)
+        $todayOrders = TrxOrder::where('preparist_id', $user->id)
+            ->whereNotNull('prepared_at')
+            ->whereDate('prepared_at', $today)
+            ->get();
+
+        $todayHourly = [];
+        for ($h = 8; $h <= 17; $h++) {
+            $todayHourly[$h] = 0;
+        }
+
+        foreach ($todayOrders as $order) {
+            // Convert prepared_at from UTC to Asia/Jakarta local timezone
+            $localPreparedAt = Carbon::parse($order->prepared_at)->timezone('Asia/Jakarta');
+            $hourInt = (int)$localPreparedAt->format('H');
+            
+            if (isset($todayHourly[$hourInt])) {
+                $todayHourly[$hourInt]++;
+            }
+        }
+
+        ksort($todayHourly);
+
+        $hourlyPerformance = [];
+        foreach ($todayHourly as $hour => $count) {
+            $formattedHour = str_pad($hour, 2, '0', STR_PAD_LEFT) . ':00';
+            $hourlyPerformance[] = [
+                'hour' => $formattedHour,
+                'count' => $count,
+            ];
+        }
 
         return response()->json([
             'success' => true,
@@ -38,6 +72,7 @@ class PreparistController extends Controller
                 'processingOrders' => $processingOrders,
                 'waitingDriverOrders' => $waitingDriverOrders,
                 'completedTodayOrders' => $completedToday,
+                'packingHistory' => $hourlyPerformance, // Keep parameter name to avoid breaking mobile model name, but fill with hourly data
             ]
         ]);
     }
@@ -48,6 +83,11 @@ class PreparistController extends Controller
     public function index(Request $request)
     {
         $status = $request->query('status', 'onprocess');
+        $sort = $request->query('sort', 'desc');
+
+        if (!in_array($sort, ['asc', 'desc'])) {
+            $sort = 'desc';
+        }
 
         // Validate status
         if (!in_array($status, ['onprocess', 'onpreparation', 'prepared', 'history'])) {
@@ -60,17 +100,35 @@ class PreparistController extends Controller
         $query = TrxOrder::with(['items.product', 'preparist']);
 
         if ($status === 'history') {
-            $query->whereIn('status', [OrderStatusEnum::ON_DELIVERY, OrderStatusEnum::DELIVERED, OrderStatusEnum::DONE]);
-            $orders = $query->latest()->paginate(15);
+            $query->where('preparist_id', $request->user()->id)
+                  ->whereIn('status', [OrderStatusEnum::PREPARED, OrderStatusEnum::ON_DELIVERY, OrderStatusEnum::DELIVERED, OrderStatusEnum::DONE]);
+            
+            if ($request->has('history_status')) {
+                $subStatus = $request->query('history_status');
+                if ($subStatus === 'prepared') {
+                    $query->where('status', OrderStatusEnum::PREPARED);
+                } else if ($subStatus === 'ondelivery') {
+                    $query->where('status', OrderStatusEnum::ON_DELIVERY);
+                } else if ($subStatus === 'completed') {
+                    $query->whereIn('status', [OrderStatusEnum::DELIVERED, OrderStatusEnum::DONE]);
+                }
+            }
+            
+            $orders = $query->orderBy('prepared_at', 'desc')->paginate(15);
         } else if ($status === 'onprocess') {
             $query->where('status', $status);
-            // Priority Queue (Instant/Sameday first), then FIFO (oldest first)
+            // Priority Queue (Instant/Sameday first), then sort
             $query->orderByRaw("CASE WHEN delivery_type IN ('instant', 'sameday') THEN 1 ELSE 2 END ASC")
-                  ->orderBy('created_at', 'asc');
+                  ->orderBy('created_at', $sort);
             $orders = $query->paginate(15);
         } else {
             $query->where('status', $status);
-            $orders = $query->latest()->paginate(15);
+            if ($status === 'prepared') {
+                $query->where('preparist_id', $request->user()->id);
+                $orders = $query->orderBy('prepared_at', 'desc')->paginate(15);
+            } else {
+                $orders = $query->orderBy('created_at', $sort)->paginate(15);
+            }
         }
 
         return response()->json([
@@ -183,6 +241,34 @@ class PreparistController extends Controller
             $photoFinalPath = $request->file('photo_final')->store('packing_photos', 'public');
         }
 
+        if ($request->has('items')) {
+            $itemsData = $request->input('items');
+            if (is_string($itemsData)) {
+                $itemsData = json_decode($itemsData, true);
+            }
+            if (is_array($itemsData)) {
+                foreach ($itemsData as $itemData) {
+                    if (isset($itemData['id']) && isset($itemData['checked_quantity'])) {
+                        $item = $order->items()->find($itemData['id']);
+                        if ($item) {
+                            $item->update(['checked_quantity' => $itemData['checked_quantity']]);
+                        }
+                    }
+                }
+            }
+        }
+
+        $logsData = $order->packing_logs;
+        if ($request->has('logs')) {
+            $reqLogs = $request->input('logs');
+            if (is_string($reqLogs)) {
+                $reqLogs = json_decode($reqLogs, true);
+            }
+            if (is_array($reqLogs)) {
+                $logsData = json_encode($reqLogs);
+            }
+        }
+
         $driver = \App\Models\User::where('role', 'driver')->where('email', 'driver@deposusu.com')->first()
             ?? \App\Models\User::where('role', 'driver')->first();
 
@@ -192,7 +278,7 @@ class PreparistController extends Controller
             'prepared_at' => now(),
             'packing_photo_isi' => $photoIsiPath,
             'packing_photo_final' => $photoFinalPath,
-            'packing_logs' => $request->has('logs') ? json_encode($request->input('logs')) : $order->packing_logs,
+            'packing_logs' => $logsData,
         ]);
 
         return response()->json([

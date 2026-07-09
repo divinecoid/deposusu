@@ -18,6 +18,9 @@ class TrxOrderItem extends Model
         'discount_amount',
         'discount_id',
         'subtotal',
+        'checked_quantity',
+        'warehouse_name',
+        'rack_name',
     ];
 
     protected $casts = [

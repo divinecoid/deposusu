@@ -66,6 +66,8 @@ class DriverController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'phone' => $user->phone,
+                'photo' => $user->photo,
                 'role' => $user->role,
                 'profile' => $user->isDriver() ? $user->driverProfile : null,
             ]
@@ -416,6 +418,24 @@ class DriverController extends Controller
             'status' => OrderStatusEnum::ON_DELIVERY,
             'picked_up_at' => now(),
         ]);
+
+        // Auto check-in: catat absensi otomatis jika belum check-in hari ini
+        $today = Carbon::today();
+        $existingAttendance = DriverAttendance::where('user_id', $request->user()->id)
+            ->where('date', $today)
+            ->first();
+
+        if (!$existingAttendance || !$existingAttendance->check_in_at) {
+            DriverAttendance::updateOrCreate(
+                ['user_id' => $request->user()->id, 'date' => $today],
+                [
+                    'check_in_at' => now(),
+                    'check_in_latitude' => $request->latitude,
+                    'check_in_longitude' => $request->longitude,
+                    'created_at' => now(),
+                ]
+            );
+        }
 
         // Audit Trail
         DriverActivityLog::create([

@@ -15,7 +15,7 @@ class DeposusuSeeder extends Seeder
     public function run(): void
     {
         // 1. Seed Users
-        
+
         // Admin
         User::updateOrCreate(
             ['email' => 'admin@deposusu.com'],
@@ -40,7 +40,7 @@ class DeposusuSeeder extends Seeder
         User::updateOrCreate(
             ['email' => 'driver@deposusu.com'],
             [
-                'name' => 'Budi Driver',
+                'name' => 'Nur Rohmat',
                 'password' => Hash::make('password123'),
                 'role' => 'driver',
             ]
