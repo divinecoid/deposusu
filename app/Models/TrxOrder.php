@@ -14,7 +14,14 @@ class TrxOrder extends Model
 
     protected $fillable = [
         'order_number',
+        'customer_id',
         'customer_name',
+        'customer_phone',
+        'customer_address',
+        'delivery_date',
+        'delivery_slot',
+        'payment_method',
+        'notes',
         'total_amount',
         'total_discount',
         'status',          // OrderStatusEnum
@@ -44,6 +51,7 @@ class TrxOrder extends Model
         'prepared_at' => 'datetime',
         'picked_up_at' => 'datetime',
         'delivered_at' => 'datetime',
+        'delivery_date' => 'date',
         'delivery_latitude' => 'float',
         'delivery_longitude' => 'float',
     ];
@@ -123,8 +131,23 @@ class TrxOrder extends Model
         return $this->hasMany(TrxOrderItem::class, 'order_id');
     }
 
+    /**
+     * Belongs to a registered customer user (nullable for walk-in/WhatsApp guests).
+     */
+    public function customerUser()
+    {
+        return $this->belongsTo(User::class, 'customer_id');
+    }
+
+    /**
+     * @deprecated Use customerUser() for the FK relationship.
+     * Kept for backward compatibility with code that calls ->customer.
+     */
     public function getCustomerAttribute()
     {
+        if ($this->customer_id) {
+            return $this->customerUser;
+        }
         return User::where('name', $this->customer_name)
             ->where('role', 'customer')
             ->first();

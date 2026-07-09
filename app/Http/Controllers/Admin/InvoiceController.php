@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\TrxInvoice;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class InvoiceController extends Controller
 {
@@ -57,6 +58,19 @@ class InvoiceController extends Controller
         return view('admin.invoices.index', compact('invoices', 'status', 'counts', 'deliveryStatus'));
     }
 
+    public function show(TrxInvoice $invoice)
+    {
+        $invoice->load(['order.items.product', 'payments']);
+        return view('admin.invoices.show', compact('invoice'));
+    }
+
+    public function downloadPdf(TrxInvoice $invoice)
+    {
+        $invoice->load(['order.items.product']);
+        $pdf = Pdf::loadView('admin.invoices.pdf', compact('invoice'));
+        return $pdf->download("Invoice-{$invoice->invoice_number}.pdf");
+    }
+
     public function updateStatus(Request $request, TrxInvoice $invoice)
     {
         $request->validate([
@@ -68,3 +82,4 @@ class InvoiceController extends Controller
         return back()->with('success', 'Invoice status updated successfully.');
     }
 }
+

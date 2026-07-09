@@ -20,7 +20,7 @@ class UserSeeder extends Seeder
             ['email' => 'admin@deposusu.com'],
             [
                 'name' => 'Super Admin',
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'role' => 'admin',
                 'email_verified_at' => now(),
             ]
@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
             ['email' => 'kasir@deposusu.com'],
             [
                 'name' => 'Kasir Utama',
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'role' => 'cashier',
                 'email_verified_at' => now(),
             ]
@@ -42,7 +42,7 @@ class UserSeeder extends Seeder
             ['email' => 'gudang@deposusu.com'],
             [
                 'name' => 'Staf Gudang',
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'role' => 'preparist', // Adjusted to match the isPreparist() logic
                 'email_verified_at' => now(),
             ]
@@ -54,7 +54,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Budi Driver',
                 'phone' => '081234567891',
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'role' => 'driver',
                 'email_verified_at' => now(),
             ]
@@ -69,7 +69,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Anto Driver',
                 'phone' => '081234567892',
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'role' => 'driver',
                 'email_verified_at' => now(),
             ]
@@ -85,7 +85,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Budi Kurir Demo',
                 'phone' => '081234567890',
-                'password' => Hash::make('password123'),
+                'password' => 'password123',
                 'role' => 'driver',
                 'email_verified_at' => now(),
             ]
@@ -100,7 +100,7 @@ class UserSeeder extends Seeder
             ['email' => 'customer1@deposusu.com'],
             [
                 'name' => 'Siti Customer',
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'role' => 'customer',
                 'email_verified_at' => now(),
             ]
@@ -114,7 +114,7 @@ class UserSeeder extends Seeder
             ['email' => 'customer2@deposusu.com'],
             [
                 'name' => 'Rudi Pelanggan',
-                'password' => Hash::make('password'),
+                'password' => 'password',
                 'role' => 'customer',
                 'email_verified_at' => now(),
             ]

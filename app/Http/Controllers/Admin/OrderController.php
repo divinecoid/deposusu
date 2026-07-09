@@ -6,6 +6,7 @@ use App\Enums\OrderStatusEnum;
 use App\Http\Controllers\Controller;
 use App\Models\TrxOrder;
 use App\Models\User;
+use App\Models\MdxCustomer;
 use App\Models\MdxDriver;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rules\Enum;
@@ -115,6 +116,78 @@ class OrderController extends Controller
             ->with('success', 'Order status updated successfully.');
     }
 
+    /**
+     * Sales Order index — only shows manually-created (admin) orders.
+     */
+    public function salesOrderIndex(Request $request)
+    {
+        $status = $request->query('status', 'all');
+        $customer = $request->query('customer');
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        $query = TrxOrder::with(['customerUser', 'items.product'])
+            ->where('source', 'admin');
+
+        if ($status !== 'all') {
+            $query->where('status', $status);
+        }
+        if (!empty($customer)) {
+            $query->where(function ($q) use ($customer) {
+                $q->where('customer_name', 'like', '%' . $customer . '%')
+                  ->orWhere('customer_phone', 'like', '%' . $customer . '%');
+            });
+        }
+        if (!empty($startDate)) {
+            $query->whereDate('created_at', '>=', $startDate);
+        }
+        if (!empty($endDate)) {
+            $query->whereDate('created_at', '<=', $endDate);
+        }
+
+        $orders = $query->latest()->paginate(15);
+
+        $countQuery = TrxOrder::where('source', 'admin');
+        $counts = [
+            'all'       => (clone $countQuery)->count(),
+            'pending'   => (clone $countQuery)->where('status', OrderStatusEnum::PENDING)->count(),
+            'onprocess' => (clone $countQuery)->where('status', OrderStatusEnum::ON_PROCESS)->count(),
+            'done'      => (clone $countQuery)->where('status', OrderStatusEnum::DONE)->count(),
+            'cancelled' => (clone $countQuery)->where('status', OrderStatusEnum::CANCELLED)->count(),
+        ];
+
+        return view('admin.sales-order.index', compact('orders', 'status', 'counts', 'customer', 'startDate', 'endDate'));
+    }
+
+    /**
+     * AJAX — search registered customers by name or phone for Sales Order form.
+     */
+    public function searchCustomers(Request $request)
+    {
+        $q = $request->query('q', '');
+
+        $users = User::where('role', 'customer')
+            ->where(function ($query) use ($q) {
+                $query->where('name', 'like', "%{$q}%")
+                      ->orWhere('phone', 'like', "%{$q}%")
+                      ->orWhere('email', 'like', "%{$q}%");
+            })
+            ->with('customerProfile')
+            ->limit(10)
+            ->get()
+            ->map(function ($user) {
+                return [
+                    'id'      => $user->id,
+                    'name'    => $user->name,
+                    'phone'   => $user->phone ?? ($user->customerProfile->phone ?? ''),
+                    'address' => $user->customerProfile->address ?? '',
+                    'email'   => $user->email,
+                ];
+            });
+
+        return response()->json($users);
+    }
+
     public function create()
     {
         $customers = User::where('role', 'customer')->orderBy('name')->get();
@@ -122,17 +195,24 @@ class OrderController extends Controller
             ->where('stock', '>', 0)
             ->orderBy('name')
             ->get();
+        $drivers = User::where('role', 'driver')->orderBy('name')->get();
 
-        return view('admin.orders.create', compact('customers', 'products'));
+        return view('admin.sales-order.create', compact('customers', 'products', 'drivers'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'customer_id' => 'nullable|exists:users,id',
-            'customer_name' => 'required_without:customer_id|nullable|string|max:255',
-            'products' => 'required|array|min:1',
-            'products.*.id' => 'required|exists:mdx_products,id',
+            'customer_id'      => 'nullable|exists:users,id',
+            'customer_name'    => 'required_without:customer_id|nullable|string|max:255',
+            'customer_phone'   => 'nullable|string|max:20',
+            'customer_address' => 'nullable|string|max:500',
+            'delivery_date'    => 'nullable|date|after_or_equal:today',
+            'delivery_slot'    => 'nullable|in:pagi,siang,sore',
+            'payment_method'   => 'nullable|in:transfer,cash,cod,wallet,piutang',
+            'notes'            => 'nullable|string|max:1000',
+            'products'         => 'required|array|min:1',
+            'products.*.id'    => 'required|exists:mdx_products,id',
             'products.*.quantity' => 'required|integer|min:1',
         ]);
 
@@ -141,83 +221,94 @@ class OrderController extends Controller
 
             if ($request->customer_id) {
                 $user = User::find($request->customer_id);
-                $customerName = $user->name;
+                $customerName    = $user->name;
+                $customerPhone   = $request->customer_phone ?: ($user->phone ?? '');
+                $customerAddress = $request->customer_address ?: ($user->customerProfile->address ?? '');
             } else {
-                $customerName = $request->customer_name;
+                $customerName    = $request->customer_name;
+                $customerPhone   = $request->customer_phone;
+                $customerAddress = $request->customer_address;
             }
 
-            $today = now()->format('Ymd');
+            $today     = now()->format('Ymd');
             $lastOrder = TrxOrder::whereDate('created_at', now()->today())->orderBy('id', 'desc')->first();
-            $sequence = $lastOrder ? intval(substr($lastOrder->order_number, -5)) + 1 : 1;
-            $orderNumber = 'INV-' . $today . '-' . str_pad($sequence, 5, '0', STR_PAD_LEFT);
+            $sequence  = $lastOrder ? intval(substr($lastOrder->order_number, -5)) + 1 : 1;
+            $orderNumber = 'SO-' . $today . '-' . str_pad($sequence, 5, '0', STR_PAD_LEFT);
 
             $order = TrxOrder::create([
-                'order_number' => $orderNumber,
-                'customer_name' => $customerName,
-                'total_amount' => 0,
-                'total_discount' => 0,
-                'status' => OrderStatusEnum::PENDING,
-                'payment_status' => 'UNPAID',
-                'source' => 'admin',
+                'order_number'     => $orderNumber,
+                'customer_id'      => $request->customer_id,
+                'customer_name'    => $customerName,
+                'customer_phone'   => $customerPhone,
+                'customer_address' => $customerAddress,
+                'delivery_date'    => $request->delivery_date,
+                'delivery_slot'    => $request->delivery_slot,
+                'payment_method'   => $request->payment_method,
+                'notes'            => $request->notes,
+                'total_amount'     => 0,
+                'total_discount'   => 0,
+                'status'           => OrderStatusEnum::PENDING,
+                'payment_status'   => 'UNPAID',
+                'source'           => 'admin',
             ]);
 
-            $totalAmount = 0;
+            $totalAmount   = 0;
             $totalDiscount = 0;
 
             foreach ($request->products as $item) {
                 $product = \App\Models\MdxProduct::lockForUpdate()->find($item['id']);
-                $qty = intval($item['quantity']);
+                $qty     = intval($item['quantity']);
 
                 if ($product->stock < $qty) {
                     throw new \Exception("Stok produk '{$product->name}' tidak mencukupi (Tersedia: {$product->stock})");
                 }
 
                 $activeDiscount = $product->active_discount;
-                $originalPrice = $product->price;
-                $discountPrice = $product->discounted_price;
+                $originalPrice  = $product->price;
+                $discountPrice  = $product->discounted_price;
                 $discountAmount = 0;
-                $discountId = null;
+                $discountId     = null;
 
                 if ($activeDiscount) {
-                    $discountId = $activeDiscount->id;
+                    $discountId     = $activeDiscount->id;
                     $discountAmount = ($originalPrice - $discountPrice) * $qty;
                 }
 
                 $subtotal = $discountPrice * $qty;
 
                 \App\Models\TrxOrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $product->id,
-                    'original_price' => $originalPrice,
-                    'quantity' => $qty,
-                    'price' => $discountPrice,
+                    'order_id'        => $order->id,
+                    'product_id'      => $product->id,
+                    'original_price'  => $originalPrice,
+                    'quantity'        => $qty,
+                    'price'           => $discountPrice,
                     'discount_amount' => $discountAmount,
-                    'discount_id' => $discountId,
-                    'subtotal' => $subtotal,
+                    'discount_id'     => $discountId,
+                    'subtotal'        => $subtotal,
                 ]);
 
-                $totalAmount += $subtotal;
+                $totalAmount   += $subtotal;
                 $totalDiscount += $discountAmount;
 
                 $product->decrement('stock', $qty);
             }
 
             $order->update([
-                'total_amount' => $totalAmount,
+                'total_amount'   => $totalAmount,
                 'total_discount' => $totalDiscount,
             ]);
 
-            // Create Invoice immediately on order creation
+            // Create Invoice immediately
             $this->createInvoice($order);
 
             DB::commit();
 
             return redirect()->route('admin.orders.show', $order->id)
-                ->with('success', "Order #{$order->order_number} berhasil dibuat secara manual.");
+                ->with('success', "Sales Order #{$order->order_number} berhasil dibuat. Invoice sudah digenerate.");
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Gagal membuat order: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Gagal membuat Sales Order: ' . $e->getMessage());
         }
     }
 

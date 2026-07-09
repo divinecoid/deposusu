@@ -9,10 +9,14 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\InvoiceController;
+use App\Http\Controllers\Admin\PaymentController;
+use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\StockOpnameController;
 use App\Http\Controllers\Admin\WarehouseController;
 use App\Http\Controllers\Admin\RackController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\DeliveryController;
+use App\Http\Controllers\Admin\ReportsController;
 use App\Http\Controllers\Customer\HomeController;
 use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\WishlistController;
@@ -91,16 +95,54 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     // Orders
     Route::prefix('orders')->name('orders.')->group(function () {
         Route::get('/', [OrderController::class, 'index'])->name('index');
-        Route::get('/create', [OrderController::class, 'create'])->name('create');
-        Route::post('/', [OrderController::class, 'store'])->name('store');
         Route::get('/{order}', [OrderController::class, 'show'])->name('show');
         Route::put('/{order}/status', [OrderController::class, 'updateStatus'])->name('updateStatus');
+    });
+
+    // Sales Order (manual / WhatsApp orders)
+    Route::prefix('sales-order')->name('sales-order.')->group(function () {
+        Route::get('/', [OrderController::class, 'salesOrderIndex'])->name('index');
+        Route::get('/create', [OrderController::class, 'create'])->name('create');
+        Route::post('/', [OrderController::class, 'store'])->name('store');
+        Route::get('/search-customers', [OrderController::class, 'searchCustomers'])->name('search-customers');
     });
 
     // Invoices
     Route::prefix('invoices')->name('invoices.')->group(function () {
         Route::get('/', [InvoiceController::class, 'index'])->name('index');
+        Route::get('/{invoice}', [InvoiceController::class, 'show'])->name('show');
+        Route::get('/{invoice}/pdf', [InvoiceController::class, 'downloadPdf'])->name('pdf');
         Route::put('/{invoice}/status', [InvoiceController::class, 'updateStatus'])->name('updateStatus');
+    });
+
+    // Payment Management
+    Route::prefix('payments')->name('payments.')->group(function () {
+        Route::get('/', [PaymentController::class, 'index'])->name('index');
+        Route::get('/create', [PaymentController::class, 'create'])->name('create');
+        Route::post('/', [PaymentController::class, 'store'])->name('store');
+        Route::get('/{payment}', [PaymentController::class, 'show'])->name('show');
+        Route::post('/{payment}/approve', [PaymentController::class, 'approve'])->name('approve');
+        Route::post('/{payment}/reject', [PaymentController::class, 'reject'])->name('reject');
+        Route::get('/{payment}/receipt', [PaymentController::class, 'receipt'])->name('receipt');
+        Route::get('/{payment}/receipt-form', [PaymentController::class, 'receiptForm'])->name('receipt-form');
+        Route::post('/{payment}/receipt-form', [PaymentController::class, 'receiptStore'])->name('receipt-store');
+    });
+
+    // Supplier Management
+    Route::prefix('suppliers')->name('suppliers.')->group(function () {
+        Route::get('/', [SupplierController::class, 'index'])->name('index');
+        Route::get('/create', [SupplierController::class, 'create'])->name('create');
+        Route::post('/', [SupplierController::class, 'store'])->name('store');
+        Route::get('/{supplier}', [SupplierController::class, 'show'])->name('show');
+        Route::get('/{supplier}/edit', [SupplierController::class, 'edit'])->name('edit');
+        Route::put('/{supplier}', [SupplierController::class, 'update'])->name('update');
+        Route::delete('/{supplier}', [SupplierController::class, 'destroy'])->name('destroy');
+        // Purchase Orders
+        Route::get('/po/list', [SupplierController::class, 'purchaseOrders'])->name('po.index');
+        Route::get('/po/create', [SupplierController::class, 'purchaseOrderCreate'])->name('po.create');
+        Route::post('/po', [SupplierController::class, 'purchaseOrderStore'])->name('po.store');
+        Route::get('/po/{purchaseOrder}', [SupplierController::class, 'purchaseOrderShow'])->name('po.show');
+        Route::put('/po/{purchaseOrder}/status', [SupplierController::class, 'purchaseOrderUpdateStatus'])->name('po.updateStatus');
     });
 
     // Stock Opname (legacy)
@@ -117,7 +159,48 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::post('/receive', [\App\Http\Controllers\Admin\StockMovementController::class, 'receiveStore'])->name('receive.store');
         Route::get('/transfer', [\App\Http\Controllers\Admin\StockMovementController::class, 'transferForm'])->name('transfer');
         Route::post('/transfer', [\App\Http\Controllers\Admin\StockMovementController::class, 'transferStore'])->name('transfer.store');
+        Route::get('/expired', function () {
+            return view('admin.warehouse.expired');
+        })->name('expired');
     });
+
+    // Live Chat
+    Route::prefix('live-chat')->name('live-chat.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\LiveChatController::class, 'index'])->name('index');
+        Route::post('/send', [\App\Http\Controllers\Admin\LiveChatController::class, 'sendMessage'])->name('send');
+        Route::get('/customer-details', [\App\Http\Controllers\Admin\LiveChatController::class, 'getCustomerDetails'])->name('customer-details');
+        Route::post('/action', [\App\Http\Controllers\Admin\LiveChatController::class, 'quickAction'])->name('action');
+    });
+
+    // Kasir POS
+    Route::prefix('kasir-pos')->name('kasir.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\KasirController::class, 'index'])->name('index');
+        Route::post('/checkout', [\App\Http\Controllers\Admin\KasirController::class, 'checkout'])->name('checkout');
+        Route::get('/shift', function () {
+            return view('admin.kasir.shift');
+        })->name('shift');
+    });
+
+    // Finance
+    Route::prefix('finance')->name('finance.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\FinanceController::class, 'index'])->name('index');
+        Route::post('/expense', [\App\Http\Controllers\Admin\FinanceController::class, 'storeExpense'])->name('store-expense');
+    });
+
+    // Delivery Management
+    Route::prefix('deliveries')->name('deliveries.')->group(function () {
+        Route::get('/', [DeliveryController::class, 'index'])->name('index');
+        Route::post('/assign-bulk', [DeliveryController::class, 'assignBulk'])->name('assign-bulk');
+        Route::post('/{order}/update', [DeliveryController::class, 'updateDelivery'])->name('update');
+    });
+
+    // Reports Dashboard
+    Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
+
+    // Membership / VIP
+    Route::get('/membership', function () {
+        return view('admin.membership.index');
+    })->name('membership');
 });
 
 Route::view('dashboard', 'dashboard')

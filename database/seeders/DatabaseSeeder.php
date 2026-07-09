@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             DeposusuSeeder::class,
             OrderDummySeeder::class,
+            FinanceAndChatSeeder::class,
         ]);
     }
 }

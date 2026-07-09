@@ -40,7 +40,7 @@ class OrderDummySeeder extends Seeder
                 'name' => 'Budi Kurir Demo',
                 'email' => 'driver@deposusu.com',
                 'phone' => '081234567890',
-                'password' => Hash::make('password123'),
+                'password' => 'password123',
                 'role' => 'driver',
                 'email_verified_at' => now(),
             ]);
@@ -98,7 +98,7 @@ class OrderDummySeeder extends Seeder
                 $user = User::create([
                     'name' => $data['name'],
                     'email' => $data['email'],
-                    'password' => Hash::make('password'),
+                    'password' => 'password',
                     'role' => 'customer',
                     'email_verified_at' => now(),
                 ]);
