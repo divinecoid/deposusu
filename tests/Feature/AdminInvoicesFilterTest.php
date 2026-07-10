@@ -53,7 +53,7 @@ class AdminInvoicesFilterTest extends TestCase
         // Ensure no invoices exist initially
         $this->assertEquals(0, TrxInvoice::count());
 
-        $response = $this->post(route('admin.orders.store'), $postData);
+        $response = $this->post(route('admin.sales-order.store'), $postData);
 
         // Assert order was created
         $order = TrxOrder::first();

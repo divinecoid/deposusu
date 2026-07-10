@@ -14,7 +14,7 @@ class AdminOrderTest extends TestCase
 
     public function test_guests_cannot_access_order_creation_page(): void
     {
-        $response = $this->get(route('admin.orders.create'));
+        $response = $this->get(route('admin.sales-order.create'));
         $response->assertRedirect(route('login'));
     }
 
@@ -23,7 +23,7 @@ class AdminOrderTest extends TestCase
         $admin = User::factory()->create(['role' => 'admin']);
         $this->actingAs($admin);
 
-        $response = $this->get(route('admin.orders.create'));
+        $response = $this->get(route('admin.sales-order.create'));
         $response->assertStatus(200);
     }
 
@@ -66,7 +66,7 @@ class AdminOrderTest extends TestCase
             ]
         ];
 
-        $response = $this->post(route('admin.orders.store'), $postData);
+        $response = $this->post(route('admin.sales-order.store'), $postData);
 
         // Assert redirect to order show page
         $order = TrxOrder::first();

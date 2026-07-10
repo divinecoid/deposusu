@@ -8,7 +8,7 @@
             <h3 class="text-2xl font-bold text-gray-800">Daftar Transaksi</h3>
             <p class="text-sm text-gray-500 mt-1">Kelola dan input pesanan toko secara manual.</p>
         </div>
-        <a href="{{ route('admin.orders.create') }}" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow transition duration-200 flex items-center gap-2">
+        <a href="{{ route('admin.sales-order.create') }}" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow transition duration-200 flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
