@@ -63,13 +63,51 @@ Orders will be categorized tabs or filters based on status:
     -   Update `User`, `MdxProduct`, `TrxOrder` tables.
     -   Create `TrxInvoice` table (linked to `orders`).
 
-## 5. Invoicing Feature
--   **One Order = One Invoice**.
--   **Invoice Details**:
-    -   Contains items ordered (mirroring the Order).
-    -   Status: `UNPAID`, `PAID`, `CANCELLED`.
-    -   Due Date, Issue Date.
--   **Link**: `TrxOrder` hasOne `TrxInvoice`.
+## 5. Invoice & Payment Management
+Karena dokumen transaksi bersifat per-customer (bukan laporan agregat), fitur ini berdiri sebagai menu utama (terpisah dari menu Reports & Export).
+
+### 5.1. Invoice Management
+Menu untuk mengelola seluruh invoice transaksi dari berbagai sumber (Customer App, Manual Order Admin/WhatsApp, POS/Kasir, Corporate Order).
+
+**Fitur:**
+- **Invoice List**
+  - **Filter:** Nomor invoice, Customer, Tanggal transaksi, Status pembayaran, Cabang, Area.
+  - **Tampilan Tabel:** No Invoice, Customer, Tanggal, Total, Status, Action (View / Print).
+- **Invoice Detail**
+  - **Informasi:** Nomor Invoice, Customer Information, Alamat, Detail produk (Qty, Harga, Subtotal), Diskon, Total pembayaran, Status pembayaran.
+  - **Action:**
+    - ✅ Preview Invoice
+    - ✅ Print Invoice
+    - ✅ Download PDF
+    - ✅ Kirim Invoice ke Customer
+
+### 5.2. Payment Management
+Menu khusus untuk menangani dan memvalidasi konfirmasi pembayaran.
+
+**Fitur:**
+- List pembayaran
+- Bukti transfer
+- Status pembayaran
+- Alur Status: `Pending` → `Waiting Confirmation` → `Paid` → `Cancelled`
+
+### 5.3. Kuitansi Management
+Kuitansi dibuat setelah pembayaran dikonfirmasi (Status Paid). Sangat penting bagi Customer PT, Corporate customer, atau customer yang membutuhkan bukti pembayaran resmi.
+
+**Isi Kuitansi:**
+- No Kuitansi (contoh: KWT-001)
+- Telah diterima dari (contoh: PT ABC)
+- Nominal
+- Untuk pembayaran (contoh: Invoice INV-001)
+- Tanggal
+- Nama penerima pembayaran
+
+**Action:**
+- ✅ Generate Kuitansi
+- ✅ Print Kuitansi
+- ✅ Download PDF
+
+### 5.4. Final Document Flow
+`Order` → `Sales Order` → `Generate Invoice` → `Customer Payment` → `Payment Confirmation` → `Generate Kuitansi` → `Archive Document`
 
 ## 6. Technical Implementation Steps
 1.  **Migrations**: Create migrations for new tables and updates.

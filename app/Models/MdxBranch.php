@@ -9,7 +9,11 @@ class MdxBranch extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'code', 'address'];
+    protected $fillable = ['name', 'code', 'address', 'phone', 'pic_name', 'is_active'];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 
     public function areas()
     {

@@ -89,7 +89,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::resource('areas', \App\Http\Controllers\Admin\AreaController::class)->except(['show', 'create', 'edit']);
         Route::resource('hero-slides', \App\Http\Controllers\Admin\HeroSlideController::class)->except(['show', 'create', 'edit']);
         Route::post('hero-slides/reorder', [\App\Http\Controllers\Admin\HeroSlideController::class, 'updateOrder'])->name('hero-slides.reorder');
-        Route::resource('branches', \App\Http\Controllers\Admin\BranchController::class)->except(['show', 'create', 'edit']);
+        Route::resource('branches', \App\Http\Controllers\Admin\BranchController::class)->except(['create', 'edit']);
+        Route::post('branches/{branch}/toggle-status', [\App\Http\Controllers\Admin\BranchController::class, 'toggleStatus'])->name('branches.toggle-status');
+        Route::post('areas/{area}/toggle-status', [\App\Http\Controllers\Admin\AreaController::class, 'toggleStatus'])->name('areas.toggle-status');
+        // Area Delivery Schedules
+        Route::post('areas/{area}/schedules', [\App\Http\Controllers\Admin\AreaController::class, 'storeSchedule'])->name('areas.schedules.store');
+        Route::put('areas/{area}/schedules/{schedule}', [\App\Http\Controllers\Admin\AreaController::class, 'updateSchedule'])->name('areas.schedules.update');
+        Route::delete('areas/{area}/schedules/{schedule}', [\App\Http\Controllers\Admin\AreaController::class, 'deleteSchedule'])->name('areas.schedules.destroy');
     });
 
     // Orders
@@ -116,6 +122,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     });
 
     // Payment Management
+    // Kuitansi Management
+    Route::prefix('kuitansi')->name('kuitansi.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\KuitansiController::class, 'index'])->name('index');
+    });
+
     Route::prefix('payments')->name('payments.')->group(function () {
         Route::get('/', [PaymentController::class, 'index'])->name('index');
         Route::get('/create', [PaymentController::class, 'create'])->name('create');
@@ -181,6 +192,30 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         })->name('shift');
     });
 
+    // Marketplace Integration
+    Route::prefix('marketplace')->name('marketplace.')->group(function () {
+        // Connection
+        Route::get('/connection', [\App\Http\Controllers\Admin\MarketplaceConnectionController::class, 'index'])->name('connection');
+        Route::post('/connection/{id}/connect', [\App\Http\Controllers\Admin\MarketplaceConnectionController::class, 'connect'])->name('connect');
+        Route::post('/connection/{id}/disconnect', [\App\Http\Controllers\Admin\MarketplaceConnectionController::class, 'disconnect'])->name('disconnect');
+        
+        // Sync
+        Route::get('/sync/products', [\App\Http\Controllers\Admin\MarketplaceSyncController::class, 'products'])->name('sync.products');
+        Route::get('/sync/inventory', [\App\Http\Controllers\Admin\MarketplaceSyncController::class, 'inventory'])->name('sync.inventory');
+        
+        // Orders
+        Route::get('/orders', [\App\Http\Controllers\Admin\MarketplaceOrderController::class, 'index'])->name('orders');
+        
+        // Customers
+        Route::get('/customers', [\App\Http\Controllers\Admin\MarketplaceCustomerController::class, 'index'])->name('customers');
+        
+        // Payments
+        Route::get('/payments', [\App\Http\Controllers\Admin\MarketplacePaymentController::class, 'index'])->name('payments');
+        
+        // Reports
+        Route::get('/reports', [\App\Http\Controllers\Admin\MarketplaceReportController::class, 'index'])->name('reports');
+    });
+
     // Finance
     Route::prefix('finance')->name('finance.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\FinanceController::class, 'index'])->name('index');
@@ -196,6 +231,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
 
     // Reports Dashboard
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
+    Route::get('/reports/export', [ReportsController::class, 'exportPdf'])->name('reports.export');
+
+    // Employee Performance Points (Internal - Admin/Owner only)
+    Route::prefix('performance')->name('performance.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\PerformancePointController::class, 'index'])->name('index');
+        Route::get('/{user}', [\App\Http\Controllers\Admin\PerformancePointController::class, 'show'])->name('show');
+        Route::post('/manual', [\App\Http\Controllers\Admin\PerformancePointController::class, 'storeManual'])->name('store-manual');
+    });
 
     // Membership / VIP
     Route::get('/membership', function () {
@@ -227,3 +270,5 @@ Route::middleware(['auth'])->group(function () {
 });
 
 require base_path('routes/debug_images.php');
+Route::get('/test-layout', function() { return view('admin.reports.index'); });
+Route::get('/test-layout-2', function() { return view('test-layout'); });

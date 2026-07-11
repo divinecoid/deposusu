@@ -28,4 +28,9 @@ class TrxInvoice extends Model
     {
         return $this->belongsTo(TrxOrder::class);
     }
+
+    public function payments()
+    {
+        return $this->hasMany(TrxPayment::class, 'invoice_id');
+    }
 }

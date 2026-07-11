@@ -10,11 +10,12 @@ class MdxArea extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'code', 'description', 'branch_id', 'latitude', 'longitude',
+        'name', 'code', 'description', 'branch_id', 'latitude', 'longitude', 'is_active',
         'is_monday', 'is_tuesday', 'is_wednesday', 'is_thursday', 'is_friday', 'is_saturday', 'is_sunday'
     ];
 
     protected $casts = [
+        'is_active' => 'boolean',
         'is_monday' => 'boolean',
         'is_tuesday' => 'boolean',
         'is_wednesday' => 'boolean',
@@ -45,5 +46,10 @@ class MdxArea extends Model
     public function customers()
     {
         return $this->hasMany(MdxCustomer::class, 'area_id');
+    }
+
+    public function deliverySchedules()
+    {
+        return $this->hasMany(AreaDeliverySchedule::class, 'area_id');
     }
 }

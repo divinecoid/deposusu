@@ -4,68 +4,105 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\MdxArea;
+use App\Models\MdxBranch;
+use App\Models\AreaDeliverySchedule;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class AreaController extends Controller
 {
+    public function index()
+    {
+        $areas    = MdxArea::with(['branch', 'deliverySchedules.driver'])->latest()->get();
+        $branches = MdxBranch::where('is_active', true)->get();
+        return view('admin.master.branches.index', compact('areas', 'branches'));
+    }
+
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'required|string|max:50|unique:mdx_areas,code',
+            'name'      => 'required|string|max:255',
+            'code'      => 'required|string|max:50|unique:mdx_areas,code',
             'description' => 'nullable|string',
             'branch_id' => 'required|exists:mdx_branches,id',
-            'latitude' => 'nullable|numeric|between:-90,90',
+            'latitude'  => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
         ]);
 
-        $data = $request->all();
-        $daysData = [
-            'is_monday' => $request->has('is_monday'),
-            'is_tuesday' => $request->has('is_tuesday'),
-            'is_wednesday' => $request->has('is_wednesday'),
-            'is_thursday' => $request->has('is_thursday'),
-            'is_friday' => $request->has('is_friday'),
-            'is_saturday' => $request->has('is_saturday'),
-            'is_sunday' => $request->has('is_sunday'),
-        ];
+        MdxArea::create(array_merge(
+            $request->only(['name', 'code', 'description', 'branch_id', 'latitude', 'longitude']),
+            ['is_active' => true]
+        ));
 
-        MdxArea::create(array_merge($data, $daysData));
-
-        return back()->with('success', 'Area created successfully.');
+        return back()->with('success', 'Area berhasil ditambahkan.');
     }
 
     public function update(Request $request, MdxArea $area)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => ['required', 'string', 'max:50', Rule::unique('mdx_areas')->ignore($area->id)],
+            'name'        => 'required|string|max:255',
+            'code'        => ['required', 'string', 'max:50', Rule::unique('mdx_areas')->ignore($area->id)],
             'description' => 'nullable|string',
-            'branch_id' => 'required|exists:mdx_branches,id',
-            'latitude' => 'nullable|numeric|between:-90,90',
-            'longitude' => 'nullable|numeric|between:-180,180',
+            'branch_id'   => 'required|exists:mdx_branches,id',
+            'latitude'    => 'nullable|numeric|between:-90,90',
+            'longitude'   => 'nullable|numeric|between:-180,180',
         ]);
 
-        $data = $request->all();
-        $daysData = [
-            'is_monday' => $request->has('is_monday'),
-            'is_tuesday' => $request->has('is_tuesday'),
-            'is_wednesday' => $request->has('is_wednesday'),
-            'is_thursday' => $request->has('is_thursday'),
-            'is_friday' => $request->has('is_friday'),
-            'is_saturday' => $request->has('is_saturday'),
-            'is_sunday' => $request->has('is_sunday'),
-        ];
+        $area->update($request->only(['name', 'code', 'description', 'branch_id', 'latitude', 'longitude']));
 
-        $area->update(array_merge($data, $daysData));
+        return back()->with('success', 'Area berhasil diperbarui.');
+    }
 
-        return back()->with('success', 'Area updated successfully.');
+    public function toggleStatus(MdxArea $area)
+    {
+        $area->update(['is_active' => !$area->is_active]);
+        $status = $area->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        return back()->with('success', "Area berhasil {$status}.");
     }
 
     public function destroy(MdxArea $area)
     {
         $area->delete();
-        return back()->with('success', 'Area deleted successfully.');
+        return back()->with('success', 'Area berhasil dihapus.');
+    }
+
+    // ─── Delivery Schedule Management ────────────────────────────
+
+    public function storeSchedule(Request $request, MdxArea $area)
+    {
+        $request->validate([
+            'day_of_week' => ['required', 'integer', 'between:1,7', Rule::unique('area_delivery_schedules')->where('area_id', $area->id)],
+            'driver_id'   => 'nullable|exists:users,id',
+        ]);
+
+        $area->deliverySchedules()->create([
+            'day_of_week' => $request->day_of_week,
+            'driver_id'   => $request->driver_id,
+            'is_active'   => true,
+        ]);
+
+        return back()->with('success', 'Jadwal pengiriman berhasil ditambahkan.');
+    }
+
+    public function updateSchedule(Request $request, MdxArea $area, AreaDeliverySchedule $schedule)
+    {
+        $request->validate([
+            'day_of_week' => ['required', 'integer', 'between:1,7', Rule::unique('area_delivery_schedules')->where('area_id', $area->id)->ignore($schedule->id)],
+            'driver_id'   => 'nullable|exists:users,id',
+        ]);
+
+        $schedule->update([
+            'day_of_week' => $request->day_of_week,
+            'driver_id'   => $request->driver_id,
+        ]);
+
+        return back()->with('success', 'Jadwal pengiriman berhasil diperbarui.');
+    }
+
+    public function deleteSchedule(MdxArea $area, AreaDeliverySchedule $schedule)
+    {
+        $schedule->delete();
+        return back()->with('success', 'Jadwal pengiriman berhasil dihapus.');
     }
 }

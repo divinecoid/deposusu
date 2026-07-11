@@ -9,17 +9,30 @@
     <title>Admin Dashboard - DEPOSUSU</title>
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        @media print {
+            aside, header, .no-print { display: none !important; }
+            body, .main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; background: white !important; }
+            .h-screen { height: auto !important; overflow: visible !important; }
+            .flex-1 { display: block !important; }
+            .overflow-y-auto { overflow: visible !important; }
+            .p-8 { padding: 0 !important; }
+            .max-w-7xl { max-width: none !important; }
+            .shadow-sm { box-shadow: none !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+    </style>
 </head>
 
-<body class="bg-gray-100 font-sans antialiased h-screen overflow-hidden">
-    <div class="h-screen flex overflow-hidden">
+<body class="bg-gray-100 font-sans antialiased h-screen overflow-hidden print:h-auto print:overflow-visible print:bg-white">
+    <div class="h-screen flex overflow-hidden print:h-auto print:overflow-visible print:block">
         <!-- Sidebar -->
-        <aside class="w-64 bg-slate-800 text-white flex-shrink-0 hidden md:flex flex-col h-full">
+        <aside class="print:hidden w-64 bg-slate-800 text-white flex-shrink-0 hidden md:flex flex-col h-full">
             <div class="h-16 flex items-center justify-center border-b border-slate-700 flex-shrink-0">
                 <span class="text-xl font-bold">DEPOSUSU</span>
             </div>
 
-            <nav class="mt-4 px-3 space-y-1.5 overflow-y-auto flex-1 pb-4" x-data="{ openGroup: '{{ request()->segment(2) }}' }">
+            <nav class="mt-4 px-3 space-y-1.5 overflow-y-auto flex-1 pb-4 no-print" x-data="{ openGroup: '{{ request()->segment(2) }}' }">
                 <!-- 1. Dashboard -->
                 <a href="{{ route('admin.dashboard') }}"
                     class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition {{ request()->routeIs('admin.dashboard') ? 'bg-slate-700 font-bold text-white' : 'text-slate-300' }}">
@@ -29,78 +42,42 @@
                     </div>
                 </a>
 
-                <!-- 2. Produk (Root Level) -->
-                <a href="{{ route('admin.master.products.index') }}"
-                    class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition {{ request()->routeIs('admin.master.products.*') ? 'bg-slate-700 font-bold text-white' : 'text-slate-300' }}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                        Produk
+                <!-- 2. Order Management -->
+                <div class="space-y-1">
+                    <button @click="openGroup = (openGroup === 'orders' ? '' : 'orders')" 
+                            class="w-full flex items-center justify-between py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition text-slate-300">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                            Order Management
+                        </div>
+                        <svg class="w-3.5 h-3.5 transform transition duration-200" :class="openGroup === 'orders' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div x-show="openGroup === 'orders'" class="pl-7 space-y-1" style="display: none;">
+                        <a href="{{ route('admin.orders.index') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.orders.*') && !request()->routeIs('admin.sales-order.*') ? 'bg-slate-700 text-white font-bold' : '' }}">Order (E-Commerce)</a>
+                        <a href="{{ route('admin.sales-order.index') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.sales-order.*') ? 'bg-slate-700 text-white font-bold' : '' }}">Sales Order (Manual)</a>
+                        <a href="{{ route('admin.kasir.index') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.kasir.*') ? 'bg-slate-700 text-white font-bold' : '' }}">POS / Kasir</a>
                     </div>
-                </a>
+                </div>
 
-                <!-- 3. E-Commerce Order (Original Order) -->
-                <a href="{{ route('admin.orders.index') }}"
-                    class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition {{ request()->routeIs('admin.orders.*') && !request()->routeIs('admin.sales-order.*') ? 'bg-slate-700 font-bold text-white' : 'text-slate-300' }}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                        Order (E-Commerce)
+                <!-- 3. Finance -->
+                <div class="space-y-1">
+                    <button @click="openGroup = (openGroup === 'finance' ? '' : 'finance')" 
+                            class="w-full flex items-center justify-between py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition text-slate-300">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Finance
+                        </div>
+                        <svg class="w-3.5 h-3.5 transform transition duration-200" :class="openGroup === 'finance' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div x-show="openGroup === 'finance'" class="pl-7 space-y-1" style="display: none;">
+                        <a href="{{ route('admin.invoices.index') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.invoices.*') ? 'bg-slate-700 text-white font-bold' : '' }}">Invoice</a>
+                        <a href="{{ route('admin.payments.index') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.payments.*') ? 'bg-slate-700 text-white font-bold' : '' }}">Payment</a>
+                        <a href="{{ route('admin.kuitansi.index') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.kuitansi.*') ? 'bg-slate-700 text-white font-bold' : '' }}">Kuitansi</a>
+                        <a href="{{ route('admin.finance.index') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.finance.*') ? 'bg-slate-700 text-white font-bold' : '' }}">Expense & Accounting</a>
                     </div>
-                </a>
+                </div>
 
-                <!-- 4. Sales Order (Manual WhatsApp) -->
-                <a href="{{ route('admin.sales-order.index') }}"
-                    class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition {{ request()->routeIs('admin.sales-order.*') ? 'bg-slate-700 font-bold text-white' : 'text-slate-300' }}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                        Sales Order (Manual)
-                    </div>
-                </a>
-
-                <!-- 5. POS / Kasir -->
-                <a href="{{ route('admin.kasir.index') }}"
-                    class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition {{ request()->routeIs('admin.kasir.*') ? 'bg-slate-700 font-bold text-white' : 'text-slate-300' }}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                        POS / Kasir
-                    </div>
-                </a>
-
-                <!-- 6. Invoice Management -->
-                <a href="{{ route('admin.invoices.index') }}"
-                    class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition {{ request()->routeIs('admin.invoices.*') ? 'bg-slate-700 font-bold text-white' : 'text-slate-300' }}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        Invoice Management
-                    </div>
-                </a>
-
-                <!-- 7. Payment Management -->
-                <a href="{{ route('admin.payments.index') }}"
-                    class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition {{ request()->routeIs('admin.payments.*') ? 'bg-slate-700 font-bold text-white' : 'text-slate-300' }}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        Payment Management
-                    </div>
-                </a>
-
-                <!-- 8. Marketplace (Original Link) -->
-                <a href="#" class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 text-slate-300">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Marketplace
-                    </div>
-                </a>
-
-                <!-- 9. Gudang (Original Link) -->
-                <a href="{{ route('admin.warehouse.stock') }}"
-                    class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition {{ request()->routeIs('admin.warehouse.stock') ? 'bg-slate-700 font-bold text-white' : 'text-slate-300' }}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                        Gudang
-                    </div>
-                </a>
-
-                <!-- 10. Inventory (Original Dropdown) -->
+                <!-- 4. Inventory -->
                 <div class="space-y-1">
                     <button @click="openGroup = (openGroup === 'warehouse' ? '' : 'warehouse')" 
                             class="w-full flex items-center justify-between py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition text-slate-300">
@@ -118,16 +95,55 @@
                     </div>
                 </div>
 
-                <!-- 11. Customer (Original Customer Link) -->
-                <a href="{{ route('admin.master.customers.index') }}"
-                    class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition {{ request()->routeIs('admin.master.customers.*') ? 'bg-slate-700 font-bold text-white' : 'text-slate-300' }}">
+                <!-- 5. Delivery -->
+                <a href="{{ route('admin.deliveries.index') }}"
+                    class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition {{ request()->routeIs('admin.deliveries.*') ? 'bg-slate-700 font-bold text-white' : 'text-slate-300' }}">
                     <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                        Customer
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                        Delivery Management
                     </div>
                 </a>
 
-                <!-- 12. Live Chat / Customer Service -->
+                <!-- 6. Master Data -->
+                <div class="space-y-1">
+                    <button @click="openGroup = (openGroup === 'master' ? '' : 'master')" 
+                            class="w-full flex items-center justify-between py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition text-slate-300">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                            Master Data
+                        </div>
+                        <svg class="w-3.5 h-3.5 transform transition duration-200" :class="openGroup === 'master' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div x-show="openGroup === 'master'" class="pl-7 space-y-1" style="display: none;">
+                        <a href="{{ route('admin.master.products.index') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.master.products.*') ? 'bg-slate-700 text-white font-bold' : '' }}">Produk</a>
+                        <a href="{{ route('admin.master.customers.index') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.master.customers.*') ? 'bg-slate-700 text-white font-bold' : '' }}">Customer</a>
+                        <a href="{{ route('admin.suppliers.index') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.suppliers.*') ? 'bg-slate-700 text-white font-bold' : '' }}">Supplier</a>
+                        <a href="{{ route('admin.master.branches.index') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.master.branches.*') ? 'bg-slate-700 text-white font-bold' : '' }}">Cabang & Area</a>
+                    </div>
+                </div>
+
+                <!-- Marketplace Integration -->
+                <div class="space-y-1">
+                    <button @click="openGroup = (openGroup === 'marketplace' ? '' : 'marketplace')" 
+                            class="w-full flex items-center justify-between py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition text-slate-300">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                            Marketplace
+                        </div>
+                        <svg class="w-3.5 h-3.5 transform transition duration-200" :class="openGroup === 'marketplace' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div x-show="openGroup === 'marketplace'" class="pl-7 space-y-1" style="display: none;">
+                        <a href="{{ route('admin.marketplace.connection') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.marketplace.connection*') ? 'bg-slate-700 text-white font-bold' : '' }}">Connection</a>
+                        <a href="{{ route('admin.marketplace.sync.products') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.marketplace.sync.products*') ? 'bg-slate-700 text-white font-bold' : '' }}">Product Sync</a>
+                        <a href="{{ route('admin.marketplace.orders') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.marketplace.orders*') ? 'bg-slate-700 text-white font-bold' : '' }}">Order Sync</a>
+                        <a href="{{ route('admin.marketplace.sync.inventory') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.marketplace.sync.inventory*') ? 'bg-slate-700 text-white font-bold' : '' }}">Inventory Sync</a>
+                        <a href="{{ route('admin.marketplace.customers') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.marketplace.customers*') ? 'bg-slate-700 text-white font-bold' : '' }}">Marketplace Customer</a>
+                        <a href="{{ route('admin.marketplace.payments') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.marketplace.payments*') ? 'bg-slate-700 text-white font-bold' : '' }}">Marketplace Payment</a>
+                        <a href="{{ route('admin.marketplace.reports') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.marketplace.reports*') ? 'bg-slate-700 text-white font-bold' : '' }}">Marketplace Report</a>
+                    </div>
+                </div>
+
+                <!-- 7. Live Chat -->
                 <a href="{{ route('admin.live-chat.index') }}"
                     class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition {{ request()->routeIs('admin.live-chat.*') ? 'bg-slate-700 font-bold text-white' : 'text-slate-300' }}">
                     <div class="flex items-center gap-3">
@@ -136,57 +152,27 @@
                     </div>
                 </a>
 
-                <!-- 13. Finance & Accounting -->
-                <a href="{{ route('admin.finance.index') }}"
-                    class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition {{ request()->routeIs('admin.finance.*') ? 'bg-slate-700 font-bold text-white' : 'text-slate-300' }}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        Finance & Accounting
-                    </div>
-                </a>
-
-                <!-- 14. Supplier Management -->
-                <a href="{{ route('admin.suppliers.index') }}"
-                    class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition {{ request()->routeIs('admin.suppliers.*') ? 'bg-slate-700 font-bold text-white' : 'text-slate-300' }}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                        Supplier Management
-                    </div>
-                </a>
-
-                <!-- 15. Delivery Management (Original Dropdown) -->
-                <div class="space-y-1">
-                    <button @click="openGroup = (openGroup === 'deliveries' ? '' : 'deliveries')" 
-                            class="w-full flex items-center justify-between py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition text-slate-300">
-                        <div class="flex items-center gap-3">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                            Delivery Management
-                        </div>
-                        <svg class="w-3.5 h-3.5 transform transition duration-200" :class="openGroup === 'deliveries' ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-                    <div x-show="openGroup === 'deliveries'" class="pl-7 space-y-1" style="display: none;">
-                        <a href="{{ route('admin.deliveries.index') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-slate-700 text-slate-400 hover:text-white {{ request()->routeIs('admin.deliveries.index') ? 'bg-slate-700 text-white font-bold' : '' }}">Daftar Pengiriman</a>
-                    </div>
-                </div>
-
-                <!-- 16. AI Generator (Original Link) -->
-                <a href="#" class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 text-slate-300">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                        AI Generator
-                    </div>
-                </a>
-
-                <!-- 17. Reports -->
+                <!-- 8. Reports & Analytics -->
                 <a href="{{ route('admin.reports.index') }}"
                     class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition {{ request()->routeIs('admin.reports.*') ? 'bg-slate-700 font-bold text-white' : 'text-slate-300' }}">
                     <div class="flex items-center gap-3">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                        Reports
+                        Reports & Analytics
                     </div>
                 </a>
 
-                <!-- 18. Settings -->
+                <!-- 9. Employee Performance -->
+                @if(auth()->check() && auth()->user()->isAdmin())
+                <a href="{{ route('admin.performance.index') }}"
+                    class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition {{ request()->routeIs('admin.performance.*') ? 'bg-slate-700 font-bold text-white' : 'text-amber-500' }}">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path></svg>
+                        Employee Performance
+                    </div>
+                </a>
+                @endif
+
+                <!-- 10. Settings -->
                 <a href="{{ route('profile.edit') }}"
                     class="block py-2 px-3 rounded-lg text-sm hover:bg-slate-700 transition mt-8 border-t border-slate-700 pt-4 {{ request()->routeIs('profile.edit') ? 'bg-slate-700 font-bold' : 'text-slate-300' }}">
                     <div class="flex items-center gap-3">
@@ -200,7 +186,7 @@
         <!-- Main Content -->
         <div class="flex-1 flex flex-col h-full overflow-hidden">
             <!-- Topbar -->
-            <header class="h-16 bg-white shadow flex items-center justify-between px-6 flex-shrink-0">
+            <header class="print:hidden h-16 bg-white shadow flex items-center justify-between px-6 flex-shrink-0">
                 <div class="flex items-center">
                     <button class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

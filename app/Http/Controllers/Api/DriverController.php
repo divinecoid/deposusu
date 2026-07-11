@@ -499,6 +499,13 @@ class DriverController extends Controller
             'delivery_longitude' => $request->longitude,
         ]);
 
+        // Award performance point for delivery completion
+        try {
+            \App\Models\EmployeePerformancePoint::awardDelivery($user->id, $order->id, "Delivery order #{$order->order_number} selesai");
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to award delivery point: ' . $e->getMessage());
+        }
+
         // Sync Invoice Status if invoice exists
         if ($order->invoice) {
             $order->invoice->update([
