@@ -22,7 +22,15 @@
 
         <!-- Filters -->
         <form method="GET" action="{{ route('admin.invoices.index') }}" class="bg-gray-50 border-b border-gray-200 p-6 flex flex-wrap gap-4 items-end">
-            <input type="hidden" name="status" value="{{ $status }}">
+
+            <div class="w-full sm:w-48">
+                <label for="status" class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Status Pembayaran</label>
+                <select id="status" name="status" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                    @foreach(['all' => 'Semua', 'unpaid' => 'Unpaid', 'paid' => 'Paid', 'cancelled' => 'Cancelled'] as $value => $label)
+                        <option value="{{ $value }}" {{ $status === $value ? 'selected' : '' }}>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
 
             <div class="w-full sm:w-56">
                 <label for="customer" class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Customer</label>
