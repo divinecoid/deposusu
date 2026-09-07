@@ -88,6 +88,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/orders/{order}', [DriverController::class, 'showOrder']);
         Route::post('/orders/{order}/pickup', [DriverController::class, 'pickupOrder']);
         Route::post('/orders/{order}/finish', [DriverController::class, 'finishOrder']);
+        Route::get('/cash-collections', [DriverController::class, 'cashCollections']);
     });
 
     Route::prefix('cashier')->group(function () {

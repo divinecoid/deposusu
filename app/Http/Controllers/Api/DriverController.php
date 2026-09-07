@@ -500,6 +500,18 @@ class DriverController extends Controller
             'payment_status' => $order->payment_method === 'COD' ? 'PAID' : $order->payment_status,
         ]);
 
+        // Cash the driver just collected in person is a separate concern
+        // from the order being "paid" — it still has to be physically
+        // handed over to the office, tracked here until an admin confirms it.
+        if ($order->payment_method === 'COD') {
+            \App\Models\DriverCashCollection::create([
+                'driver_id' => $request->user()->id,
+                'order_id' => $order->id,
+                'amount' => $order->total_amount + $order->convenience_fee,
+                'collected_at' => now(),
+            ]);
+        }
+
         // Award performance point for delivery completion
         try {
             \App\Models\EmployeePerformancePoint::awardDelivery($request->user()->id, $order->id, "Delivery order #{$order->order_number} selesai");
@@ -613,6 +625,24 @@ class DriverController extends Controller
                     ];
                 }),
             ]
+        ]);
+    }
+
+    /**
+     * Cash the driver has collected from COD customers, and how much of it
+     * is still waiting to be handed over to the office.
+     */
+    public function cashCollections(Request $request)
+    {
+        $collections = \App\Models\DriverCashCollection::with('order')
+            ->where('driver_id', $request->user()->id)
+            ->orderByDesc('collected_at')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'pending_total' => $collections->where('is_deposited', false)->sum('amount'),
+            'data' => $collections,
         ]);
     }
 }

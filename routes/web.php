@@ -267,6 +267,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::post('/manual', [\App\Http\Controllers\Admin\PerformancePointController::class, 'storeManual'])->name('store-manual');
     });
 
+    // Driver Cash Reconciliation ("Setoran Kurir")
+    Route::prefix('driver-cash')->name('driver-cash.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\DriverCashController::class, 'index'])->name('index');
+        Route::post('/{collection}/confirm', [\App\Http\Controllers\Admin\DriverCashController::class, 'confirm'])->name('confirm');
+        Route::post('/drivers/{driver}/confirm-all', [\App\Http\Controllers\Admin\DriverCashController::class, 'confirmAllForDriver'])->name('confirm-all');
+    });
+
     // Membership / VIP
     Route::get('/membership', function () {
         return view('admin.membership.index');
