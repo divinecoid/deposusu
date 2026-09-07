@@ -36,6 +36,34 @@ $opsNavItems = [
     </div>
 </div>
 
+@if($order->delivery_proof_photo)
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 mb-4">
+        <p class="text-xs font-bold text-slate-500 uppercase mb-3">Bukti Pengantaran</p>
+
+        <img src="{{ $order->delivery_proof_photo }}" alt="Foto bukti pengantaran"
+            class="w-full rounded-xl border border-slate-200 mb-3">
+
+        <div class="grid grid-cols-2 gap-3">
+            <div>
+                <p class="text-[11px] text-slate-400">Diterima oleh</p>
+                <p class="text-sm font-semibold text-slate-800">{{ $order->recipient_name ?? '-' }}</p>
+            </div>
+            <div>
+                <p class="text-[11px] text-slate-400">Waktu Tiba</p>
+                <p class="text-sm font-semibold text-slate-800">{{ $order->delivered_at?->format('d M Y H:i') ?? '-' }}</p>
+            </div>
+        </div>
+
+        @if($order->recipient_signature)
+            <div class="mt-3">
+                <p class="text-[11px] text-slate-400 mb-1">Tanda Tangan</p>
+                <img src="{{ $order->recipient_signature }}" alt="Tanda tangan penerima"
+                    class="w-full h-32 object-contain rounded-xl border border-slate-200 bg-slate-50">
+            </div>
+        @endif
+    </div>
+@endif
+
 @if($order->status->value === 'prepared')
     <form action="{{ route('driver.orders.pickup', $order->id) }}" method="POST">
         @csrf
