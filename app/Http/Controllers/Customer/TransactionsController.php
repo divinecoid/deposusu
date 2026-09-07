@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\TrxOrder;
 use App\Models\TrxCart;
+use App\Services\XenditService;
 use Illuminate\Http\Request;
 
 class TransactionsController extends Controller
@@ -35,15 +36,23 @@ class TransactionsController extends Controller
         return view('customer.transactions.index', compact('orders', 'tab'));
     }
 
-    public function show(TrxOrder $order)
+    public function show(TrxOrder $order, XenditService $xendit)
     {
-        if ($order->customer_name !== auth()->user()->name) {
+        $ownsByName = $order->customer_name === auth()->user()->name;
+        $ownsById = $order->customer_id && (int) $order->customer_id === (int) auth()->id();
+
+        if (!$ownsByName && !$ownsById) {
             abort(404);
         }
 
-        $order->load(['items.product', 'invoice', 'driver', 'warehouse']);
+        $order->load(['items.product', 'invoice', 'driver', 'warehouse', 'latestXenditPayment']);
 
-        return view('customer.transactions.show', compact('order'));
+        $paymentChannel = $xendit->channel($order->payment_method);
+        $canRetryPayment = $order->payment_status !== 'PAID'
+            && $order->payment_method !== 'COD'
+            && $paymentChannel !== null;
+
+        return view('customer.transactions.show', compact('order', 'paymentChannel', 'canRetryPayment'));
     }
 
     public function reorder(TrxOrder $order)

@@ -120,7 +120,7 @@ class CustomerApiController extends Controller
 
             // 6. Create the TrxInvoice
             $order->invoice()->create([
-                'invoice_number' => 'INV-' . $order->order_number,
+                'invoice_number' => $order->order_number,
                 'issue_date' => now(),
                 'due_date' => now()->addDays(7),
                 'status' => $order->payment_status,

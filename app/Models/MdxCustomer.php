@@ -9,7 +9,20 @@ class MdxCustomer extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'phone', 'address', 'area_id'];
+    protected $fillable = [
+        'user_id',
+        'phone',
+        'address',
+        'area_id',
+        'is_verified',
+        'verified_by',
+        'verified_at',
+    ];
+
+    protected $casts = [
+        'is_verified' => 'boolean',
+        'verified_at' => 'datetime',
+    ];
 
     public function user()
     {
@@ -19,5 +32,10 @@ class MdxCustomer extends Model
     public function area()
     {
         return $this->belongsTo(MdxArea::class, 'area_id');
+    }
+
+    public function verifiedBy()
+    {
+        return $this->belongsTo(User::class, 'verified_by');
     }
 }

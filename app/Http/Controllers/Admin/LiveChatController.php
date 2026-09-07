@@ -224,7 +224,7 @@ class LiveChatController extends Controller
 
                 // Create invoice for new order
                 $newOrder->invoice()->create([
-                    'invoice_number' => 'INV-' . $newOrder->order_number,
+                    'invoice_number' => $newOrder->order_number,
                     'issue_date' => now(),
                     'due_date' => now()->addDays(7),
                     'status' => 'UNPAID',

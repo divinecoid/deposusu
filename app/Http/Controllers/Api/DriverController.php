@@ -497,11 +497,12 @@ class DriverController extends Controller
             'recipient_signature' => $request->recipient_signature,
             'delivery_latitude' => $request->latitude,
             'delivery_longitude' => $request->longitude,
+            'payment_status' => $order->payment_method === 'COD' ? 'PAID' : $order->payment_status,
         ]);
 
         // Award performance point for delivery completion
         try {
-            \App\Models\EmployeePerformancePoint::awardDelivery($user->id, $order->id, "Delivery order #{$order->order_number} selesai");
+            \App\Models\EmployeePerformancePoint::awardDelivery($request->user()->id, $order->id, "Delivery order #{$order->order_number} selesai");
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to award delivery point: ' . $e->getMessage());
         }

@@ -1,86 +1,131 @@
-@if($products->isEmpty())
-    <div class="col-span-full py-20 text-center">
-        <svg class="w-20 h-20 text-gray-200 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-        </svg>
-        <h3 class="text-xl font-bold text-gray-900 mb-2">Produk tidak ditemukan</h3>
-        <p class="text-gray-500">Coba gunakan kata kunci lain atau pilih kategori yang berbeda.</p>
+@php
+    // When `bare` is true only the cards are rendered, so the "load more"
+    // action can append them into the existing grid.
+    $bare = $bare ?? false;
+@endphp
+
+@if($products->isEmpty() && !$bare)
+    <div class="py-20 text-center">
+        <div class="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-5">
+            <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 mb-1">Produk tidak ditemukan</h3>
+        <p class="text-slate-500 text-sm max-w-sm mx-auto">Coba kata kunci lain, atau lihat semua produk kami.</p>
+        <button type="button" onclick="resetFilters()"
+            class="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors">
+            Lihat semua produk
+        </button>
     </div>
 @else
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6">
-        @foreach($products as $product)
-            <div onclick="window.location.href='{{ route('products.show', $product->id) }}'"
-                class="product-card bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-gray-100 cursor-pointer"
-                data-category-ids="{{ $product->categories->pluck('id')->implode(',') }}"
-                style="animation-delay: {{ ($loop->iteration - 1) * 0.05 }}s">
-                
-                <div class="relative group">
-                    <!-- Promo Tag -->
-                    @if($product->active_discount)
-                        <div class="absolute top-2 left-2 z-10">
-                            <span class="px-2 py-1 bg-red-500 text-white text-[10px] md:text-xs font-bold rounded-md shadow-sm">
-                                @if($product->active_discount->discount_type === 'PERCENTAGE')
-                                    -{{ number_format($product->active_discount->discount_value, 0) }}%
-                                @else
-                                    -{{ $product->active_discount->discount_value >= 1000 ? number_format($product->active_discount->discount_value / 1000, 0) . 'K' : number_format($product->active_discount->discount_value, 0, ',', '.') }}
-                                @endif
-                            </span>
+    @if(!$bare)
+        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5">
+    @endif
+
+    @foreach($products as $product)
+        @php
+            $hasDiscount = (bool) $product->active_discount;
+            $finalPrice = $hasDiscount ? $product->discounted_price : $product->price;
+            $saving = $hasDiscount ? ($product->price - $finalPrice) : 0;
+            $percentOff = $hasDiscount && $product->price > 0 ? round(($saving / $product->price) * 100) : 0;
+            $stock = (int) $product->stock;
+            $lowStockAt = (int) ($product->low_stock_threshold ?: 5);
+            $isOut = $stock <= 0;
+            $isLow = !$isOut && $stock <= $lowStockAt;
+            $isWishlisted = Auth::check() && $product->isWishlistedBy(Auth::user());
+        @endphp
+
+        <div class="product-card group relative flex flex-col bg-white rounded-2xl border border-slate-200/80 overflow-hidden hover:border-blue-200 hover:shadow-lg hover:shadow-slate-900/5 transition-all">
+
+            <!-- Media -->
+            <div class="relative aspect-square bg-slate-50 overflow-hidden {{ $isOut ? 'opacity-60' : '' }}">
+                <a href="{{ route('products.show', $product->id) }}"
+                   class="block w-full h-full"
+                   aria-label="Lihat detail {{ $product->name }}">
+                    <img src="{{ $product->image ? (str_starts_with($product->image, 'storage/') ? asset($product->image) : $product->image) : 'https://placehold.co/400x400/f1f5f9/94a3b8?text=No+Image' }}"
+                        alt="{{ $product->name }}"
+                        loading="lazy" decoding="async"
+                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        onerror="this.onerror=null; this.src='https://placehold.co/400x400/f1f5f9/94a3b8?text=No+Image';">
+                </a>
+
+                @if($hasDiscount)
+                    <span class="absolute top-2 left-2 z-10 px-2 py-1 rounded-lg bg-rose-600 text-white text-[11px] font-bold shadow-sm">
+                        -{{ $percentOff }}%
+                    </span>
+                @endif
+
+                @if($isOut)
+                    <div class="absolute inset-0 flex items-center justify-center bg-white/60">
+                        <span class="px-3 py-1.5 rounded-lg bg-slate-900/85 text-white text-xs font-bold">Stok Habis</span>
+                    </div>
+                @endif
+
+                <button type="button"
+                    onclick="toggleWishlist({{ $product->id }}, this)"
+                    aria-label="{{ $isWishlisted ? 'Hapus dari wishlist' : 'Simpan ke wishlist' }}"
+                    class="absolute top-2 right-2 z-10 p-2 bg-white/95 backdrop-blur rounded-full shadow-sm hover:bg-rose-50 transition-colors">
+                    <svg class="w-4 h-4 {{ $isWishlisted ? 'text-rose-500' : 'text-slate-400' }}"
+                        fill="{{ $isWishlisted ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="flex flex-col flex-1 p-3 md:p-4">
+                <a href="{{ route('products.show', $product->id) }}"
+                   class="text-sm md:text-[15px] font-semibold text-slate-900 line-clamp-2 leading-snug hover:text-blue-600 transition-colors">
+                    {{ $product->name }}
+                </a>
+
+                <div class="mt-2">
+                    @if($hasDiscount)
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] text-slate-400 line-through">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
+                            <span class="text-[11px] font-semibold text-emerald-600">Hemat {{ number_format($saving, 0, ',', '.') }}</span>
                         </div>
                     @endif
-
-                    <!-- Big Photo -->
-                    <div class="image-container skeleton aspect-square bg-gray-50 overflow-hidden relative">
-                        <img src="{{ $product->image && str_starts_with($product->image, 'storage/') ? asset($product->image) : $product->image }}"
-                            alt="{{ $product->name }}"
-                            class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
-                            style="filter: none !important; background-color: transparent !important;"
-                            onload="this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');"
-                            onerror="this.onerror=null; this.src='https://placehold.co/400x400?text=No+Image'; this.classList.add('loaded'); this.parentElement.classList.remove('skeleton');">
-                        
-                        <!-- Wishlist Button Overlay -->
-                        <button onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)"
-                            class="absolute top-2 right-2 z-10 p-2 bg-white/90 backdrop-blur-sm rounded-full shadow-sm transition-all duration-300 hover:bg-red-50">
-                            @php
-                                $isWishlisted = Auth::check() && $product->isWishlistedBy(Auth::user());
-                            @endphp
-                            <svg class="w-4 h-4 md:w-5 md:h-5 {{ $isWishlisted ? 'text-red-500' : 'text-gray-400' }} hover:text-red-500"
-                                fill="{{ $isWishlisted ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                            </svg>
-                        </button>
-                    </div>
+                    <p class="text-base md:text-lg font-bold text-slate-900 leading-tight">
+                        Rp {{ number_format($finalPrice, 0, ',', '.') }}
+                    </p>
                 </div>
 
-                <div class="p-3 md:p-4">
-                    <!-- Title -->
-                    <h3 class="text-sm md:text-base font-semibold text-gray-900 mb-1 line-clamp-2 h-10 md:h-12 leading-tight">
-                        {{ $product->name }}
-                    </h3>
-
-                    <!-- Price & Action -->
-                    <div class="mt-2 flex items-end justify-between gap-2">
-                        <div class="flex-1">
-                            @if($product->active_discount)
-                                <p class="text-[10px] md:text-xs text-gray-400 line-through">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
-                                <p class="text-base md:text-xl font-bold text-gray-900 leading-none">Rp {{ number_format($product->discounted_price, 0, ',', '.') }}</p>
-                            @else
-                                <p class="text-base md:text-xl font-bold text-gray-900 leading-none">Rp {{ number_format($product->price, 0, ',', '.') }}</p>
-                            @endif
+                @if($isLow)
+                    <div class="mt-2">
+                        <div class="h-1.5 w-full rounded-full bg-slate-100 overflow-hidden">
+                            <div class="h-full rounded-full bg-amber-500"
+                                 style="width: {{ max(8, min(100, ($stock / max(1, $lowStockAt)) * 100)) }}%"></div>
                         </div>
-                        
-                        <!-- Quick Add Button -->
-                        <button onclick="event.stopPropagation(); addToCart({{ $product->id }})"
-                            class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 hover:scale-110 active:scale-95 transition-all shadow-md shadow-blue-500/30"
-                            title="Tambah ke Keranjang">
-                            <svg class="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
-                            </svg>
-                        </button>
+                        <p class="mt-1 text-[11px] font-semibold text-amber-600">Sisa {{ $stock }} item</p>
                     </div>
+                @endif
+
+                <div class="mt-auto pt-3">
+                    @if($isOut)
+                        <button type="button" disabled
+                            class="w-full h-9 rounded-xl bg-slate-100 text-slate-400 text-sm font-semibold cursor-not-allowed">
+                            Stok Habis
+                        </button>
+                    @else
+                        <button type="button"
+                            onclick="addToCart({{ $product->id }}, 1, this)"
+                            class="w-full h-9 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            Keranjang
+                        </button>
+                    @endif
                 </div>
             </div>
-        @endforeach
-    </div>
+        </div>
+    @endforeach
+
+    @if(!$bare)
+        </div>
+    @endif
 @endif

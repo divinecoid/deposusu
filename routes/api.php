@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Api\PreparistController;
 use App\Http\Controllers\Api\DriverController;
-use App\Http\Controllers\Api\CustomerApiController;
 use App\Http\Controllers\Api\CashierApiController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -27,7 +26,33 @@ Route::post('/login', [DriverController::class, 'login']);
 Route::post('/driver/request-otp', [DriverController::class, 'requestOtp']);
 Route::post('/driver/verify-otp', [DriverController::class, 'verifyOtp']);
 Route::get('/orders/track/{order_number}', [DriverController::class, 'trackOrder']);
-Route::post('/customer/checkout', [CustomerApiController::class, 'checkout']);
+// Customer mobile app (Sanctum token auth)
+Route::prefix('customer')->name('api.customer.')->group(function () {
+    Route::post('/register', [\App\Http\Controllers\Api\Customer\AuthController::class, 'register']);
+    Route::post('/login', [\App\Http\Controllers\Api\Customer\AuthController::class, 'login']);
+
+    Route::get('/products', [\App\Http\Controllers\Api\Customer\ProductController::class, 'index']);
+    Route::get('/products/{product}', [\App\Http\Controllers\Api\Customer\ProductController::class, 'show']);
+    Route::get('/categories', [\App\Http\Controllers\Api\Customer\ProductController::class, 'categories']);
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', [\App\Http\Controllers\Api\Customer\AuthController::class, 'logout']);
+        Route::get('/me', [\App\Http\Controllers\Api\Customer\AuthController::class, 'me']);
+
+        Route::get('/cart', [\App\Http\Controllers\Api\Customer\CartController::class, 'index']);
+        Route::post('/cart/add', [\App\Http\Controllers\Api\Customer\CartController::class, 'add']);
+        Route::patch('/cart/{item}', [\App\Http\Controllers\Api\Customer\CartController::class, 'update']);
+        Route::delete('/cart/{item}', [\App\Http\Controllers\Api\Customer\CartController::class, 'remove']);
+
+        Route::get('/payment-options', [\App\Http\Controllers\Api\Customer\CheckoutController::class, 'paymentOptions']);
+        Route::post('/checkout', [\App\Http\Controllers\Api\Customer\CheckoutController::class, 'checkout']);
+
+        Route::get('/orders', [\App\Http\Controllers\Api\Customer\OrderController::class, 'index']);
+        Route::get('/orders/{order}', [\App\Http\Controllers\Api\Customer\OrderController::class, 'show']);
+        Route::post('/orders/{order}/pay', [\App\Http\Controllers\Api\Customer\OrderController::class, 'pay']);
+        Route::get('/payments/{payment}/status', [\App\Http\Controllers\Api\Customer\OrderController::class, 'paymentStatus'])->name('payments.status');
+    });
+});
 Route::post('/cashier/login', [CashierApiController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {

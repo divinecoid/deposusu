@@ -3,6 +3,23 @@
 
 <head>
     @include('partials.head')
+    <script>
+        // This auth flow (login/register/forgot-password/2FA) has no dark-mode
+        // styling of its own. Flux's Alpine runtime re-applies the `dark`
+        // class asynchronously (on init, on livewire:navigated, and whenever
+        // the OS color-scheme changes) based on the visitor's system
+        // preference, so a single one-off `classList.remove` here is not
+        // enough — it gets overwritten once Alpine boots. A MutationObserver
+        // keeps stripping it for the lifetime of the page instead, so Flux's
+        // dark: input/label classes never kick in and wash out text against
+        // this page's light gradient background.
+        (function () {
+            const root = document.documentElement;
+            const stripDark = () => root.classList.contains('dark') && root.classList.remove('dark');
+            stripDark();
+            new MutationObserver(stripDark).observe(root, { attributes: true, attributeFilter: ['class'] });
+        })();
+    </script>
     <style>
         @keyframes fadeInUp {
             from {

@@ -123,7 +123,7 @@ class KasirController extends Controller
 
             // Create Invoice
             $invoice = $order->invoice()->create([
-                'invoice_number' => 'INV-' . $order->order_number,
+                'invoice_number' => $order->order_number,
                 'issue_date' => now(),
                 'due_date' => now(),
                 'status' => 'PAID',

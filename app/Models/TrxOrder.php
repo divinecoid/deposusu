@@ -24,6 +24,7 @@ class TrxOrder extends Model
         'notes',
         'total_amount',
         'total_discount',
+        'convenience_fee',
         'status',          // OrderStatusEnum
         'payment_status',  // UNPAID, PAID, CANCELLED
         'driver_id',
@@ -66,14 +67,34 @@ class TrxOrder extends Model
         'packer_name',
     ];
 
+    /**
+     * The order's own `customer_phone` column takes priority (e.g. a phone
+     * captured at checkout); this only falls back to the linked customer's
+     * registered profile when the order itself doesn't have one stored.
+     */
     public function getCustomerPhoneAttribute()
     {
+        $own = $this->getRawOriginal('customer_phone');
+        if (filled($own)) {
+            return $own;
+        }
+
         $customer = $this->customer;
         return $customer && $customer->customerProfile ? $customer->customerProfile->phone : '';
     }
 
+    /**
+     * Same fallback rule as getCustomerPhoneAttribute(): prefer what was
+     * actually typed for this order (e.g. the checkout shipping address)
+     * over the customer's registered profile address.
+     */
     public function getCustomerAddressAttribute()
     {
+        $own = $this->getRawOriginal('customer_address');
+        if (filled($own)) {
+            return $own;
+        }
+
         $customer = $this->customer;
         return $customer && $customer->customerProfile ? $customer->customerProfile->address : '';
     }
@@ -114,6 +135,16 @@ class TrxOrder extends Model
     public function invoice()
     {
         return $this->hasOne(TrxInvoice::class, 'order_id');
+    }
+
+    public function xenditPayments()
+    {
+        return $this->hasMany(TrxXenditPayment::class, 'order_id');
+    }
+
+    public function latestXenditPayment()
+    {
+        return $this->hasOne(TrxXenditPayment::class, 'order_id')->latestOfMany();
     }
 
     public function driver()

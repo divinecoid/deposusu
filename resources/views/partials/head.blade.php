@@ -13,7 +13,14 @@
 
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="{{ asset('css/flux.css') }}">
-    <style type="text/css">
+    <style type="text/tailwindcss">
+        /* Match resources/css/app.css: dark mode is opt-in via an explicit
+           .dark class, not the raw OS color-scheme media query. Without this,
+           the Tailwind CDN build defaults to media-query dark mode, which
+           silently reflows Flux's dark: utility classes (e.g. light input
+           text) on pages that were only ever designed for a light theme. */
+        @custom-variant dark (&:where(.dark, .dark *));
+
         @theme {
             --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
@@ -29,15 +36,17 @@
             --color-zinc-900: #171717;
             --color-zinc-950: #0a0a0a;
 
-            --color-accent: var(--color-neutral-800);
-            --color-accent-content: var(--color-neutral-800);
+            /* Brand blue accent (matches the customer storefront's brand-600),
+               used by Flux for active nav items, focus rings, etc. */
+            --color-accent: var(--color-blue-600);
+            --color-accent-content: var(--color-blue-600);
             --color-accent-foreground: var(--color-white);
         }
 
         .dark {
-            --color-accent: var(--color-white);
-            --color-accent-content: var(--color-white);
-            --color-accent-foreground: var(--color-neutral-800);
+            --color-accent: var(--color-blue-400);
+            --color-accent-content: var(--color-blue-400);
+            --color-accent-foreground: var(--color-white);
         }
 
         *,

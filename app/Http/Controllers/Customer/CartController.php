@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Customer\XenditPaymentController;
 use App\Models\MdxProduct;
 use App\Models\TrxOrder;
 use App\Models\TrxOrderItem;
 use App\Models\TrxCart;
 use App\Models\TrxCartItem;
 use App\Enums\OrderStatusEnum;
+use App\Services\XenditService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -60,6 +63,42 @@ class CartController extends Controller
         return view('customer.cart', compact('cart', 'cartItems', 'totalItems', 'subtotalBeforeDiscount', 'totalDiscount', 'totalPrice', 'activeDays'));
     }
 
+
+    /**
+     * Cart summary + items, used by the header badge and the mini cart drawer.
+     */
+    public function getCartData()
+    {
+        $cart = $this->getCurrentCart();
+        $items = $cart->items()->with('product')->get();
+
+        return response()->json([
+            'success' => true,
+            'cart' => [
+                'total_items' => $cart->getTotalItems(),
+                'total_price' => $cart->getTotalPrice(),
+                'total_price_formatted' => 'Rp ' . number_format($cart->getTotalPrice(), 0, ',', '.'),
+                'total_discount' => $cart->getTotalDiscount(),
+                'items' => $items->map(function ($item) {
+                    $product = $item->product;
+                    $image = $product && $product->image
+                        ? (str_starts_with($product->image, 'storage/') ? asset($product->image) : $product->image)
+                        : null;
+
+                    return [
+                        'id' => $item->id,
+                        'product_id' => $item->product_id,
+                        'name' => $product->name ?? 'Produk',
+                        'image' => $image,
+                        'quantity' => $item->quantity,
+                        'price' => $item->price,
+                        'price_formatted' => 'Rp ' . number_format($item->price, 0, ',', '.'),
+                        'subtotal_formatted' => 'Rp ' . number_format($item->getSubtotal(), 0, ',', '.'),
+                    ];
+                })->values(),
+            ],
+        ]);
+    }
 
     /**
      * Add item to cart (AJAX)
@@ -221,7 +260,7 @@ class CartController extends Controller
     /**
      * Handle checkout process
      */
-    public function checkout(Request $request)
+    public function checkout(Request $request, XenditService $xendit)
     {
         $cart = $this->getCurrentCart();
         $cartItems = $cart->items()->with('product')->get();
@@ -233,13 +272,37 @@ class CartController extends Controller
             ], 400);
         }
 
+        $request->validate([
+            'shipping_address' => 'required|string|min:10',
+            'payment_method' => 'required|string',
+        ]);
+
+        $channelCode = $request->input('payment_method');
+        $isCod = $channelCode === 'COD';
+
+        if (!$isCod && !$xendit->channel($channelCode)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Metode pembayaran tidak valid'
+            ], 422);
+        }
+
+        // COD ("bayar nanti") is only for admin-verified customers. Checked
+        // again here since the UI already hides it, but a request can be
+        // crafted directly.
+        if ($isCod && !optional(auth()->user()->customerProfile)->is_verified) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun Anda belum terverifikasi untuk COD. Silakan pilih metode pembayaran online.'
+            ], 403);
+        }
+
         try {
             DB::beginTransaction();
 
             $totalAmount = 0;
             $totalDiscount = 0;
 
-            // Generate order number
             // Generate order number
             $today = now()->format('Ymd');
             $lastOrder = TrxOrder::whereDate('created_at', now()->today())->orderBy('id', 'desc')->first();
@@ -248,7 +311,10 @@ class CartController extends Controller
 
             $order = TrxOrder::create([
                 'order_number' => $orderNumber,
+                'customer_id' => auth()->id(),
                 'customer_name' => auth()->check() ? auth()->user()->name : 'Guest',
+                'customer_address' => $request->input('shipping_address'),
+                'payment_method' => $isCod ? 'COD' : $channelCode,
                 'total_amount' => 0, // Placeholder
                 'total_discount' => 0, // Placeholder
                 'status' => OrderStatusEnum::ON_PROCESS,
@@ -297,7 +363,7 @@ class CartController extends Controller
 
             // Create Invoice immediately on order creation
             $order->invoice()->create([
-                'invoice_number' => 'INV-' . $order->order_number,
+                'invoice_number' => $order->order_number,
                 'issue_date' => now(),
                 'due_date' => now()->addDays(7),
                 'status' => 'UNPAID',
@@ -308,14 +374,6 @@ class CartController extends Controller
             $cart->clearCart();
 
             DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Pesanan berhasil dibuat!',
-                'order_id' => $order->id,
-                'order_number' => $order->order_number
-            ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -323,5 +381,40 @@ class CartController extends Controller
                 'message' => 'Gagal membuat pesanan: ' . $e->getMessage()
             ], 500);
         }
+
+        if ($isCod) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesanan berhasil dibuat!',
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'payment' => ['group' => 'cod'],
+            ]);
+        }
+
+        // Order is already committed at this point, so a failure here still
+        // leaves a valid (unpaid) order the customer can retry payment on
+        // from their order page — it does not roll back the order itself.
+        try {
+            $payment = $xendit->createPayment($order, $channelCode);
+        } catch (\Throwable $e) {
+            Log::error('Xendit createPayment failed', ['order_id' => $order->id, 'error' => $e->getMessage()]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesanan dibuat, tapi pembayaran gagal diproses. Silakan coba lagi dari halaman pesanan.',
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'payment' => ['group' => 'failed', 'retry_url' => route('transactions.show', $order->id)],
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Pesanan berhasil dibuat!',
+            'order_id' => $order->id,
+            'order_number' => $order->order_number,
+            'payment' => XenditPaymentController::formatPayment($payment, $xendit->channel($channelCode)),
+        ]);
     }
 }

@@ -24,7 +24,7 @@
             </div>
 
             <!-- Notification Icon -->
-            <button class="p-2 text-gray-400 hover:text-blue-600 transition-colors relative">
+            <button type="button" onclick="showNotification('Fitur ini akan segera hadir', 'info')" class="p-2 text-gray-400 hover:text-blue-600 transition-colors relative">
                 <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                 <!-- Badge -->
                 <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
@@ -54,7 +54,7 @@
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden divide-y divide-gray-50">
                 
                 <!-- Detail Akun -->
-                <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group">
+                <a href="{{ route('profile.edit') }}" class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
@@ -68,7 +68,7 @@
                 </a>
 
                 <!-- Pengaturan PIN -->
-                <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group">
+                <button type="button" onclick="showNotification('Fitur ini akan segera hadir', 'info')" class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group text-left">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 bg-cyan-50 text-cyan-600 rounded-full flex items-center justify-center group-hover:bg-cyan-500 group-hover:text-white transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
@@ -79,10 +79,10 @@
                         </div>
                     </div>
                     <svg class="w-5 h-5 text-gray-400 group-hover:text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
-                </a>
+                </button>
 
                 <!-- Pembayaran -->
-                <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group">
+                <button type="button" onclick="showNotification('Fitur ini akan segera hadir', 'info')" class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group text-left">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 bg-green-50 text-green-600 rounded-full flex items-center justify-center group-hover:bg-green-500 group-hover:text-white transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
@@ -93,10 +93,10 @@
                         </div>
                     </div>
                     <svg class="w-5 h-5 text-gray-400 group-hover:text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
-                </a>
+                </button>
 
                 <!-- Alamat Tersimpan -->
-                <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group">
+                <button type="button" onclick="showNotification('Fitur ini akan segera hadir', 'info')" class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group text-left">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center group-hover:bg-orange-500 group-hover:text-white transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
@@ -107,10 +107,10 @@
                         </div>
                     </div>
                     <svg class="w-5 h-5 text-gray-400 group-hover:text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
-                </a>
+                </button>
 
                 <!-- Pengaturan Notifikasi -->
-                <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group">
+                <button type="button" onclick="showNotification('Fitur ini akan segera hadir', 'info')" class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group text-left">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center group-hover:bg-purple-500 group-hover:text-white transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
@@ -121,7 +121,7 @@
                         </div>
                     </div>
                     <svg class="w-5 h-5 text-gray-400 group-hover:text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
-                </a>
+                </button>
             </div>
         </div>
 
@@ -129,7 +129,7 @@
         <div>
             <h2 class="text-sm font-bold text-gray-900 mb-3 px-1">Bantuan</h2>
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden divide-y divide-gray-50">
-                <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group">
+                <button type="button" onclick="showNotification('Fitur ini akan segera hadir', 'info')" class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group text-left">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center group-hover:bg-teal-500 group-hover:text-white transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -137,9 +137,9 @@
                         <span class="font-bold text-gray-800 text-sm md:text-base">FAQ</span>
                     </div>
                     <svg class="w-5 h-5 text-gray-400 group-hover:text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
-                </a>
+                </button>
                 
-                <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group">
+                <button type="button" onclick="showNotification('Fitur ini akan segera hadir', 'info')" class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group text-left">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center group-hover:bg-teal-500 group-hover:text-white transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
@@ -150,7 +150,7 @@
                         </div>
                     </div>
                     <svg class="w-5 h-5 text-gray-400 group-hover:text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
-                </a>
+                </button>
             </div>
         </div>
 

@@ -43,7 +43,14 @@ Route::prefix('cart')->name('cart.')->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [\App\Http\Controllers\Customer\CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout/process', [CartController::class, 'checkout'])->name('checkout.process');
+    Route::get('/checkout/payments/{payment}/status', [\App\Http\Controllers\Customer\XenditPaymentController::class, 'status'])->name('checkout.payment.status');
+    Route::post('/transactions/{order}/pay', [\App\Http\Controllers\Customer\XenditPaymentController::class, 'retry'])->name('transactions.pay');
 });
+
+// Xendit webhook — public, verified via the x-callback-token header instead
+// of a browser session, so it must stay outside the 'auth' group and be
+// exempt from CSRF (see bootstrap/app.php).
+Route::post('/webhooks/xendit', [\App\Http\Controllers\Customer\XenditPaymentController::class, 'webhook'])->name('webhooks.xendit');
 
 // Wishlist Routes
 Route::prefix('wishlist')->name('wishlist.')->middleware(['auth'])->group(function () {
@@ -82,6 +89,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::get('customers', [UserController::class, 'indexCustomers'])->name('customers.index');
         Route::put('customers/{customer}', [UserController::class, 'updateCustomer'])->name('customers.update');
         Route::delete('customers/{customer}', [UserController::class, 'destroyCustomer'])->name('customers.destroy');
+        Route::patch('customers/{customer}/toggle-verified', [UserController::class, 'toggleCustomerVerification'])->name('customers.toggle-verified');
         Route::get('drivers', [UserController::class, 'indexDrivers'])->name('drivers.index');
         Route::post('drivers', [UserController::class, 'storeDriver'])->name('drivers.store');
         Route::put('drivers/{driver}', [UserController::class, 'updateDriver'])->name('drivers.update');
@@ -244,6 +252,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
     Route::get('/membership', function () {
         return view('admin.membership.index');
     })->name('membership');
+
+    // Access Control Matrix
+    Route::get('/acm', [\App\Http\Controllers\Admin\AcmController::class, 'index'])->name('acm.index');
+    Route::post('/acm', [\App\Http\Controllers\Admin\AcmController::class, 'update'])->name('acm.update');
 });
 
 Route::view('dashboard', 'dashboard')

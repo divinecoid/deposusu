@@ -283,7 +283,7 @@ class PreparistController extends Controller
 
         // Award performance point for packing completion
         try {
-            \App\Models\EmployeePerformancePoint::awardPacking($user->id, $order->id, "Packing order #{$order->order_number} selesai");
+            \App\Models\EmployeePerformancePoint::awardPacking($request->user()->id, $order->id, "Packing order #{$order->order_number} selesai");
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Failed to award packing point: ' . $e->getMessage());
         }

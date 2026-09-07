@@ -125,4 +125,25 @@ class UserController extends Controller
         $customer->delete();
         return back()->with('success', 'Customer deleted successfully.');
     }
+
+    /**
+     * Verification is a manual, admin-only decision: it lets a customer
+     * choose "bayar nanti" (COD) at checkout instead of paying upfront.
+     */
+    public function toggleCustomerVerification(User $customer)
+    {
+        $profile = $customer->customerProfile ?? MdxCustomer::create(['user_id' => $customer->id]);
+
+        $verified = !$profile->is_verified;
+
+        $profile->update([
+            'is_verified' => $verified,
+            'verified_by' => $verified ? auth()->id() : null,
+            'verified_at' => $verified ? now() : null,
+        ]);
+
+        return back()->with('success', $verified
+            ? "{$customer->name} sekarang bisa checkout dengan COD (bayar nanti)."
+            : "{$customer->name} sekarang harus membayar di muka saat checkout.");
+    }
 }

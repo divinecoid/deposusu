@@ -22,6 +22,8 @@
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bergabung
                         </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Verifikasi
+                        </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi
                         </th>
                     </tr>
@@ -48,6 +50,17 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 {{ $customer->created_at->format('d M Y') }}
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                @php $isVerified = (bool) optional($customer->customerProfile)->is_verified; @endphp
+                                <form action="{{ route('admin.master.customers.toggle-verified', $customer->id) }}" method="POST" class="inline">
+                                    @csrf @method('PATCH')
+                                    <button type="submit"
+                                        title="{{ $isVerified ? 'Klik untuk cabut verifikasi (COD dimatikan)' : 'Klik untuk verifikasi (izinkan COD / bayar nanti)' }}"
+                                        class="px-2.5 py-1 rounded-full text-xs font-semibold transition-colors {{ $isVerified ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200' }}">
+                                        {{ $isVerified ? '✓ Terverifikasi' : 'Belum Verifikasi' }}
+                                    </button>
+                                </form>
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex items-center gap-2">
                                     <button onclick="editCustomer({{ $customer->id }})"
@@ -73,7 +86,7 @@
 
                         <!-- Edit Mode (Hidden by default) -->
                         <tr class="edit-mode-{{ $customer->id }} hidden bg-gray-50 border-y border-gray-200 shadow-inner">
-                            <td colspan="7" class="px-6 py-6">
+                            <td colspan="8" class="px-6 py-6">
                                 <form action="{{ route('admin.master.customers.update', $customer->id) }}" method="POST"
                                     class="space-y-4">
                                     @csrf @method('PUT')
@@ -128,7 +141,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">Belum ada customer.</td>
+                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">Belum ada customer.</td>
                         </tr>
                     @endforelse
                 </tbody>

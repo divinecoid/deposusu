@@ -5,6 +5,46 @@
         <!-- Session Status -->
         <x-auth-session-status class="text-center" :status="session('status')" />
 
+        @if(app()->environment(['local', 'staging']))
+            @php
+                // Verified demo accounts (see database/seeders/*.php). Only accounts
+                // that actually work on THIS web login are listed here — the driver,
+                // preparist and cashier mobile apps have their own login screens.
+                $demoAccounts = [
+                    ['label' => 'Admin', 'email' => 'admin@deposusu.com', 'password' => 'password123', 'note' => 'Masuk ke dashboard admin'],
+                    ['label' => 'Customer', 'email' => 'customer@deposusu.com', 'password' => 'password123', 'note' => 'Masuk sebagai pelanggan'],
+                    ['label' => 'Kasir', 'email' => 'kasir@deposusu.com', 'password' => 'password', 'note' => 'Akun kasir (login web ini akan masuk sebagai pelanggan)'],
+                    ['label' => 'Gudang/Preparist', 'email' => 'preparist@deposusu.com', 'password' => 'password123', 'note' => 'Akun gudang (login web ini akan masuk sebagai pelanggan)'],
+                    ['label' => 'Driver', 'email' => 'driver@deposusu.com', 'password' => 'password123', 'note' => 'Akun kurir (login web ini akan masuk sebagai pelanggan)'],
+                ];
+            @endphp
+            <div class="rounded-2xl border border-blue-100 bg-blue-50/60 p-4">
+                <p class="text-xs font-bold text-blue-700 uppercase tracking-wide mb-3">Akun Demo</p>
+                <div class="space-y-2">
+                    @foreach($demoAccounts as $account)
+                        <div class="flex items-center justify-between gap-3 bg-white rounded-xl border border-blue-100 px-3 py-2">
+                            <div class="min-w-0">
+                                <p class="text-xs font-bold text-gray-800">{{ $account['label'] }}</p>
+                                <p class="text-xs text-gray-500 truncate">
+                                    <span class="font-mono">{{ $account['email'] }}</span>
+                                    <span class="text-gray-300 mx-1">/</span>
+                                    <span class="font-mono">{{ $account['password'] }}</span>
+                                </p>
+                            </div>
+                            <button type="button"
+                                onclick="fillDemoLogin('{{ $account['email'] }}', '{{ $account['password'] }}')"
+                                class="shrink-0 px-3 py-1.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-600 text-xs font-bold hover:bg-blue-100 transition-colors">
+                                Pakai
+                            </button>
+                        </div>
+                    @endforeach
+                </div>
+                <p class="text-[11px] text-gray-400 mt-3 leading-relaxed">
+                    Catatan: hanya <strong>Admin</strong> yang diarahkan ke dashboard admin. Peran lain (Kasir, Gudang, Driver) punya aplikasi masing-masing dan lewat login web ini akan masuk sebagai halaman pelanggan.
+                </p>
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('login.store') }}" class="flex flex-col gap-6">
             @csrf
 
@@ -45,4 +85,15 @@
             </div>
         @endif
     </div>
+
+    @if(app()->environment(['local', 'staging']))
+        <script>
+            function fillDemoLogin(email, password) {
+                const emailField = document.querySelector('input[name="email"]');
+                const passwordField = document.querySelector('input[name="password"]');
+                if (emailField) emailField.value = email;
+                if (passwordField) passwordField.value = password;
+            }
+        </script>
+    @endif
 </x-layouts.auth>

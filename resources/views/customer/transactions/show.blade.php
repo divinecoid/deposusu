@@ -125,13 +125,41 @@
                             <span class="text-gray-600">Total Diskon</span>
                             <span class="font-medium">Rp {{ number_format($order->total_discount, 0, ',', '.') }}</span>
                         </div>
+                        @if($order->convenience_fee > 0)
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Biaya Layanan ({{ $paymentChannel['label'] ?? $order->payment_method }})</span>
+                                <span class="font-medium">Rp {{ number_format($order->convenience_fee, 0, ',', '.') }}</span>
+                            </div>
+                        @endif
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Total</span>
-                            <span class="font-bold text-gray-900">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
+                            <span class="text-gray-600">Total Bayar</span>
+                            <span class="font-bold text-gray-900">Rp {{ number_format($order->total_amount + $order->convenience_fee, 0, ',', '.') }}</span>
                         </div>
+                        @if($order->payment_method)
+                            <div class="flex justify-between text-sm pt-2 border-t border-gray-100">
+                                <span class="text-gray-600">Metode Pembayaran</span>
+                                <span class="font-medium">{{ $order->payment_method === 'COD' ? 'Bayar di Tempat (COD)' : ($paymentChannel['label'] ?? $order->payment_method) }}</span>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
+
+            @if($canRetryPayment)
+                <div class="bg-amber-50 rounded-2xl border border-amber-200 p-4 md:p-6">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold text-amber-800">Pembayaran belum selesai</p>
+                            <p class="text-xs text-amber-700 mt-0.5">Kode/tautan pembayaran mungkin sudah kedaluwarsa. Coba lagi untuk membuat pembayaran baru.</p>
+                        </div>
+                    </div>
+                    <button type="button" id="retry-payment-btn" data-order-id="{{ $order->id }}" data-channel="{{ $order->payment_method }}"
+                        class="mt-3 w-full h-11 rounded-xl bg-amber-500 text-white font-bold text-sm hover:bg-amber-600 transition-colors">
+                        Bayar Sekarang
+                    </button>
+                </div>
+            @endif
 
             @if($order->invoice)
                 <div class="bg-white rounded-2xl shadow border border-gray-100">
@@ -160,4 +188,49 @@
             @endif
         </div>
     </div>
+
+    @if($canRetryPayment)
+        @php($paymentModalCancelUrl = route('transactions.show', $order->id))
+        @include('customer.partials.payment-modal')
+
+        @push('scripts')
+        <script>
+            document.getElementById('retry-payment-btn')?.addEventListener('click', async function () {
+                const button = this;
+                const orderId = button.dataset.orderId;
+                const channel = button.dataset.channel;
+
+                button.disabled = true;
+                const originalText = button.textContent;
+                button.textContent = 'Memproses...';
+
+                try {
+                    const response = await fetch(`/transactions/${orderId}/pay`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        body: JSON.stringify({ payment_method: channel }),
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        await window.showXenditPaymentModal(result.payment);
+                    } else {
+                        showNotification(result.message || 'Gagal membuat pembayaran', 'error');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    showNotification('Koneksi bermasalah, coba lagi', 'error');
+                }
+
+                button.disabled = false;
+                button.textContent = originalText;
+            });
+        </script>
+        @endpush
+    @endif
 @endsection

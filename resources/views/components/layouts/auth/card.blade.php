@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" translate="no" class="dark notranslate">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" translate="no" class="notranslate">
     <head>
         @include('partials.head')
     </head>

@@ -1,541 +1,400 @@
 @extends('layouts.customer')
 
+@section('title', 'Keranjang Belanja - DEPOSUSU')
+
 @section('content')
-    <style>
-        .cart-item {
-            transition: all 0.3s ease;
-        }
+<div class="min-h-screen bg-slate-50 py-6 md:py-10 pb-40 md:pb-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        .cart-item:hover {
-            background-color: #f9fafb;
-        }
-
-        .quantity-btn {
-            transition: all 0.2s ease;
-        }
-
-        .quantity-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .quantity-btn:active {
-            transform: scale(0.95);
-        }
-
-        .remove-btn {
-            transition: all 0.3s ease;
-        }
-
-        .remove-btn:hover {
-            transform: scale(1.1);
-            background-color: #fee2e2;
-        }
-    </style>
-
-    <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 py-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
-            <!-- Header -->
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
-                <div>
-                    <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Keranjang <span
-                            class="text-blue-600">Belanja</span></h1>
-                    <p class="text-gray-500 mt-2">{{ $totalItems }} item dalam keranjang Anda</p>
-                </div>
-                <a href="{{ route('home') }}"
-                    class="flex items-center gap-2 text-blue-600 font-bold hover:text-blue-700 transition-colors self-start md:self-auto">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                    </svg>
-                    Lanjut Belanja
-                </a>
+        <!-- Header -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Keranjang Belanja</h1>
+                <p class="text-sm text-slate-500 mt-1"><span class="cart-total-items">{{ $totalItems }}</span> item siap dipesan</p>
             </div>
+            <a href="{{ route('home') }}"
+                class="inline-flex items-center gap-2 h-10 px-4 rounded-xl border border-slate-200 bg-white text-sm font-semibold text-slate-700 hover:border-brand-500 hover:text-brand-600 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                Lanjut Belanja
+            </a>
+        </div>
 
-            @if($cartItems->count() > 0)
-                <div class="grid lg:grid-cols-3 gap-8">
-                    <!-- Cart Items -->
-                    <div class="lg:col-span-2 space-y-4">
-                        @foreach($cartItems as $item)
-                            <div class="cart-item bg-white rounded-2xl shadow-md p-4 md:p-6" 
-                                data-item-id="{{ $item->id }}"
-                                data-item-price="{{ $item->price }}"
-                                data-item-quantity="{{ $item->quantity }}">
-                                <div class="flex gap-4 md:gap-6">
-                                    <!-- Product Image -->
-                                    <div class="flex-shrink-0">
-                                        <img src="{{ $item->product->image }}" alt="{{ $item->product->name }}"
-                                            class="w-20 h-20 md:w-32 md:h-32 object-contain rounded-lg bg-gray-50">
+        @if($cartItems->count() > 0)
+            <div class="grid lg:grid-cols-3 gap-6">
+
+                <!-- Items -->
+                <div class="lg:col-span-2 space-y-3">
+                    @foreach($cartItems as $item)
+                        @php
+                            $product = $item->product;
+                            $stock = (int) ($product->stock ?? 0);
+                            $hasDiscount = $product && $product->price > $item->price;
+                            $image = $product && $product->image
+                                ? (str_starts_with($product->image, 'storage/') ? asset($product->image) : $product->image)
+                                : null;
+                        @endphp
+                        <div class="cart-item bg-white rounded-2xl border border-slate-200/80 p-4"
+                            data-item-id="{{ $item->id }}"
+                            data-item-price="{{ $item->price }}"
+                            data-item-quantity="{{ $item->quantity }}"
+                            data-item-stock="{{ $stock }}">
+
+                            <div class="flex gap-4">
+                                <a href="{{ $product ? route('products.show', $product->id) : '#' }}" class="shrink-0">
+                                    <img src="{{ $image ?: 'https://placehold.co/200x200/f1f5f9/94a3b8?text=No+Image' }}"
+                                        alt="{{ $product->name ?? 'Produk' }}" loading="lazy"
+                                        class="w-20 h-20 md:w-24 md:h-24 object-cover rounded-xl bg-slate-50">
+                                </a>
+
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <a href="{{ $product ? route('products.show', $product->id) : '#' }}"
+                                           class="text-sm md:text-base font-semibold text-slate-900 line-clamp-2 leading-snug hover:text-brand-600">
+                                            {{ $product->name ?? 'Produk' }}
+                                        </a>
+                                        <button type="button" onclick="removeItem({{ $item->id }})"
+                                            aria-label="Hapus {{ $product->name ?? 'produk' }} dari keranjang"
+                                            class="shrink-0 p-2 -mt-1 -mr-1 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        </button>
                                     </div>
 
-                                    <!-- Product Details -->
-                                    <div class="flex-1">
-                                        <div class="flex justify-between items-start mb-3">
-                                            <div>
-                                                <h3
-                                                    class="text-base md:text-lg font-bold text-gray-900 mb-1 line-clamp-2 md:line-clamp-none">
-                                                    {{ $item->product->name }}
-                                                </h3>
-                                                <p class="text-sm text-gray-500">{{ $item->product->description }}</p>
-                                            </div>
-                                            <button onclick="removeItem({{ $item->id }})"
-                                                class="remove-btn p-2 text-gray-400 hover:text-red-600 rounded-full">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
+                                    <div class="mt-1 flex items-center gap-2 flex-wrap">
+                                        @if($hasDiscount)
+                                            <span class="text-xs text-slate-400 line-through">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
+                                        @endif
+                                        <span class="text-xs text-slate-500">Rp {{ number_format($item->price, 0, ',', '.') }} / item</span>
+                                        @if($stock > 0 && $stock <= 5)
+                                            <span class="text-[11px] font-semibold text-amber-600">Sisa {{ $stock }}</span>
+                                        @elseif($stock <= 0)
+                                            <span class="text-[11px] font-semibold text-rose-600">Stok habis</span>
+                                        @endif
+                                    </div>
+
+                                    <div class="mt-3 flex items-center justify-between gap-3">
+                                        <div class="flex items-center h-10 border border-slate-200 rounded-xl overflow-hidden">
+                                            <button type="button" onclick="changeQuantity({{ $item->id }}, -1)"
+                                                aria-label="Kurangi jumlah"
+                                                class="quantity-btn w-9 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 12H4"/></svg>
+                                            </button>
+                                            <input type="number" value="{{ $item->quantity }}" min="1" max="{{ max(1, $stock) }}"
+                                                aria-label="Jumlah {{ $product->name ?? 'produk' }}"
+                                                class="quantity-value w-11 h-full text-center text-sm font-bold bg-transparent border-none focus:ring-0 p-0 text-slate-900"
+                                                onchange="updateQuantity({{ $item->id }}, this.value)">
+                                            <button type="button" onclick="changeQuantity({{ $item->id }}, 1)"
+                                                aria-label="Tambah jumlah"
+                                                class="quantity-btn w-9 h-full flex items-center justify-center text-slate-500 hover:bg-slate-50 transition-colors">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
                                             </button>
                                         </div>
 
-                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-4">
-                                            <!-- Quantity Controls -->
-                                            <div class="flex items-center gap-3">
-                                                <span class="text-sm text-gray-600">Jumlah:</span>
-                                                <div class="flex items-center gap-2 bg-gray-100 rounded-lg px-2 py-1">
-                                                    <button onclick="changeQuantity({{ $item->id }}, -1)"
-                                                        class="quantity-btn p-1 text-blue-600 hover:text-blue-700">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                d="M20 12H4" />
-                                                        </svg>
-                                                    </button>
-                                                    <input type="number" 
-                                                        value="{{ $item->quantity }}" 
-                                                        min="1" 
-                                                        class="quantity-value w-12 text-center font-semibold bg-transparent border-none focus:ring-0 p-0 text-gray-900"
-                                                        onchange="updateQuantity({{ $item->id }}, this.value)"
-                                                        onkeyup="if(event.key === 'Enter') this.blur();">
-                                                    <button onclick="changeQuantity({{ $item->id }}, 1)"
-                                                        class="quantity-btn p-1 text-blue-600 hover:text-blue-700">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                d="M12 4v16m8-8H4" />
-                                                        </svg>
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            <!-- Price -->
-                                            <div class="text-right">
-                                                @php
-                                                    $product = $item->product;
-                                                    $hasDiscount = $product && $product->price > $item->price;
-                                                @endphp
-                                                
-                                                @if($hasDiscount)
-                                                    <div class="space-y-1">
-                                                        <p class="text-xs text-gray-400 line-through">
-                                                            Rp {{ number_format($product->price, 0, ',', '.') }} x {{ $item->quantity }}
-                                                        </p>
-                                                        <p class="text-sm font-semibold text-green-600">
-                                                            Rp {{ number_format($item->price, 0, ',', '.') }} x {{ $item->quantity }}
-                                                        </p>
-                                                        <p class="item-subtotal text-lg md:text-xl font-bold text-blue-600">
-                                                            Rp {{ number_format($item->getSubtotal(), 0, ',', '.') }}
-                                                        </p>
-                                                    </div>
-                                                @else
-                                                    <p class="text-sm text-gray-500">Rp {{ number_format($item->price, 0, ',', '.') }} x
-                                                        {{ $item->quantity }}
-                                                    </p>
-                                                    <p class="item-subtotal text-lg md:text-xl font-bold text-blue-600">
-                                                        Rp {{ number_format($item->getSubtotal(), 0, ',', '.') }}
-                                                    </p>
-                                                @endif
-                                                
-                                                 @auth
-                                                     <!-- Routine Toggle -->
-                                                     <div class="mt-4 flex flex-col items-end gap-2">
-                                                         <label class="inline-flex items-center cursor-pointer">
-                                                             <input type="checkbox" value="" class="sr-only peer" 
-                                                                 onchange="toggleRoutine({{ $item->id }}, this.checked)"
-                                                                 {{ $item->is_routine ? 'checked' : '' }}>
-                                                             <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                                                             <span class="ms-3 text-sm font-medium text-gray-900">Rutin</span>
-                                                         </label>
- 
-                                                         <!-- Day Selection -->
-                                                         <div id="routine-days-{{ $item->id }}" class="flex flex-wrap gap-1 justify-end {{ $item->is_routine ? '' : 'hidden' }}">
-                                                             @php
-                                                                 $days = $activeDays ?? ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-                                                                 $selectedDays = $item->routine_schedule ?? [];
-                                                             @endphp
-                                                             @foreach($days as $day)
-                                                                 <button onclick="toggleDay({{ $item->id }}, '{{ $day }}')"
-                                                                     class="day-btn-{{ $item->id }}-{{ $day }} px-2 py-1 text-xs rounded-full border {{ in_array($day, $selectedDays) ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50' }} transition-colors">
-                                                                     {{ substr($day, 0, 3) }}
-                                                                 </button>
-                                                             @endforeach
-                                                         </div>
-                                                     </div>
-                                                 @endauth
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <!-- Cart Summary -->
-                    <div class="lg:col-span-1">
-                        <div class="bg-white rounded-2xl shadow-lg p-6 sticky top-24">
-                            <h2 class="text-xl font-bold text-gray-900 mb-6">Ringkasan Belanja</h2>
-
-                            <div class="space-y-4 mb-6">
-                                <div class="flex justify-between text-gray-600">
-                                    <span>Total Item</span>
-                                    <span class="font-semibold cart-total-items">{{ $totalItems }}</span>
-                                </div>
-                                <div class="flex justify-between text-gray-600">
-                                    <span>Subtotal</span>
-                                    <span class="font-semibold cart-subtotal-before">Rp
-                                        {{ number_format($subtotalBeforeDiscount, 0, ',', '.') }}</span>
-                                </div>
-                                @if($totalDiscount > 0)
-                                    <div class="flex justify-between text-green-600">
-                                        <span>Diskon</span>
-                                        <span class="font-semibold cart-discount">- Rp
-                                            {{ number_format($totalDiscount, 0, ',', '.') }}</span>
-                                    </div>
-                                @endif
-                                <div class="border-t pt-4">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-lg font-bold text-gray-900">Total</span>
-                                        <span class="text-2xl font-bold text-blue-600 cart-total">
-                                            Rp {{ number_format($totalPrice, 0, ',', '.') }}
-                                        </span>
+                                        <p class="item-subtotal text-base md:text-lg font-bold text-slate-900">
+                                            Rp {{ number_format($item->getSubtotal(), 0, ',', '.') }}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="space-y-3">
-                                <button onclick="checkout()"
-                                    class="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-full font-bold hover:shadow-lg transform hover:scale-105 transition-all duration-300">
-                                    Checkout
-                                </button>
-                                <a href="{{ route('home') }}"
-                                    class="block w-full px-6 py-4 border-2 border-blue-600 text-blue-600 rounded-full font-semibold text-center hover:bg-blue-50 transition-all duration-300">
-                                    Lanjut Belanja
-                                </a>
-                            </div>
+                            @auth
+                                <!-- Routine ordering -->
+                                <div class="mt-4 pt-4 border-t border-slate-100">
+                                    <label class="inline-flex items-center gap-3 cursor-pointer">
+                                        <input type="checkbox" class="sr-only peer"
+                                            onchange="toggleRoutine({{ $item->id }}, this.checked)"
+                                            {{ $item->is_routine ? 'checked' : '' }}>
+                                        <span class="relative w-10 h-6 bg-slate-200 rounded-full transition-colors peer-checked:bg-brand-600 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-transform peer-checked:after:translate-x-4"></span>
+                                        <span class="text-sm font-medium text-slate-700">Langganan rutin</span>
+                                    </label>
+                                    <p class="mt-1 text-xs text-slate-400">Pilih hari pengiriman, kami kirim otomatis setiap minggu.</p>
+
+                                    @php
+                                        $days = $activeDays ?? ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+                                        $selectedDays = $item->routine_schedule ?? [];
+                                    @endphp
+                                    <div id="routine-days-{{ $item->id }}" class="mt-3 flex flex-wrap gap-1.5 {{ $item->is_routine ? '' : 'hidden' }}">
+                                        @foreach($days as $day)
+                                            <button type="button" data-day="{{ $day }}"
+                                                onclick="toggleDay({{ $item->id }}, '{{ $day }}')"
+                                                aria-pressed="{{ in_array($day, $selectedDays) ? 'true' : 'false' }}"
+                                                class="day-btn px-3 h-8 text-xs font-semibold rounded-full border transition-colors {{ in_array($day, $selectedDays) ? 'is-selected bg-brand-600 text-white border-brand-600' : 'bg-white text-slate-600 border-slate-200 hover:border-brand-300' }}">
+                                                {{ substr($day, 0, 3) }}
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endauth
                         </div>
+                    @endforeach
+                </div>
+
+                <!-- Summary -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-2xl border border-slate-200/80 p-5 lg:sticky lg:top-24">
+                        <h2 class="text-base font-bold text-slate-900 mb-4">Ringkasan Belanja</h2>
+
+                        <dl class="space-y-3 text-sm">
+                            <div class="flex justify-between text-slate-600">
+                                <dt>Total item</dt>
+                                <dd class="font-semibold cart-total-items">{{ $totalItems }}</dd>
+                            </div>
+                            <div class="flex justify-between text-slate-600">
+                                <dt>Subtotal</dt>
+                                <dd class="font-semibold cart-subtotal-before">Rp {{ number_format($subtotalBeforeDiscount, 0, ',', '.') }}</dd>
+                            </div>
+                            <div class="flex justify-between text-emerald-600 cart-discount-row {{ $totalDiscount > 0 ? '' : 'hidden' }}">
+                                <dt>Diskon</dt>
+                                <dd class="font-semibold cart-discount">- Rp {{ number_format($totalDiscount, 0, ',', '.') }}</dd>
+                            </div>
+                            <div class="flex justify-between text-slate-600">
+                                <dt>Ongkos kirim</dt>
+                                <dd class="font-semibold text-emerald-600">Gratis</dd>
+                            </div>
+                        </dl>
+
+                        <div class="mt-4 pt-4 border-t border-slate-100 flex items-baseline justify-between">
+                            <span class="font-bold text-slate-900">Total</span>
+                            <span class="text-2xl font-extrabold text-slate-900 cart-total">Rp {{ number_format($totalPrice, 0, ',', '.') }}</span>
+                        </div>
+
+                        <a href="{{ route('checkout.index') }}"
+                            class="mt-5 w-full h-12 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center gap-2 hover:bg-brand-700 transition-colors">
+                            Lanjut ke Pembayaran
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7-7 7"/></svg>
+                        </a>
+
+                        <p class="mt-3 text-xs text-slate-400 text-center">Pembayaran QRIS, transfer, e-wallet, atau bayar di tempat.</p>
                     </div>
                 </div>
-            @else
-                <!-- Empty Cart State -->
-                <div class="bg-white rounded-3xl p-12 text-center shadow-xl shadow-blue-500/5 border border-white">
-                    <div class="w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg class="w-12 h-12 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                    </div>
-                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Keranjang Anda masih kosong</h2>
-                    <p class="text-gray-500 max-w-md mx-auto mb-8">Anda belum menambahkan produk apa pun ke keranjang. Mulai jelajahi produk kami dan tambahkan yang Anda suka!</p>
+            </div>
+
+            <!-- Mobile sticky checkout bar (above the bottom navigation) -->
+            <div class="lg:hidden fixed bottom-16 md:bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200 px-4 py-3 flex items-center gap-4">
+                <div class="min-w-0">
+                    <p class="text-[11px] text-slate-500">Total</p>
+                    <p class="text-lg font-extrabold text-slate-900 cart-total truncate">Rp {{ number_format($totalPrice, 0, ',', '.') }}</p>
+                </div>
+                <a href="{{ route('checkout.index') }}"
+                    class="flex-1 h-12 rounded-xl bg-brand-600 text-white font-bold flex items-center justify-center">
+                    Checkout
+                </a>
+            </div>
+        @else
+            <!-- Empty state -->
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-10 md:p-16 text-center">
+                <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-5">
+                    <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+                <h2 class="text-xl font-bold text-slate-900 mb-2">Keranjang Anda masih kosong</h2>
+                <p class="text-slate-500 max-w-sm mx-auto mb-7 text-sm">Belum ada produk di sini. Mulai dari promo hari ini, atau jelajahi katalog kami.</p>
+                <div class="flex flex-wrap gap-3 justify-center">
                     <a href="{{ route('home') }}"
-                        class="inline-flex items-center px-8 py-3 bg-blue-600 text-white rounded-2xl font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 transform hover:scale-105 transition-all duration-300">
+                        class="inline-flex items-center h-12 px-7 rounded-xl bg-brand-600 text-white font-bold hover:bg-brand-700 transition-colors">
                         Mulai Belanja
                     </a>
+                    <a href="{{ route('home') }}#promo-section"
+                        class="inline-flex items-center h-12 px-7 rounded-xl border border-slate-200 text-slate-700 font-semibold hover:border-brand-500 hover:text-brand-600 transition-colors">
+                        Lihat Promo
+                    </a>
                 </div>
-            @endif
-
-        </div>
+            </div>
+        @endif
     </div>
+</div>
+@endsection
 
-    <script>
-        // CSRF Token
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+@push('scripts')
+<script>
+    const rupiah = value => 'Rp ' + Number(value || 0).toLocaleString('id-ID');
 
-        // Checkout
-        function checkout() {
-            window.location.href = '{{ route("checkout.index") }}';
+    // One debounce timer per cart item, so editing two rows quickly does not
+    // drop the first request.
+    const pendingUpdates = new Map();
+
+    function itemElement(cartItemId) {
+        return document.querySelector(`[data-item-id="${cartItemId}"]`);
+    }
+
+    function changeQuantity(cartItemId, delta) {
+        const el = itemElement(cartItemId);
+        if (!el) return;
+        updateQuantity(cartItemId, (parseInt(el.dataset.itemQuantity, 10) || 1) + delta);
+    }
+
+    async function updateQuantity(cartItemId, newQuantity) {
+        const el = itemElement(cartItemId);
+        if (!el) return;
+
+        newQuantity = parseInt(newQuantity, 10);
+        if (Number.isNaN(newQuantity)) return;
+
+        const stock = parseInt(el.dataset.itemStock, 10) || 0;
+        const oldQty = parseInt(el.dataset.itemQuantity, 10) || 1;
+        const input = el.querySelector('.quantity-value');
+
+        if (newQuantity < 1) {
+            input.value = oldQty;
+            removeItem(cartItemId);
+            return;
         }
 
-        // Helper for quantity buttons
-        function changeQuantity(cartItemId, delta) {
-            const itemEl = document.querySelector(`[data-item-id="${cartItemId}"]`);
-            if (!itemEl) return;
-            const currentQty = parseInt(itemEl.dataset.itemQuantity) || 1;
-            const newQty = currentQty + delta;
-            updateQuantity(cartItemId, newQty);
+        if (stock > 0 && newQuantity > stock) {
+            newQuantity = stock;
+            showNotification(`Stok tersedia hanya ${stock} item`, 'info');
         }
 
-        // Global debounce timer for quantity updates to prevent spamming server
-        let updateQuantityTimer = null;
+        // Optimistic update
+        const price = parseInt(el.dataset.itemPrice, 10) || 0;
+        el.dataset.itemQuantity = newQuantity;
+        input.value = newQuantity;
+        el.querySelector('.item-subtotal').textContent = rupiah(price * newQuantity);
 
-        // Update quantity
-        async function updateQuantity(cartItemId, newQuantity) {
-            if (newQuantity < 1) {
-                if (!confirm('Hapus item ini dari keranjang?')) {
-                    return;
-                }
-            }
+        const buttons = el.querySelectorAll('.quantity-btn');
+        buttons.forEach(button => button.classList.add('opacity-50', 'pointer-events-none'));
 
-            const itemEl = document.querySelector(`[data-item-id="${cartItemId}"]`);
-            if (!itemEl) return;
+        if (pendingUpdates.has(cartItemId)) clearTimeout(pendingUpdates.get(cartItemId));
 
-            const oldQty = parseInt(itemEl.dataset.itemQuantity) || 1;
-            const price = parseInt(itemEl.dataset.itemPrice) || 0;
-            const qtyDiff = newQuantity - oldQty;
-
-            // --- OPTIMISTIC UI UPDATE ---
-            if (newQuantity > 0) {
-                // Update item display immediately
-                itemEl.dataset.itemQuantity = newQuantity;
-                const inputEl = itemEl.querySelector('.quantity-value');
-                if (inputEl.tagName === 'INPUT') {
-                    inputEl.value = newQuantity;
-                } else {
-                    inputEl.textContent = newQuantity;
-                }
-                
-                const newSubtotal = price * newQuantity;
-                const subtotalEl = itemEl.querySelector('.item-subtotal');
-                if (subtotalEl) {
-                    subtotalEl.textContent = 'Rp ' + newSubtotal.toLocaleString('id-ID');
-                }
-
-                // Update total items optimistically
-                const totalItemsEl = document.querySelector('.cart-total-items');
-                if (totalItemsEl) {
-                    const currentTotalItems = parseInt(totalItemsEl.textContent) || 0;
-                    totalItemsEl.textContent = currentTotalItems + qtyDiff;
-                }
-            }
-
-            // Disable buttons temporarily
-            const btns = itemEl.querySelectorAll('.quantity-btn');
-            btns.forEach(b => b.classList.add('opacity-50', 'pointer-events-none'));
-
-            // Debounce the actual server request if user clicks rapidly
-            if (updateQuantityTimer) clearTimeout(updateQuantityTimer);
-
-            updateQuantityTimer = setTimeout(async () => {
-                try {
-                    const response = await fetch(`/cart/update/${cartItemId}`, {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken
-                        },
-                        body: JSON.stringify({ quantity: newQuantity })
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        if (newQuantity === 0) {
-                            // Remove item from DOM
-                            itemEl.remove();
-                            if (data.cart.total_items === 0) location.reload();
-                        } else {
-                            // Sync with actual server data
-                            itemEl.dataset.itemQuantity = newQuantity;
-                            const inputEl = itemEl.querySelector('.quantity-value');
-                            if (inputEl.tagName === 'INPUT') {
-                                inputEl.value = newQuantity;
-                            } else {
-                                inputEl.textContent = newQuantity;
-                            }
-                            if (data.item) {
-                                itemEl.querySelector('.item-subtotal').textContent = 'Rp ' + data.item.subtotal.toLocaleString('id-ID');
-                            }
-                        }
-                        updateCartSummary(data.cart);
-                    } else {
-                        // Revert on error
-                        showNotification(data.message, 'error');
-                        const inputEl = itemEl.querySelector('.quantity-value');
-                        if (inputEl.tagName === 'INPUT') inputEl.value = oldQty;
-                        else inputEl.textContent = oldQty;
-                        itemEl.dataset.itemQuantity = oldQty;
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    showNotification('Terjadi kesalahan', 'error');
-                    // Revert on error
-                    const inputEl = itemEl.querySelector('.quantity-value');
-                    if (inputEl.tagName === 'INPUT') inputEl.value = oldQty;
-                    else inputEl.textContent = oldQty;
-                    itemEl.dataset.itemQuantity = oldQty;
-                } finally {
-                    btns.forEach(b => b.classList.remove('opacity-50', 'pointer-events-none'));
-                }
-            }, 300); // 300ms debounce
-        }
-
-        // Remove item
-        async function removeItem(cartItemId) {
-            if (!confirm('Hapus item ini dari keranjang?')) {
-                return;
-            }
-
+        pendingUpdates.set(cartItemId, setTimeout(async () => {
+            pendingUpdates.delete(cartItemId);
             try {
-                const response = await fetch(`/cart/remove/${cartItemId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // Remove item from DOM
-                    document.querySelector(`[data-item-id="${cartItemId}"]`).remove();
-
-                    // Check if cart is empty
-                    if (data.cart.total_items === 0) {
-                        location.reload();
-                    } else {
-                        // Update cart summary
-                        updateCartSummary(data.cart);
-                    }
-
-                    showNotification(data.message, 'success');
-                } else {
-                    showNotification(data.message, 'error');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showNotification('Terjadi kesalahan', 'error');
-            }
-        }
-
-        // Toggle Routine
-        async function toggleRoutine(cartItemId, isRoutine) {
-            const daysContainer = document.getElementById(`routine-days-${cartItemId}`);
-            if (isRoutine) {
-                daysContainer.classList.remove('hidden');
-            } else {
-                daysContainer.classList.add('hidden');
-            }
-
-            // Get current schedule if unchecking, or empty if checking (default)
-            // Actually, we want to persist the schedule if just toggling off/on? 
-            // For now, let's just update the flag.
-            
-            // To be safe, we should get the current selected days from DOM
-            const selectedDays = getSelectedDays(cartItemId);
-
-            await updateRoutineStatus(cartItemId, isRoutine, selectedDays);
-        }
-
-        // Toggle Day
-        async function toggleDay(cartItemId, day) {
-            const btn = document.querySelector(`.day-btn-${cartItemId}-${day}`);
-            const isSelected = btn.classList.contains('bg-blue-600');
-
-            if (isSelected) {
-                btn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
-                btn.classList.add('bg-white', 'text-gray-600', 'border-gray-300', 'hover:bg-gray-50');
-            } else {
-                btn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
-                btn.classList.remove('bg-white', 'text-gray-600', 'border-gray-300', 'hover:bg-gray-50');
-            }
-
-            const selectedDays = getSelectedDays(cartItemId);
-            await updateRoutineStatus(cartItemId, true, selectedDays);
-        }
-
-        function getSelectedDays(cartItemId) {
-            const container = document.getElementById(`routine-days-${cartItemId}`);
-            const selectedBtns = container.querySelectorAll('.bg-blue-600'); // Check for selected class
-            const days = [];
-            selectedBtns.forEach(btn => {
-                // We need to extract the day from the onclick or data attribute. 
-                // Let's rely on the text content for now (Sen, Sel...) or better parse the onclick.
-                // Or better, let's add a data-day attribute to the buttons in the Previous step? 
-                // Too late, let's parse the onclick or just add data-day in a separate small edit if needed.
-                // Wait, I can just use the day passed to the function if I was updating a single one. 
-                // But here I'm collecting all.
-                // Let's modify the buttons to have data-day attribute in the next step or regex the onclick.
-                // Regex from onclick attribute: toggleDay(123, 'Senin')
-                const onclick = btn.getAttribute('onclick');
-                const match = onclick.match(/'([^']+)'\)$/);
-                if (match) {
-                    days.push(match[1]);
-                }
-            });
-            return days;
-        }
-
-        async function updateRoutineStatus(cartItemId, isRoutine, schedule) {
-            try {
-                const response = await fetch(`/cart/update-routine/${cartItemId}`, {
+                const response = await fetch(`/cart/update/${cartItemId}`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
                     },
-                    body: JSON.stringify({
-                        is_routine: isRoutine,
-                        routine_schedule: schedule
-                    })
+                    body: JSON.stringify({ quantity: newQuantity }),
                 });
-
                 const data = await response.json();
 
                 if (data.success) {
-                    // showNotification(data.message, 'success'); // Optional: show success?
+                    if (data.item) el.querySelector('.item-subtotal').textContent = rupiah(data.item.subtotal);
+                    updateCartSummary(data.cart);
                 } else {
-                    showNotification(data.message, 'error');
+                    // Roll the optimistic update back
+                    el.dataset.itemQuantity = oldQty;
+                    input.value = oldQty;
+                    el.querySelector('.item-subtotal').textContent = rupiah(price * oldQty);
+                    showNotification(data.message || 'Gagal mengubah jumlah', 'error');
                 }
             } catch (error) {
-                console.error('Error:', error);
-                showNotification('Gagal mengupdate status rutin', 'error');
+                console.error(error);
+                el.dataset.itemQuantity = oldQty;
+                input.value = oldQty;
+                el.querySelector('.item-subtotal').textContent = rupiah(price * oldQty);
+                showNotification('Koneksi bermasalah, coba lagi', 'error');
+            } finally {
+                buttons.forEach(button => button.classList.remove('opacity-50', 'pointer-events-none'));
             }
-        }
+        }, 350));
+    }
 
-        // Update cart summary
-        function updateCartSummary(cart) {
-            document.querySelector('.cart-total-items').textContent = cart.total_items;
-            
-            // Update subtotal before discount
-            const subtotalBeforeEl = document.querySelector('.cart-subtotal-before');
-            if (subtotalBeforeEl) {
-                subtotalBeforeEl.textContent = 'Rp ' + (cart.subtotal_before_discount || cart.total_price).toLocaleString('id-ID');
-            }
-            
-            // Update discount
-            const discountEl = document.querySelector('.cart-discount');
-            if (cart.total_discount && cart.total_discount > 0) {
-                if (discountEl) {
-                    discountEl.textContent = '- Rp ' + cart.total_discount.toLocaleString('id-ID');
-                    discountEl.closest('.flex').classList.remove('hidden');
+    async function removeItem(cartItemId) {
+        const el = itemElement(cartItemId);
+        if (!el) return;
+
+        // Optimistically hide the row; restore it if the request fails.
+        el.style.transition = 'opacity .2s';
+        el.style.opacity = '0.4';
+
+        try {
+            const response = await fetch(`/cart/remove/${cartItemId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                el.remove();
+                if (data.cart.total_items === 0) {
+                    location.reload();
+                    return;
                 }
+                updateCartSummary(data.cart);
+                showNotification('Item dihapus dari keranjang', 'success');
             } else {
-                if (discountEl) {
-                    discountEl.closest('.flex').classList.add('hidden');
-                }
+                el.style.opacity = '1';
+                showNotification(data.message || 'Gagal menghapus item', 'error');
             }
-            
-            // Update total
-            document.querySelector('.cart-total').textContent = 'Rp ' + cart.total_price.toLocaleString('id-ID');
+        } catch (error) {
+            console.error(error);
+            el.style.opacity = '1';
+            showNotification('Koneksi bermasalah, coba lagi', 'error');
+        }
+    }
 
-            // Update header badge
-            const badge = document.querySelector('.cart-badge');
-            if (badge) {
-                badge.textContent = cart.total_items;
-                badge.style.display = cart.total_items > 0 ? 'flex' : 'none';
-            }
+    function updateCartSummary(cart) {
+        document.querySelectorAll('.cart-total-items').forEach(el => el.textContent = cart.total_items);
+        document.querySelectorAll('.cart-total').forEach(el => el.textContent = rupiah(cart.total_price));
+
+        const subtotal = document.querySelector('.cart-subtotal-before');
+        if (subtotal) subtotal.textContent = rupiah(cart.subtotal_before_discount ?? cart.total_price);
+
+        const discountRow = document.querySelector('.cart-discount-row');
+        const discount = document.querySelector('.cart-discount');
+        if (discountRow && discount) {
+            const hasDiscount = (cart.total_discount || 0) > 0;
+            discountRow.classList.toggle('hidden', !hasDiscount);
+            if (hasDiscount) discount.textContent = '- ' + rupiah(cart.total_discount);
         }
 
-        // Show notification
-        function showNotification(message, type = 'success') {
-            const notification = document.createElement('div');
-            notification.className = `fixed top-24 right-4 px-6 py-4 rounded-lg shadow-lg transform transition-all duration-300 z-50 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'
-                } text-white`;
-            notification.textContent = message;
+        renderCartBadges(cart.total_items);
+        refreshCart();
+    }
 
-            document.body.appendChild(notification);
+    /* ---------------- Routine subscription ---------------- */
+    function selectedDays(cartItemId) {
+        return Array.from(
+            document.querySelectorAll(`#routine-days-${cartItemId} .day-btn.is-selected`)
+        ).map(button => button.dataset.day);
+    }
 
-            setTimeout(() => {
-                notification.style.opacity = '0';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
+    async function toggleRoutine(cartItemId, isRoutine) {
+        document.getElementById(`routine-days-${cartItemId}`)?.classList.toggle('hidden', !isRoutine);
+        await updateRoutineStatus(cartItemId, isRoutine, selectedDays(cartItemId));
+    }
+
+    async function toggleDay(cartItemId, day) {
+        const button = document.querySelector(`#routine-days-${cartItemId} [data-day="${day}"]`);
+        if (!button) return;
+
+        const selected = button.classList.toggle('is-selected');
+        button.setAttribute('aria-pressed', String(selected));
+        button.classList.toggle('bg-brand-600', selected);
+        button.classList.toggle('text-white', selected);
+        button.classList.toggle('border-brand-600', selected);
+        button.classList.toggle('bg-white', !selected);
+        button.classList.toggle('text-slate-600', !selected);
+        button.classList.toggle('border-slate-200', !selected);
+
+        await updateRoutineStatus(cartItemId, true, selectedDays(cartItemId));
+    }
+
+    async function updateRoutineStatus(cartItemId, isRoutine, schedule) {
+        try {
+            const response = await fetch(`/cart/update-routine/${cartItemId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+                body: JSON.stringify({ is_routine: isRoutine, routine_schedule: schedule }),
+            });
+            const data = await response.json();
+            if (!data.success) showNotification(data.message || 'Gagal menyimpan jadwal rutin', 'error');
+        } catch (error) {
+            console.error(error);
+            showNotification('Gagal menyimpan jadwal rutin', 'error');
         }
-    </script>
-@endsection
+    }
+</script>
+@endpush
