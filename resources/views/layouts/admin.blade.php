@@ -28,15 +28,21 @@
 </head>
 
 <body class="bg-gray-100 font-sans antialiased h-screen overflow-hidden print:h-auto print:overflow-visible print:bg-white">
-    <div class="h-screen flex overflow-hidden print:h-auto print:overflow-visible print:block">
+    <div class="h-screen flex overflow-hidden print:h-auto print:overflow-visible print:block" x-data="{ sidebarOpen: false }">
+        <!-- Mobile sidebar backdrop -->
+        <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"
+            class="fixed inset-0 bg-black/50 z-30 md:hidden" style="display: none;"></div>
+
         <!-- Sidebar -->
-        <aside class="print:hidden w-64 bg-white border-r border-slate-200 text-slate-700 flex-shrink-0 hidden md:flex flex-col h-full">
+        <aside
+            class="print:hidden w-64 bg-white border-r border-slate-200 text-slate-700 flex-shrink-0 flex flex-col h-full fixed inset-y-0 left-0 z-40 transform transition-transform duration-200 md:relative md:translate-x-0 md:flex"
+            :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'">
             <div class="h-16 flex items-center justify-center gap-2 border-b border-slate-100 flex-shrink-0">
                 <img src="{{ asset('images/logo.png') }}" alt="Deposusu" class="w-8 h-8 rounded-lg object-cover">
                 <span class="text-xl font-bold text-blue-600">DEPOSUSU</span>
             </div>
 
-            <nav class="mt-4 px-3 space-y-1.5 overflow-y-auto flex-1 pb-4 no-print" x-data="{ openGroup: '{{ request()->segment(2) }}' }">
+            <nav class="mt-4 px-3 space-y-1.5 overflow-y-auto flex-1 pb-4 no-print" x-data="{ openGroup: '{{ request()->segment(2) }}' }" @click="if ($event.target.closest('a')) sidebarOpen = false">
                 <!-- 1. Dashboard -->
                 <a href="{{ route('admin.dashboard') }}"
                     class="block py-2 px-3 rounded-lg text-sm hover:bg-blue-50 hover:text-blue-600 transition {{ request()->routeIs('admin.dashboard') ? 'bg-blue-50 font-bold text-blue-600' : 'text-slate-600' }}">
@@ -229,7 +235,7 @@
             <!-- Topbar -->
             <header class="print:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 flex-shrink-0">
                 <div class="flex items-center">
-                    <button class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
+                    <button type="button" @click="sidebarOpen = !sidebarOpen" class="md:hidden text-gray-500 hover:text-gray-700 focus:outline-none">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 6h16M4 12h16M4 18h16" />
