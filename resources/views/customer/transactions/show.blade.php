@@ -13,6 +13,7 @@
             <div class="mt-3 flex items-center gap-2">
                 <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-100 text-blue-800">{{ $order->status->label() }}</span>
                 <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold {{ $order->payment_status === 'PAID' ? 'bg-green-100 text-green-800' : ($order->payment_status === 'CANCELLED' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800') }}">{{ $order->payment_status }}</span>
+                <a href="{{ route('complaints.create', $order->id) }}" class="ml-auto text-xs font-semibold text-red-500 hover:text-red-600">Ajukan Komplain</a>
             </div>
         </div>
 

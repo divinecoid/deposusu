@@ -80,6 +80,13 @@ Route::prefix('notifications')->name('notifications.')->middleware(['auth'])->gr
     Route::post('/fcm-token', [\App\Http\Controllers\Customer\NotificationController::class, 'registerFcmToken'])->name('fcm-token');
 });
 
+// Customer Complaints
+Route::prefix('complaints')->name('complaints.')->middleware(['auth'])->group(function () {
+    Route::get('/', [\App\Http\Controllers\Customer\ComplaintController::class, 'index'])->name('index');
+    Route::get('/orders/{order}/create', [\App\Http\Controllers\Customer\ComplaintController::class, 'create'])->name('create');
+    Route::post('/orders/{order}', [\App\Http\Controllers\Customer\ComplaintController::class, 'store'])->name('store');
+});
+
 // Customer Chat ("Deposusu Care")
 Route::prefix('chat')->name('chat.')->middleware(['auth'])->group(function () {
     Route::get('/', [\App\Http\Controllers\Customer\ChatController::class, 'index'])->name('index');
@@ -279,6 +286,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::get('/', [\App\Http\Controllers\Admin\DriverCashController::class, 'index'])->name('index');
         Route::post('/{collection}/confirm', [\App\Http\Controllers\Admin\DriverCashController::class, 'confirm'])->name('confirm');
         Route::post('/drivers/{driver}/confirm-all', [\App\Http\Controllers\Admin\DriverCashController::class, 'confirmAllForDriver'])->name('confirm-all');
+    });
+
+    // Customer Complaints
+    Route::prefix('complaints')->name('complaints.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ComplaintController::class, 'index'])->name('index');
+        Route::put('/{complaint}', [\App\Http\Controllers\Admin\ComplaintController::class, 'update'])->name('update');
     });
 
     // Membership / VIP
