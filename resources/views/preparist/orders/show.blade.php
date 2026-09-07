@@ -5,8 +5,8 @@
 @php
 $opsRoleLabel = 'Preparist';
 $opsNavItems = [
-    ['url' => route('preparist.dashboard'), 'icon' => '🏠', 'label' => 'Beranda', 'active' => false],
-    ['url' => route('preparist.orders.index'), 'icon' => '📦', 'label' => 'Pesanan', 'active' => true],
+    ['url' => route('preparist.dashboard'), 'icon' => 'home', 'label' => 'Beranda', 'active' => false],
+    ['url' => route('preparist.orders.index'), 'icon' => 'archive', 'label' => 'Pesanan', 'active' => true],
 ];
 @endphp
 

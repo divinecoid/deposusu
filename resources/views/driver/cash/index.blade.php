@@ -5,9 +5,9 @@
 @php
 $opsRoleLabel = 'Driver';
 $opsNavItems = [
-    ['url' => route('driver.dashboard'), 'icon' => '🏠', 'label' => 'Beranda', 'active' => request()->routeIs('driver.dashboard')],
-    ['url' => route('driver.orders.index'), 'icon' => '🚚', 'label' => 'Antar', 'active' => request()->routeIs('driver.orders.*')],
-    ['url' => route('driver.cash.index'), 'icon' => '💵', 'label' => 'Setoran', 'active' => request()->routeIs('driver.cash.*')],
+    ['url' => route('driver.dashboard'), 'icon' => 'home', 'label' => 'Beranda', 'active' => request()->routeIs('driver.dashboard')],
+    ['url' => route('driver.orders.index'), 'icon' => 'truck', 'label' => 'Antar', 'active' => request()->routeIs('driver.orders.*')],
+    ['url' => route('driver.cash.index'), 'icon' => 'cash', 'label' => 'Setoran', 'active' => request()->routeIs('driver.cash.*')],
 ];
 @endphp
 
