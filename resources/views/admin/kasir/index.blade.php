@@ -381,35 +381,35 @@
                             <p>Jakarta Selatan</p>
                         </div>
                         <div class="line"></div>
-                        <p>No: \${this.lastInvoice.order_number}</p>
-                        <p>Cust: \${this.lastInvoice.customer_name}</p>
-                        <p>Date: \${this.lastInvoice.date}</p>
-                        <p>Payment: \${this.lastInvoice.payment_method}</p>
+                        <p>No: ${this.lastInvoice.order_number}</p>
+                        <p>Cust: ${this.lastInvoice.customer_name}</p>
+                        <p>Date: ${this.lastInvoice.date}</p>
+                        <p>Payment: ${this.lastInvoice.payment_method}</p>
                         <div class="line"></div>
-                        \${this.lastInvoice.items.map(item => `
+                        ${this.lastInvoice.items.map(item => `
                             <div class="flex-between">
                                 <div>
-                                    <span>\${item.name}</span><br>
-                                    <span style="color: gray;">\${item.qty} x \${this.formatRupiah(item.price)}</span>
+                                    <span>${item.name}</span><br>
+                                    <span style="color: gray;">${item.qty} x ${this.formatRupiah(item.price)}</span>
                                 </div>
-                                <span>\${this.formatRupiah(item.subtotal)}</span>
+                                <span>${this.formatRupiah(item.subtotal)}</span>
                             </div>
                             <br>
                         `).join('')}
                         <div class="line"></div>
                         <div class="flex-between">
                             <span>Subtotal:</span>
-                            <span>\${this.formatRupiah(this.lastInvoice.subtotal)}</span>
+                            <span>${this.formatRupiah(this.lastInvoice.subtotal)}</span>
                         </div>
-                        \${this.lastInvoice.discount > 0 ? `
+                        ${this.lastInvoice.discount > 0 ? `
                             <div class="flex-between" style="color: red;">
                                 <span>Promo:</span>
-                                <span>-\${this.formatRupiah(this.lastInvoice.discount)}</span>
+                                <span>-${this.formatRupiah(this.lastInvoice.discount)}</span>
                             </div>
                         ` : ''}
                         <div class="flex-between" style="font-weight: bold;">
                             <span>TOTAL:</span>
-                            <span>\${this.formatRupiah(this.lastInvoice.total)}</span>
+                            <span>${this.formatRupiah(this.lastInvoice.total)}</span>
                         </div>
                         <div class="line"></div>
                         <div class="center">
