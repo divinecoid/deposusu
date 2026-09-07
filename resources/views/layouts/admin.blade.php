@@ -7,6 +7,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="google" content="notranslate">
     <title>Admin Dashboard - DEPOSUSU</title>
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/images/logo-512.png" type="image/png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <style>
@@ -28,7 +31,8 @@
     <div class="h-screen flex overflow-hidden print:h-auto print:overflow-visible print:block">
         <!-- Sidebar -->
         <aside class="print:hidden w-64 bg-white border-r border-slate-200 text-slate-700 flex-shrink-0 hidden md:flex flex-col h-full">
-            <div class="h-16 flex items-center justify-center border-b border-slate-100 flex-shrink-0">
+            <div class="h-16 flex items-center justify-center gap-2 border-b border-slate-100 flex-shrink-0">
+                <img src="{{ asset('images/logo.png') }}" alt="Deposusu" class="w-8 h-8 rounded-lg object-cover">
                 <span class="text-xl font-bold text-blue-600">DEPOSUSU</span>
             </div>
 

@@ -9,7 +9,7 @@
     <meta name="theme-color" content="#2563eb">
     <title>@yield('title', 'DEPOSUSU - Mengantar kebaikan, sepenuh hati')</title>
     <link rel="icon" href="/favicon.ico" sizes="any">
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/images/logo-512.png" type="image/png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preconnect" href="https://unpkg.com">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
@@ -86,7 +86,7 @@
             <div class="flex justify-between h-16 items-center gap-3">
 
                 <a href="{{ route('home') }}" class="flex-shrink-0 flex items-center gap-2" aria-label="DEPOSUSU, beranda">
-                    <span class="w-9 h-9 rounded-xl bg-brand-600 text-white font-black flex items-center justify-center text-lg">D</span>
+                    <img src="{{ asset('images/logo.png') }}" alt="Deposusu" class="w-9 h-9 rounded-xl object-cover">
                     <span class="text-lg md:text-xl font-extrabold text-brand-600 tracking-tight">DEPOSUSU</span>
                 </a>
 
@@ -115,6 +115,38 @@
 
                 <!-- Actions -->
                 <div class="flex items-center gap-1 md:gap-2">
+
+                    @auth
+                        <div class="relative">
+                            <button type="button" onclick="document.getElementById('notification-dropdown').classList.toggle('hidden')"
+                                class="p-2.5 text-slate-500 hover:text-brand-600 hover:bg-slate-50 rounded-xl relative transition-colors"
+                                aria-label="Notifikasi">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                @php $unreadCount = Auth::user()->unreadNotifications()->count() @endphp
+                                @if($unreadCount > 0)
+                                    <span class="absolute top-1 right-1 min-w-[1.05rem] h-[1.05rem] px-1 bg-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{{ $unreadCount }}</span>
+                                @endif
+                            </button>
+                            <div id="notification-dropdown"
+                                class="hidden absolute right-0 mt-2 w-80 max-w-[90vw] bg-white rounded-2xl shadow-xl shadow-slate-900/10 border border-slate-100 py-2 z-50 max-h-96 overflow-y-auto">
+                                @php $recentNotifications = Auth::user()->notifications()->latest()->take(5)->get() @endphp
+                                @forelse($recentNotifications as $notification)
+                                    <div class="px-4 py-2.5 border-b border-slate-50 last:border-0 {{ $notification->read_at ? '' : 'bg-brand-50/50' }}">
+                                        <p class="text-sm font-semibold text-slate-800">{{ $notification->data['title'] ?? 'Notifikasi' }}</p>
+                                        <p class="text-xs text-slate-500 mt-0.5">{{ $notification->data['body'] ?? '' }}</p>
+                                        <p class="text-[11px] text-slate-400 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
+                                    </div>
+                                @empty
+                                    <p class="px-4 py-6 text-sm text-slate-400 text-center">Belum ada notifikasi.</p>
+                                @endforelse
+                                <a href="{{ route('notifications.index') }}" class="block text-center text-xs font-semibold text-brand-600 hover:text-brand-700 py-2.5 border-t border-slate-100">
+                                    Lihat semua notifikasi
+                                </a>
+                            </div>
+                        </div>
+                    @endauth
 
                     <a href="{{ route('wishlist.index') }}"
                         class="hidden sm:inline-flex p-2.5 text-slate-500 hover:text-brand-600 hover:bg-slate-50 rounded-xl relative transition-colors"
@@ -233,7 +265,7 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                 <div class="col-span-2 md:col-span-1">
                     <div class="flex items-center gap-2 mb-3">
-                        <span class="w-9 h-9 rounded-xl bg-brand-600 text-white font-black flex items-center justify-center text-lg">D</span>
+                        <img src="{{ asset('images/logo.png') }}" alt="Deposusu" class="w-9 h-9 rounded-xl object-cover">
                         <span class="text-lg font-extrabold text-brand-600">DEPOSUSU</span>
                     </div>
                     <p class="text-sm text-slate-500 leading-relaxed">Mengantar kebaikan, sepenuh hati. Susu &amp; produk olahan segar, langsung ke rumah Anda.</p>
@@ -801,6 +833,11 @@
             const accountDropdown = document.getElementById('account-dropdown');
             if (accountMenu && accountDropdown && !accountMenu.contains(event.target)) {
                 accountDropdown.classList.add('hidden');
+            }
+
+            const notificationDropdown = document.getElementById('notification-dropdown');
+            if (notificationDropdown && !notificationDropdown.parentElement.contains(event.target)) {
+                notificationDropdown.classList.add('hidden');
             }
         });
 
