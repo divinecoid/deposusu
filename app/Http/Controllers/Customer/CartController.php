@@ -324,10 +324,9 @@ class CartController extends Controller
 
             foreach ($cartItems as $cartItem) {
                 $product = $cartItem->product;
-                $activeDiscount = $product->active_discount;
-
                 $originalPrice = $product->price;
-                $discountPrice = $product->discounted_price;
+
+                ['price' => $discountPrice, 'discount' => $activeDiscount] = $product->priceForQuantity((int) $cartItem->quantity);
                 $discountAmount = 0;
                 $discountId = null;
 

@@ -263,9 +263,8 @@ class OrderController extends Controller
                     throw new \Exception("Stok produk '{$product->name}' tidak mencukupi (Tersedia: {$product->stock})");
                 }
 
-                $activeDiscount = $product->active_discount;
                 $originalPrice  = $product->price;
-                $discountPrice  = $product->discounted_price;
+                ['price' => $discountPrice, 'discount' => $activeDiscount] = $product->priceForQuantity($qty);
                 $discountAmount = 0;
                 $discountId     = null;
 

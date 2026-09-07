@@ -93,7 +93,7 @@ class KasirController extends Controller
                 }
 
                 $originalPrice = $product->price;
-                $price = $product->discounted_price;
+                ['price' => $price] = $product->priceForQuantity((int) $qty);
                 $discountAmount = ($originalPrice - $price) * $qty;
                 $subtotal = $price * $qty;
 

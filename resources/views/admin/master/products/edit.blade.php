@@ -229,7 +229,7 @@
 
         <div class="mt-8" x-data="{ 
                 editModalMode: false, 
-                editDiscount: { id: '', type: '', value: '', start: '', end: '', url: '' },
+                editDiscount: { id: '', type: '', value: '', minimum_quantity: '', start: '', end: '', url: '' },
                 openEdit(discount) {
                     this.editDiscount = discount;
                     this.editModalMode = true;
@@ -270,6 +270,11 @@
                                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-3 text-sm focus:border-blue-500 focus:outline-none"
                                 required>
                         </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 uppercase">Min. Beli (opsional)</label>
+                            <input type="number" name="minimum_quantity" min="1" placeholder="Tanpa minimum"
+                                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-3 text-sm focus:border-blue-500 focus:outline-none">
+                        </div>
                     </div>
                     <div class="mt-4">
                         <button type="submit"
@@ -292,6 +297,8 @@
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Periode</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Min. Beli</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Status</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi
                             </th>
@@ -309,6 +316,9 @@
                                 <td class="px-4 py-3 whitespace-nowrap text-[10px] text-gray-500">
                                     {{ $discount->start_date->format('d M Y') }} -
                                     {{ $discount->end_date->format('d M Y') }}
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-500">
+                                    {{ $discount->minimum_quantity ? $discount->minimum_quantity . ' pcs' : '-' }}
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     @php
@@ -336,6 +346,7 @@
                                                     id: '{{ $discount->id }}', 
                                                     type: '{{ $discount->discount_type }}', 
                                                     value: '{{ $discount->discount_value }}',
+                                                    minimum_quantity: '{{ $discount->minimum_quantity }}',
                                                     start: '{{ $discount->start_date->format('Y-m-d') }}',
                                                     end: '{{ $discount->end_date->format('Y-m-d') }}',
                                                     url: '{{ route('admin.master.products.discount.update', $discount->id) }}'
@@ -363,7 +374,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-4 py-8 text-center text-sm text-gray-500 italic">
+                                <td colspan="6" class="px-4 py-8 text-center text-sm text-gray-500 italic">
                                     Belum ada riwayat diskon.
                                 </td>
                             </tr>
@@ -418,6 +429,11 @@
                                         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:border-blue-500 focus:outline-none"
                                         required>
                                 </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700 uppercase">Min. Beli (opsional)</label>
+                                <input type="number" name="minimum_quantity" x-model="editDiscount.minimum_quantity" min="1" placeholder="Tanpa minimum"
+                                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:border-blue-500 focus:outline-none">
                             </div>
                         </div>
                         <div class="mt-6 flex justify-end gap-3">

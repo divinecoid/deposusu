@@ -99,6 +99,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::patch('discounts/{discount}/toggle', [ProductController::class, 'toggleDiscountStatus'])->name('products.discount.toggle');
         Route::put('discounts/{discount}', [ProductController::class, 'updateDiscount'])->name('products.discount.update');
         Route::delete('discounts/{discount}', [ProductController::class, 'destroyDiscount'])->name('products.discount.destroy');
+        Route::get('promos', [\App\Http\Controllers\Admin\CategoryPromoController::class, 'index'])->name('promos.index');
+        Route::post('promos', [\App\Http\Controllers\Admin\CategoryPromoController::class, 'store'])->name('promos.store');
+        Route::patch('promos/{discount}/toggle', [\App\Http\Controllers\Admin\CategoryPromoController::class, 'toggle'])->name('promos.toggle');
+        Route::delete('promos/{discount}', [\App\Http\Controllers\Admin\CategoryPromoController::class, 'destroy'])->name('promos.destroy');
         Route::resource('warehouses', WarehouseController::class)->except(['show', 'edit', 'create']);
         Route::resource('racks', RackController::class)->only(['store', 'destroy']);
         Route::get('customers', [UserController::class, 'indexCustomers'])->name('customers.index');

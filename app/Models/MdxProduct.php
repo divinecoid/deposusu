@@ -63,7 +63,11 @@ class MdxProduct extends Model
     }
 
     /**
-     * Get the currently active discount
+     * Get the currently active discount. A discount scoped directly to this
+     * product always wins over a category-wide one, so a specific promo
+     * isn't silently stacked on top of a broader one (the old system's
+     * checkout code did exactly that, compounding two promos on the same
+     * item — not repeating that here).
      */
     public function getActiveDiscountAttribute()
     {
@@ -71,14 +75,22 @@ class MdxProduct extends Model
             return $this->discountCache['active_discount'];
         }
 
+        $productDiscount = $this->activeProductDiscount();
+
+        return $this->discountCache['active_discount'] = $productDiscount ?? $this->activeCategoryDiscount();
+    }
+
+    protected function activeProductDiscount()
+    {
         // Reuse the eager-loaded `discounts` relation when available so that
         // rendering a product grid does not fire one query per product.
         if ($this->relationLoaded('discounts')) {
             $today = now()->startOfDay();
 
-            $discount = $this->discounts
+            return $this->discounts
                 ->filter(function ($discount) use ($today) {
-                    return $discount->is_active
+                    return $discount->scope === MdxProductDiscount::SCOPE_PRODUCT
+                        && $discount->is_active
                         && $discount->start_date
                         && $discount->end_date
                         && $today->gte($discount->start_date->copy()->startOfDay())
@@ -86,15 +98,32 @@ class MdxProduct extends Model
                 })
                 ->sortByDesc('id')
                 ->first();
-        } else {
-            $discount = $this->discounts()->active()->latest()->first();
         }
 
-        return $this->discountCache['active_discount'] = $discount;
+        return $this->discounts()->where('scope', MdxProductDiscount::SCOPE_PRODUCT)->active()->latest()->first();
+    }
+
+    protected function activeCategoryDiscount()
+    {
+        $categoryIds = $this->relationLoaded('categories')
+            ? $this->categories->pluck('id')
+            : $this->categories()->pluck('mdx_categories.id');
+
+        if ($categoryIds->isEmpty()) {
+            return null;
+        }
+
+        return MdxProductDiscount::where('scope', MdxProductDiscount::SCOPE_CATEGORY)
+            ->whereIn('category_id', $categoryIds)
+            ->active()
+            ->latest()
+            ->first();
     }
 
     /**
-     * Get discounted price if an active discount exists
+     * Get discounted price if an active discount exists (ignores minimum
+     * purchase quantity — used for display, e.g. the "diskon" badge on a
+     * product card, before the customer has chosen a quantity).
      */
     public function getDiscountedPriceAttribute()
     {
@@ -110,6 +139,24 @@ class MdxProduct extends Model
 
         // FIXED discount
         return max(0, $this->price - $discount->discount_value);
+    }
+
+    /**
+     * Discount resolution that DOES honor minimum purchase quantity — this
+     * is what checkout/cart pricing should use instead of discounted_price,
+     * since only there is the actual quantity known.
+     *
+     * @return array{price: float, discount: MdxProductDiscount|null}
+     */
+    public function priceForQuantity(int $quantity): array
+    {
+        $discount = $this->active_discount;
+
+        if (!$discount || !$discount->qualifiesForQuantity($quantity)) {
+            return ['price' => (float) $this->price, 'discount' => null];
+        }
+
+        return ['price' => $discount->priceFor((float) $this->price, $quantity), 'discount' => $discount];
     }
 
     public function wishlists()

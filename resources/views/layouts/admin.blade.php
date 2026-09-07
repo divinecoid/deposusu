@@ -120,6 +120,7 @@
                     </button>
                     <div x-show="openGroup === 'master'" class="pl-7 space-y-1" style="display: none;">
                         <a href="{{ route('admin.master.products.index') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-blue-50 text-slate-500 hover:text-blue-600 {{ request()->routeIs('admin.master.products.*') ? 'bg-blue-50 text-blue-600 font-bold' : '' }}">Produk</a>
+                        <a href="{{ route('admin.master.promos.index') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-blue-50 text-slate-500 hover:text-blue-600 {{ request()->routeIs('admin.master.promos.*') ? 'bg-blue-50 text-blue-600 font-bold' : '' }}">Promo Kategori</a>
                         <a href="{{ route('admin.master.customers.index') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-blue-50 text-slate-500 hover:text-blue-600 {{ request()->routeIs('admin.master.customers.*') ? 'bg-blue-50 text-blue-600 font-bold' : '' }}">Customer</a>
                         <a href="{{ route('admin.suppliers.index') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-blue-50 text-slate-500 hover:text-blue-600 {{ request()->routeIs('admin.suppliers.*') ? 'bg-blue-50 text-blue-600 font-bold' : '' }}">Supplier</a>
                         <a href="{{ route('admin.master.branches.index') }}" class="block py-1.5 px-2 rounded-md text-xs hover:bg-blue-50 text-slate-500 hover:text-blue-600 {{ request()->routeIs('admin.master.branches.*') ? 'bg-blue-50 text-blue-600 font-bold' : '' }}">Cabang & Area</a>

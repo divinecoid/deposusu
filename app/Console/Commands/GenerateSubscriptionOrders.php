@@ -106,9 +106,9 @@ class GenerateSubscriptionOrders extends Command
                     continue;
                 }
 
-                $activeDiscount = $product->active_discount;
                 $originalPrice = $product->price;
-                $discountPrice = $product->discounted_price;
+
+                ['price' => $discountPrice, 'discount' => $activeDiscount] = $product->priceForQuantity((int) $subscription->quantity);
                 $discountAmount = 0;
                 $discountId = null;
 

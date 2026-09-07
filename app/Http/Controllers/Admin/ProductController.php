@@ -204,11 +204,14 @@ class ProductController extends Controller
             'discount_value' => 'required|numeric|min:0',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'minimum_quantity' => 'nullable|integer|min:1',
         ]);
 
         $product->discounts()->create([
+            'scope' => MdxProductDiscount::SCOPE_PRODUCT,
             'discount_type' => $request->discount_type,
             'discount_value' => $request->discount_value,
+            'minimum_quantity' => $request->minimum_quantity,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
             'created_by' => auth()->id(),
@@ -234,11 +237,13 @@ class ProductController extends Controller
             'discount_value' => 'required|numeric|min:0',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'minimum_quantity' => 'nullable|integer|min:1',
         ]);
 
         $discount->update([
             'discount_type' => $request->discount_type,
             'discount_value' => $request->discount_value,
+            'minimum_quantity' => $request->minimum_quantity,
             'start_date' => $request->start_date,
             'end_date' => $request->end_date,
         ]);
