@@ -58,9 +58,11 @@ $opsNavItems = [
         </div>
 
         <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Tanda Tangan Penerima</label>
-            <canvas id="signature-pad" class="w-full h-40 rounded-lg border border-slate-200 bg-slate-50 touch-none"></canvas>
-            <button type="button" id="clear-signature" class="mt-2 text-xs font-semibold text-slate-500 hover:text-slate-700">Hapus & Ulangi</button>
+            <div class="flex items-center justify-between mb-1">
+                <label class="block text-xs font-semibold text-slate-600">Tanda Tangan Penerima</label>
+                <button type="button" id="clear-signature" class="text-xs font-semibold text-brand-600 hover:text-brand-700">Hapus &amp; Ulangi</button>
+            </div>
+            <canvas id="signature-pad" class="w-full h-40 rounded-lg border border-slate-200 bg-slate-50 touch-none mb-6"></canvas>
             <input type="hidden" name="recipient_signature" id="recipient_signature">
         </div>
 
