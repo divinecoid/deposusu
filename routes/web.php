@@ -327,6 +327,28 @@ Route::middleware(['auth'])->group(function () {
         ->name('two-factor.show');
 });
 
+// Preparist Web Portal
+Route::prefix('preparist')->name('preparist.')->middleware(['auth'])->group(function () {
+    Route::get('/', [\App\Http\Controllers\Preparist\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/orders', [\App\Http\Controllers\Preparist\OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [\App\Http\Controllers\Preparist\OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/start', [\App\Http\Controllers\Preparist\OrderController::class, 'start'])->name('orders.start');
+    Route::post('/orders/{order}/cancel', [\App\Http\Controllers\Preparist\OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::post('/orders/{order}/finish', [\App\Http\Controllers\Preparist\OrderController::class, 'finish'])->name('orders.finish');
+});
+
+// Driver Web Portal
+Route::prefix('driver')->name('driver.')->middleware(['auth'])->group(function () {
+    Route::get('/', [\App\Http\Controllers\Driver\DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/check-in', [\App\Http\Controllers\Driver\DashboardController::class, 'checkIn'])->name('check-in');
+    Route::post('/check-out', [\App\Http\Controllers\Driver\DashboardController::class, 'checkOut'])->name('check-out');
+    Route::get('/orders', [\App\Http\Controllers\Driver\OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [\App\Http\Controllers\Driver\OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/pickup', [\App\Http\Controllers\Driver\OrderController::class, 'pickup'])->name('orders.pickup');
+    Route::post('/orders/{order}/finish', [\App\Http\Controllers\Driver\OrderController::class, 'finish'])->name('orders.finish');
+    Route::get('/cash', [\App\Http\Controllers\Driver\CashController::class, 'index'])->name('cash.index');
+});
+
 require base_path('routes/debug_images.php');
 Route::get('/test-layout', function() { return view('admin.reports.index'); });
 Route::get('/test-layout-2', function() { return view('test-layout'); });

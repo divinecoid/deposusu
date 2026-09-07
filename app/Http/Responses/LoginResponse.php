@@ -18,6 +18,14 @@ class LoginResponse implements LoginResponseContract
             return redirect()->intended(route('admin.dashboard'));
         }
 
+        if ($user->isPreparist()) {
+            return redirect()->intended(route('preparist.dashboard'));
+        }
+
+        if ($user->isDriver()) {
+            return redirect()->intended(route('driver.dashboard'));
+        }
+
         return redirect()->intended(route('home'));
     }
 }
