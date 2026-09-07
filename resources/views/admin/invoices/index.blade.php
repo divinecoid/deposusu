@@ -23,15 +23,37 @@
         <!-- Filters -->
         <form method="GET" action="{{ route('admin.invoices.index') }}" class="bg-gray-50 border-b border-gray-200 p-6 flex flex-wrap gap-4 items-end">
             <input type="hidden" name="status" value="{{ $status }}">
-            
+
+            <div class="w-full sm:w-56">
+                <label for="customer" class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Customer</label>
+                <input type="text" id="customer" name="customer" value="{{ $customer }}" placeholder="Cari nama customer..."
+                    class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+            </div>
+
+            <div class="w-full sm:w-44">
+                <label for="date_from" class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Dari Tanggal</label>
+                <input type="date" id="date_from" name="date_from" value="{{ $dateFrom }}"
+                    class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+            </div>
+
+            <div class="w-full sm:w-44">
+                <label for="date_to" class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Sampai Tanggal</label>
+                <input type="date" id="date_to" name="date_to" value="{{ $dateTo }}"
+                    class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+            </div>
+
             <div class="w-full sm:w-64">
                 <label for="delivery_status" class="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">Status Pengiriman</label>
-                <select id="delivery_status" name="delivery_status" onchange="this.form.submit()" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
+                <select id="delivery_status" name="delivery_status" class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition">
                     <option value="all" {{ $deliveryStatus === 'all' ? 'selected' : '' }}>Semua Pengiriman</option>
                     <option value="shipped" {{ $deliveryStatus === 'shipped' ? 'selected' : '' }}>Sudah Terkirim (Delivered/Done)</option>
                     <option value="pending" {{ $deliveryStatus === 'pending' ? 'selected' : '' }}>Belum Terkirim</option>
                 </select>
             </div>
+
+            <button type="submit" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition duration-200 shadow-sm">
+                Terapkan Filter
+            </button>
 
             <a href="{{ route('admin.invoices.index', ['status' => $status]) }}" class="px-4 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-xl text-sm transition duration-200 shadow-sm">
                 Reset Filter

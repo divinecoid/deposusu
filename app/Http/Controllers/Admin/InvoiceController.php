@@ -13,6 +13,9 @@ class InvoiceController extends Controller
     {
         $status = $request->query('status', 'all');
         $deliveryStatus = $request->query('delivery_status', 'all');
+        $customer = trim((string) $request->query('customer', ''));
+        $dateFrom = $request->query('date_from');
+        $dateTo = $request->query('date_to');
 
         $query = TrxInvoice::with(['order']); // Eager load order
 
@@ -32,9 +35,23 @@ class InvoiceController extends Controller
             }
         }
 
-        $invoices = $query->latest()->paginate(20);
+        if ($customer !== '') {
+            $query->whereHas('order', function ($q) use ($customer) {
+                $q->where('customer_name', 'like', "%{$customer}%");
+            });
+        }
 
-        // Calculate counts dynamically preserving delivery_status filter
+        if ($dateFrom) {
+            $query->whereDate('issue_date', '>=', $dateFrom);
+        }
+
+        if ($dateTo) {
+            $query->whereDate('issue_date', '<=', $dateTo);
+        }
+
+        $invoices = $query->latest()->paginate(20)->withQueryString();
+
+        // Calculate counts dynamically preserving delivery_status/customer/date filters
         $countQuery = TrxInvoice::query();
         if ($deliveryStatus !== 'all') {
             if ($deliveryStatus === 'shipped') {
@@ -48,6 +65,20 @@ class InvoiceController extends Controller
             }
         }
 
+        if ($customer !== '') {
+            $countQuery->whereHas('order', function ($q) use ($customer) {
+                $q->where('customer_name', 'like', "%{$customer}%");
+            });
+        }
+
+        if ($dateFrom) {
+            $countQuery->whereDate('issue_date', '>=', $dateFrom);
+        }
+
+        if ($dateTo) {
+            $countQuery->whereDate('issue_date', '<=', $dateTo);
+        }
+
         $counts = [
             'all' => (clone $countQuery)->count(),
             'unpaid' => (clone $countQuery)->where('status', 'UNPAID')->count(),
@@ -55,7 +86,7 @@ class InvoiceController extends Controller
             'cancelled' => (clone $countQuery)->where('status', 'CANCELLED')->count(),
         ];
 
-        return view('admin.invoices.index', compact('invoices', 'status', 'counts', 'deliveryStatus'));
+        return view('admin.invoices.index', compact('invoices', 'status', 'counts', 'deliveryStatus', 'customer', 'dateFrom', 'dateTo'));
     }
 
     public function show(TrxInvoice $invoice)
