@@ -2,8 +2,16 @@
 
 namespace App\Http\Responses;
 
+use Illuminate\Support\Facades\Auth;
 use Laravel\Fortify\Contracts\LoginResponse as LoginResponseContract;
 
+/**
+ * Fortify's default /login is the customer-facing page now — admin,
+ * kasir, driver, and preparist each have their own dedicated login
+ * page/controller (see RoleLoginController) instead of sharing this
+ * one. If a non-customer account authenticates here, undo it and send
+ * them to the login page that's actually theirs.
+ */
 class LoginResponse implements LoginResponseContract
 {
     /**
@@ -14,16 +22,21 @@ class LoginResponse implements LoginResponseContract
     {
         $user = $request->user();
 
-        if ($user->isAdmin()) {
-            return redirect()->intended(route('admin.dashboard'));
-        }
+        if (!$user->isCustomer()) {
+            $routes = [
+                'driver' => 'driver.login',
+                'preparist' => 'preparist.login',
+                'cashier' => 'kasir.login',
+            ];
+            $loginRoute = $routes[$user->role] ?? 'admin.login';
 
-        if ($user->isPreparist()) {
-            return redirect()->intended(route('preparist.dashboard'));
-        }
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
 
-        if ($user->isDriver()) {
-            return redirect()->intended(route('driver.dashboard'));
+            return redirect()->route('login')->withErrors([
+                'email' => 'Halaman ini khusus untuk customer. Silakan masuk lewat ' . route($loginRoute) . '.',
+            ]);
         }
 
         return redirect()->intended(route('home'));

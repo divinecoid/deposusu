@@ -44,5 +44,14 @@
                 </flux:link>
             </div>
         @endif
+
+        <div class="text-center text-xs text-gray-400 space-y-1">
+            <p>{{ __('Staf Deposusu?') }}</p>
+            <p class="flex flex-wrap justify-center gap-x-3 gap-y-1">
+                @foreach(['admin' => 'Admin', 'kasir' => 'Kasir', 'driver' => 'Driver', 'preparist' => 'Preparist'] as $key => $label)
+                    <a href="{{ route($key . '.login') }}" class="text-blue-500 hover:text-blue-600 font-semibold">{{ $label }}</a>
+                @endforeach
+            </p>
+        </div>
     </div>
 </x-layouts.auth>

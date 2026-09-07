@@ -22,6 +22,22 @@ use App\Http\Controllers\Customer\CartController;
 use App\Http\Controllers\Customer\WishlistController;
 use App\Http\Controllers\Customer\TransactionsController;
 
+// Role-specific login pages (admin/kasir/driver/preparist) — separate
+// from the customer login at /login, see RoleLoginController. Not
+// guarded by the 'guest' middleware on purpose: that middleware's
+// default redirect target is the unrelated Fortify placeholder page,
+// so an already-authenticated visit is instead handled inside the
+// controller, sending them to wherever their own role actually goes.
+foreach (['admin', 'kasir', 'driver', 'preparist'] as $role) {
+    Route::get("/{$role}/login", [\App\Http\Controllers\Auth\RoleLoginController::class, 'show'])
+        ->defaults('role', $role)
+        ->name("{$role}.login");
+
+    Route::post("/{$role}/login", [\App\Http\Controllers\Auth\RoleLoginController::class, 'store'])
+        ->defaults('role', $role)
+        ->name("{$role}.login.store");
+}
+
 // Customer Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/products/search', [HomeController::class, 'search'])->name('products.search');
