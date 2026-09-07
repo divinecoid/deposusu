@@ -474,7 +474,7 @@ class DriverController extends Controller
         }
 
         $request->validate([
-            'photo' => 'required|image|max:5120', // Max 5MB
+            'photo' => 'required|image|max:15360', // Max 15MB
             'recipient_name' => 'required|string|max:255',
             'recipient_signature' => 'required|string', // Draw Signature in Base64 format
         ]);

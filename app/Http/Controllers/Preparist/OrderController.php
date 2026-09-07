@@ -103,8 +103,8 @@ class OrderController extends Controller
         }
 
         $request->validate([
-            'photo_isi' => 'nullable|image|max:5120',
-            'photo_final' => 'nullable|image|max:5120',
+            'photo_isi' => 'nullable|image|max:15360',
+            'photo_final' => 'nullable|image|max:15360',
             'items' => 'nullable|array',
         ]);
 

@@ -82,7 +82,7 @@ class OrderController extends Controller
         }
 
         $request->validate([
-            'photo' => 'required|image|max:5120',
+            'photo' => 'required|image|max:15360',
             'recipient_name' => 'required|string|max:255',
             'recipient_signature' => 'required|string',
         ]);
