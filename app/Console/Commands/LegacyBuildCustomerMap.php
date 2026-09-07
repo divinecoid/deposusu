@@ -36,6 +36,7 @@ class LegacyBuildCustomerMap extends Command
         foreach ($legacyCustomers as $legacy) {
             $email = $this->decrypt($legacy->email);
             $phone = $this->decrypt($legacy->phone) ?: $legacy->idcust;
+            $address = $this->decrypt($legacy->alamat);
 
             $user = User::where('phone', $legacy->idcust)->first();
             $matchedBy = $user ? 'idcust_as_phone' : null;
@@ -61,10 +62,21 @@ class LegacyBuildCustomerMap extends Command
 
                 MdxCustomer::create([
                     'user_id' => $user->id,
+                    'phone' => $phone,
+                    'address' => $address,
                     'is_verified' => false,
                 ]);
 
                 $matchedBy = 'created_new';
+            } elseif ($user) {
+                // Matched an existing account — only backfill address/phone
+                // on their profile if it's genuinely missing, never overwrite
+                // something the customer already entered themselves.
+                $profile = MdxCustomer::firstOrCreate(['user_id' => $user->id], ['is_verified' => false]);
+                $profile->update(array_filter([
+                    'address' => $profile->address ? null : $address,
+                    'phone' => $profile->phone ? null : $phone,
+                ], fn ($v) => $v !== null));
             }
 
             $matchedBy = $matchedBy ?: 'unmapped';
@@ -76,6 +88,7 @@ class LegacyBuildCustomerMap extends Command
                     'legacy_name' => $legacy->namacust,
                     'legacy_email_decrypted' => $email,
                     'legacy_phone_decrypted' => $phone,
+                    'legacy_address_decrypted' => $address,
                     'customer_id' => $user?->id,
                     'matched_by' => $matchedBy,
                     'updated_at' => now(),
