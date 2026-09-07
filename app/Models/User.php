@@ -119,4 +119,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(MdxProduct::class, 'wishlists', 'user_id', 'product_id');
     }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(TrxSubscription::class, 'customer_id');
+    }
 }

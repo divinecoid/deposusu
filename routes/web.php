@@ -72,6 +72,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/account', [\App\Http\Controllers\Customer\AccountController::class, 'index'])->name('account.index');
 });
 
+// Customer Subscriptions ("Rutin")
+Route::prefix('subscriptions')->name('subscriptions.')->middleware(['auth'])->group(function () {
+    Route::get('/', [\App\Http\Controllers\Customer\SubscriptionController::class, 'index'])->name('index');
+    Route::post('/{subscription}/toggle', [\App\Http\Controllers\Customer\SubscriptionController::class, 'toggle'])->name('toggle');
+    Route::delete('/{subscription}', [\App\Http\Controllers\Customer\SubscriptionController::class, 'destroy'])->name('destroy');
+});
+
 // Admin Routes
 Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');

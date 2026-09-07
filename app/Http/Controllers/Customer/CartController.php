@@ -9,6 +9,7 @@ use App\Models\TrxOrder;
 use App\Models\TrxOrderItem;
 use App\Models\TrxCart;
 use App\Models\TrxCartItem;
+use App\Models\TrxSubscription;
 use App\Enums\OrderStatusEnum;
 use App\Services\XenditService;
 use Illuminate\Http\Request;
@@ -353,6 +354,24 @@ class CartController extends Controller
 
                 // Update stock
                 $product->decrement('stock', $cartItem->quantity);
+
+                // A "routine" item establishes/updates a standing subscription
+                // for future days, on top of the one-off order line just
+                // created above for today. last_generated_date is stamped to
+                // today so the daily scheduler doesn't duplicate today's order.
+                if ($cartItem->is_routine && !empty($cartItem->routine_schedule)) {
+                    TrxSubscription::updateOrCreate(
+                        ['customer_id' => auth()->id(), 'product_id' => $product->id],
+                        [
+                            'quantity' => $cartItem->quantity,
+                            'days_of_week' => $cartItem->routine_schedule,
+                            'shipping_address' => $request->input('shipping_address'),
+                            'payment_method' => $isCod ? 'COD' : $channelCode,
+                            'is_active' => true,
+                            'last_generated_date' => now()->toDateString(),
+                        ]
+                    );
+                }
             }
 
             // Update order totals

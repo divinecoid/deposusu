@@ -8,6 +8,7 @@ use App\Http\Controllers\Customer\XenditPaymentController;
 use App\Models\TrxCart;
 use App\Models\TrxOrder;
 use App\Models\TrxOrderItem;
+use App\Models\TrxSubscription;
 use App\Services\XenditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -130,6 +131,20 @@ class CheckoutController extends Controller
                 $totalDiscount += $discountAmount;
 
                 $product->decrement('stock', $cartItem->quantity);
+
+                if ($cartItem->is_routine && !empty($cartItem->routine_schedule)) {
+                    TrxSubscription::updateOrCreate(
+                        ['customer_id' => $user->id, 'product_id' => $product->id],
+                        [
+                            'quantity' => $cartItem->quantity,
+                            'days_of_week' => $cartItem->routine_schedule,
+                            'shipping_address' => $request->input('shipping_address'),
+                            'payment_method' => $isCod ? 'COD' : $channelCode,
+                            'is_active' => true,
+                            'last_generated_date' => now()->toDateString(),
+                        ]
+                    );
+                }
             }
 
             $order->update([
