@@ -40,6 +40,33 @@ $opsNavItems = [
     </div>
 </div>
 
+@if($order->packing_photo_isi || $order->packing_photo_final)
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 mb-4">
+        <p class="text-xs font-bold text-slate-500 uppercase mb-3">Bukti Pengemasan</p>
+
+        <div class="grid grid-cols-2 gap-3">
+            @if($order->packing_photo_isi)
+                <div>
+                    <p class="text-[11px] text-slate-400 mb-1">Isi Pesanan</p>
+                    <img src="{{ asset('storage/' . $order->packing_photo_isi) }}" alt="Foto isi pesanan"
+                        class="w-full h-32 object-cover rounded-xl border border-slate-200">
+                </div>
+            @endif
+            @if($order->packing_photo_final)
+                <div>
+                    <p class="text-[11px] text-slate-400 mb-1">Selesai Dikemas</p>
+                    <img src="{{ asset('storage/' . $order->packing_photo_final) }}" alt="Foto pesanan selesai dikemas"
+                        class="w-full h-32 object-cover rounded-xl border border-slate-200">
+                </div>
+            @endif
+        </div>
+
+        @if($order->prepared_at)
+            <p class="text-[11px] text-slate-400 mt-3">Disiapkan {{ $order->prepared_at->format('d M Y H:i') }}</p>
+        @endif
+    </div>
+@endif
+
 @if($order->status->value === 'onprocess')
     <form action="{{ route('preparist.orders.start', $order->id) }}" method="POST">
         @csrf
