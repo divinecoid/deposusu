@@ -80,6 +80,13 @@ Route::prefix('notifications')->name('notifications.')->middleware(['auth'])->gr
     Route::post('/fcm-token', [\App\Http\Controllers\Customer\NotificationController::class, 'registerFcmToken'])->name('fcm-token');
 });
 
+// Customer Chat ("Deposusu Care")
+Route::prefix('chat')->name('chat.')->middleware(['auth'])->group(function () {
+    Route::get('/', [\App\Http\Controllers\Customer\ChatController::class, 'index'])->name('index');
+    Route::get('/poll', [\App\Http\Controllers\Customer\ChatController::class, 'poll'])->name('poll');
+    Route::post('/send', [\App\Http\Controllers\Customer\ChatController::class, 'send'])->name('send');
+});
+
 // Customer Subscriptions ("Rutin")
 Route::prefix('subscriptions')->name('subscriptions.')->middleware(['auth'])->group(function () {
     Route::get('/', [\App\Http\Controllers\Customer\SubscriptionController::class, 'index'])->name('index');

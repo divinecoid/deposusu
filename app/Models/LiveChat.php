@@ -12,6 +12,7 @@ class LiveChat extends Model
     protected $table = 'live_chats';
 
     protected $fillable = [
+        'customer_id',
         'customer_name',
         'customer_email',
         'status',        // unread, active, history
@@ -22,5 +23,10 @@ class LiveChat extends Model
     public function messages()
     {
         return $this->hasMany(ChatMessage::class, 'chat_id');
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(User::class, 'customer_id');
     }
 }

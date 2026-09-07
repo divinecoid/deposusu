@@ -140,18 +140,18 @@
                     <svg class="w-5 h-5 text-gray-400 group-hover:text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
                 </button>
                 
-                <button type="button" onclick="showNotification('Fitur ini akan segera hadir', 'info')" class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group text-left">
+                <a href="{{ route('chat.index') }}" class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors group text-left">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center group-hover:bg-teal-500 group-hover:text-white transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                         </div>
                         <div class="flex flex-col">
                             <span class="font-bold text-gray-800 text-sm md:text-base">Deposusu Care</span>
-                            <span class="text-xs text-gray-500">WhatsApp, CS</span>
+                            <span class="text-xs text-gray-500">Chat dengan tim kami</span>
                         </div>
                     </div>
                     <svg class="w-5 h-5 text-gray-400 group-hover:text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
-                </button>
+                </a>
             </div>
         </div>
 
