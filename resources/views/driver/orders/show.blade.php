@@ -134,6 +134,12 @@ $opsNavItems = [
                 alert('Mohon minta tanda tangan penerima terlebih dahulu.');
                 return;
             }
+
+            if (!confirm('Selesaikan pengantaran pesanan ini? Pastikan foto dan tanda tangan sudah benar.')) {
+                e.preventDefault();
+                return;
+            }
+
             document.getElementById('recipient_signature').value = canvas.toDataURL('image/png');
         });
     })();

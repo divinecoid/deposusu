@@ -73,3 +73,13 @@ $opsNavItems = [
     </div>
 @endif
 @endsection
+
+@push('scripts')
+<script>
+    document.getElementById('finish-form')?.addEventListener('submit', (e) => {
+        if (!confirm('Selesaikan penyiapan pesanan ini? Pastikan semua item sudah dicek.')) {
+            e.preventDefault();
+        }
+    });
+</script>
+@endpush
