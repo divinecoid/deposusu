@@ -51,6 +51,10 @@ Route::prefix('customer')->name('api.customer.')->group(function () {
         Route::get('/orders/{order}', [\App\Http\Controllers\Api\Customer\OrderController::class, 'show']);
         Route::post('/orders/{order}/pay', [\App\Http\Controllers\Api\Customer\OrderController::class, 'pay']);
         Route::get('/payments/{payment}/status', [\App\Http\Controllers\Api\Customer\OrderController::class, 'paymentStatus'])->name('payments.status');
+
+        Route::get('/notifications', [\App\Http\Controllers\Api\Customer\NotificationController::class, 'index']);
+        Route::post('/notifications/{id}/read', [\App\Http\Controllers\Api\Customer\NotificationController::class, 'markRead']);
+        Route::post('/fcm-token', [\App\Http\Controllers\Api\Customer\NotificationController::class, 'registerFcmToken']);
     });
 });
 Route::post('/cashier/login', [CashierApiController::class, 'login']);

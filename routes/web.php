@@ -72,6 +72,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/account', [\App\Http\Controllers\Customer\AccountController::class, 'index'])->name('account.index');
 });
 
+// Customer Notifications
+Route::prefix('notifications')->name('notifications.')->middleware(['auth'])->group(function () {
+    Route::get('/', [\App\Http\Controllers\Customer\NotificationController::class, 'index'])->name('index');
+    Route::post('/{id}/read', [\App\Http\Controllers\Customer\NotificationController::class, 'markRead'])->name('read');
+    Route::post('/read-all', [\App\Http\Controllers\Customer\NotificationController::class, 'markAllRead'])->name('read-all');
+    Route::post('/fcm-token', [\App\Http\Controllers\Customer\NotificationController::class, 'registerFcmToken'])->name('fcm-token');
+});
+
 // Customer Subscriptions ("Rutin")
 Route::prefix('subscriptions')->name('subscriptions.')->middleware(['auth'])->group(function () {
     Route::get('/', [\App\Http\Controllers\Customer\SubscriptionController::class, 'index'])->name('index');

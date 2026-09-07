@@ -35,4 +35,12 @@ return [
         ],
     ],
 
+    // Firebase Cloud Messaging (push notifications). Point credentials_path
+    // at a Firebase service-account JSON file. Push silently no-ops (logged,
+    // not thrown) when unset — in-app/database notifications still work.
+    'fcm' => [
+        'project_id' => env('FCM_PROJECT_ID'),
+        'credentials_path' => env('FCM_CREDENTIALS_PATH'),
+    ],
+
 ];
