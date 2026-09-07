@@ -227,9 +227,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () 
         Route::post('/receive', [\App\Http\Controllers\Admin\StockMovementController::class, 'receiveStore'])->name('receive.store');
         Route::get('/transfer', [\App\Http\Controllers\Admin\StockMovementController::class, 'transferForm'])->name('transfer');
         Route::post('/transfer', [\App\Http\Controllers\Admin\StockMovementController::class, 'transferStore'])->name('transfer.store');
-        Route::get('/expired', function () {
-            return view('admin.warehouse.expired');
-        })->name('expired');
+        Route::get('/expired', [\App\Http\Controllers\Admin\StockMovementController::class, 'expired'])->name('expired');
     });
 
     // Live Chat

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\MdxProduct;
+use App\Models\MdxProductBatch;
 use App\Models\MdxWarehouse;
 use App\Models\MdxWarehouseStock;
 use App\Models\MdxStockMovement;
@@ -24,13 +25,20 @@ class StockMovementController extends Controller
             : $warehouses->first();
 
         $stocks = collect();
+        $batchesByProduct = collect();
         if ($selectedWarehouse) {
             $stocks = MdxWarehouseStock::with('product')
                 ->where('warehouse_id', $selectedWarehouse->id)
                 ->get();
+
+            $batchesByProduct = MdxProductBatch::where('warehouse_id', $selectedWarehouse->id)
+                ->where('quantity', '>', 0)
+                ->orderBy('expiry_date')
+                ->get()
+                ->groupBy('product_id');
         }
 
-        return view('admin.warehouse.stock', compact('warehouses', 'selectedWarehouse', 'stocks'));
+        return view('admin.warehouse.stock', compact('warehouses', 'selectedWarehouse', 'stocks', 'batchesByProduct'));
     }
 
     /**
@@ -77,6 +85,7 @@ class StockMovementController extends Controller
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:mdx_products,id',
             'items.*.quantity' => 'required|integer|min:1',
+            'items.*.expiry_date' => 'required|date',
             'items.*.rack_location' => 'nullable|string',
             'reference' => 'nullable|string',
             'notes' => 'nullable|string',
@@ -104,6 +113,26 @@ class StockMovementController extends Controller
                 $product->stock += $item['quantity'];
                 $product->save();
 
+                // Track this receipt as its own batch, keyed by expiry date —
+                // receiving the same product+expiry again just adds to that
+                // batch instead of creating a duplicate row.
+                $batch = MdxProductBatch::firstOrCreate(
+                    [
+                        'warehouse_id' => $request->warehouse_id,
+                        'product_id' => $item['product_id'],
+                        'expiry_date' => $item['expiry_date'],
+                    ],
+                    ['quantity' => 0, 'initial_quantity' => 0]
+                );
+                $batch->quantity += $item['quantity'];
+                $batch->initial_quantity += $item['quantity'];
+                $batch->received_at = now();
+                if (!empty($item['rack_location'])) {
+                    $batch->rack_location = $item['rack_location'];
+                }
+                $batch->reference = $request->reference;
+                $batch->save();
+
                 MdxStockMovement::create([
                     'product_id' => $item['product_id'],
                     'warehouse_id' => $request->warehouse_id,
@@ -112,7 +141,7 @@ class StockMovementController extends Controller
                     'stock_before' => $stockBefore,
                     'stock_after' => $warehouseStock->quantity,
                     'reference' => $request->reference,
-                    'notes' => $request->notes,
+                    'notes' => trim(($request->notes ?? '') . " [Exp: {$item['expiry_date']}]"),
                     'user_id' => Auth::id(),
                 ]);
             }
@@ -191,5 +220,28 @@ class StockMovementController extends Controller
 
         return redirect()->route('admin.warehouse.movements')
             ->with('success', 'Transfer stok berhasil.');
+    }
+
+    /**
+     * Batch/expiry tracking — every batch with remaining quantity > 0,
+     * grouped by how urgent it is (already expired / within 30 days / safe).
+     */
+    public function expired(Request $request)
+    {
+        $query = MdxProductBatch::with(['product', 'warehouse'])->where('quantity', '>', 0);
+
+        if ($request->warehouse_id) {
+            $query->where('warehouse_id', $request->warehouse_id);
+        }
+
+        $batches = $query->orderBy('expiry_date')->get();
+
+        $expired = $batches->filter(fn ($b) => $b->expiryStatus() === 'expired');
+        $nearExpiry = $batches->filter(fn ($b) => $b->expiryStatus() === 'near_expiry');
+        $safe = $batches->filter(fn ($b) => $b->expiryStatus() === 'safe');
+
+        $warehouses = MdxWarehouse::all();
+
+        return view('admin.warehouse.expired', compact('expired', 'nearExpiry', 'safe', 'warehouses'));
     }
 }

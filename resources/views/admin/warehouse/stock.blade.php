@@ -3,7 +3,7 @@
 @section('header', 'Stok Per Gudang')
 
 @section('content')
-<div class="bg-white rounded-lg shadow p-6">
+<div class="bg-white rounded-lg shadow p-6" x-data="{ openBatch: null }">
     <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
         <h2 class="text-xl font-semibold text-gray-800">Stok Per Gudang</h2>
         <div class="flex gap-2">
@@ -46,6 +46,7 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase w-8"></th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produk</th>
                             <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">SKU</th>
                             <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Stok Gudang</th>
@@ -56,7 +57,13 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         @foreach($stocks as $stock)
-                            <tr>
+                            @php $batches = $batchesByProduct->get($stock->product_id, collect()); @endphp
+                            <tr @click="openBatch = openBatch === {{ $stock->id }} ? null : {{ $stock->id }}" class="cursor-pointer hover:bg-gray-50">
+                                <td class="px-4 py-3 text-gray-400">
+                                    @if($batches->isNotEmpty())
+                                        <svg class="w-4 h-4 transition-transform" :class="openBatch === {{ $stock->id }} ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                                    @endif
+                                </td>
                                 <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ $stock->product->name ?? '-' }}</td>
                                 <td class="px-4 py-3 text-sm text-gray-500">{{ $stock->product->sku ?? '-' }}</td>
                                 <td class="px-4 py-3 text-sm text-center font-bold">{{ $stock->quantity }}</td>
@@ -72,6 +79,27 @@
                                     @endif
                                 </td>
                             </tr>
+                            @if($batches->isNotEmpty())
+                                <tr x-show="openBatch === {{ $stock->id }}" x-cloak style="display: none;">
+                                    <td></td>
+                                    <td colspan="6" class="px-4 py-3 bg-slate-50">
+                                        <p class="text-xs font-bold text-slate-500 uppercase mb-2">Rincian per Tanggal Kedaluwarsa</p>
+                                        <table class="w-full text-xs">
+                                            @foreach($batches as $batch)
+                                                @php
+                                                    $status = $batch->expiryStatus();
+                                                    $cls = ['expired' => 'text-rose-600', 'near_expiry' => 'text-amber-600', 'safe' => 'text-slate-600'][$status];
+                                                @endphp
+                                                <tr class="border-b border-slate-100 last:border-0">
+                                                    <td class="py-1.5 {{ $cls }} font-semibold">{{ $batch->expiry_date->format('d M Y') }}</td>
+                                                    <td class="py-1.5 text-slate-500">{{ $batch->rack_location ?? '-' }}</td>
+                                                    <td class="py-1.5 text-right font-bold text-slate-700">{{ $batch->quantity }} pcs</td>
+                                                </tr>
+                                            @endforeach
+                                        </table>
+                                    </td>
+                                </tr>
+                            @endif
                         @endforeach
                     </tbody>
                 </table>

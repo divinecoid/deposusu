@@ -72,9 +72,13 @@
                     <input type="hidden" name="items[${i}][product_id]" id="product-id-${i}">
                     <div id="product-suggestions-${i}" class="hidden absolute z-20 mt-1 w-full max-h-56 overflow-y-auto bg-white border border-gray-200 rounded-md shadow-lg"></div>
                 </div>
-                <div class="w-28">
+                <div class="w-24">
                     <label class="block text-xs font-medium text-gray-700">Qty</label>
                     <input type="number" name="items[${i}][quantity]" required min="1" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm" placeholder="Qty">
+                </div>
+                <div class="w-40">
+                    <label class="block text-xs font-medium text-gray-700">Tgl. Kedaluwarsa</label>
+                    <input type="date" name="items[${i}][expiry_date]" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm">
                 </div>
                 <div class="w-28">
                     <label class="block text-xs font-medium text-gray-700">Lokasi Rak</label>
