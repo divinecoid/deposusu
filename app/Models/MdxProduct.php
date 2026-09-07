@@ -20,6 +20,7 @@ class MdxProduct extends Model
         'image',
         'stock',
         'low_stock_threshold',
+        'is_legacy_import',
     ];
 
     protected $casts = [
