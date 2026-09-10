@@ -247,7 +247,7 @@ class OrderController extends Controller
                 'notes'            => $request->notes,
                 'total_amount'     => 0,
                 'total_discount'   => 0,
-                'status'           => OrderStatusEnum::PENDING,
+                'status'           => OrderStatusEnum::ON_PROCESS,
                 'payment_status'   => 'UNPAID',
                 'source'           => 'admin',
             ]);
