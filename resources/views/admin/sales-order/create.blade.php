@@ -54,8 +54,8 @@
             <div class="xl:col-span-2 space-y-5">
 
                 {{-- ─── 1. CUSTOMER ─────────────────────────────────────── --}}
-                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                    <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center gap-3">
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm">
+                    <div class="px-6 py-4 bg-slate-50 border-b border-slate-100 rounded-t-2xl flex items-center gap-3">
                         <span class="flex-shrink-0 w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs">1</span>
                         <h2 class="font-bold text-slate-800">Customer</h2>
                     </div>
